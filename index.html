@@ -189,7 +189,7 @@ footer{text-align:center;color:var(--tenue);font-size:12.5px;padding:10px}
 </head>
 <body>
 <header>
-  <div class="tit"><h1>Pubblica</h1><p>GitHub dal browser e app Android da Python · by Lollo ®2026</p></div>
+  <div class="tit"><h1>Pubblica</h1><p>GitHub dal browser e app Android da Python o HTML · by Lollo ®2026</p></div>
   <button id="btn-menu" type="button" hidden>← Menu</button>
 </header>
 <div class="barra-app" role="region" aria-label="Versione e aggiornamenti dell'app">
@@ -209,7 +209,7 @@ footer{text-align:center;color:var(--tenue);font-size:12.5px;padding:10px}
     <div id="avviso-menu"></div>
     <div class="menu">
       <button type="button" class="voce princ" data-vai="pubblica"><span class="ico">🚀</span><span><b>Pubblica su GitHub</b><small>Scegli lo ZIP: il resto è nelle impostazioni</small></span></button>
-      <button type="button" class="voce princ" data-vai="apk"><span class="ico">📱</span><span><b>Crea APK da Python</b><small id="apk-menu-stato">Script .py o progetto ZIP → app Android</small></span></button>
+      <button type="button" class="voce princ" data-vai="apk"><span class="ico">📱</span><span><b>Crea APK (Python o HTML)</b><small id="apk-menu-stato">Script .py, progetto ZIP o app HTML → app Android</small></span></button>
       <a id="voce-apri" class="btn voce" target="_blank" rel="noopener" href="https://github.com/" data-url="https://github.com/" data-testo="Apri repository"><span class="ico">🌐</span><span><b class="etichetta">Apri repository</b><small>Su GitHub. Dopo una pubblicazione si attiva in 60 secondi; se vedi la versione vecchia, ricarica la pagina</small></span></a>
       <a id="voce-sito" class="btn voce" target="_blank" rel="noopener" data-testo="Apri il sito (HTML)"><span class="ico">🗺️</span><span><b class="etichetta">Apri il sito (HTML)</b><small id="voce-sito-nota">La pagina online del progetto: da lì «Installa app»</small></span></a>
       <button type="button" class="voce" data-vai="link"><span class="ico">🔗</span><span><b>Collegamenti</b><small>Apri il sito e scarica lo ZIP</small></span></button>
@@ -318,18 +318,21 @@ footer{text-align:center;color:var(--tenue);font-size:12.5px;padding:10px}
 
 <!-- ===================== CREA APK ===================== -->
 <section id="v-apk" class="vista" hidden>
-  <p class="intro">Crea APK <span id="versione"></span> · trasforma uno script Python normale (print/input) o un
-    progetto ZIP in un'app Android: GitHub compila, tu scarichi l'APK.</p>
+  <p class="intro">Crea APK <span id="versione"></span> · trasforma uno script Python normale (print/input), un progetto ZIP o un'app HTML
+    in un'app Android: GitHub compila, tu scarichi l'APK.</p>
 
   <!-- 1. SCRIPT -->
   <section class="card">
-    <h2><span class="n">1</span>Script o progetto Python</h2>
+    <h2><span class="n">1</span>Script Python o app HTML</h2>
     <div class="corpo">
       <div class="riga">
         <button class="primario" id="btnCarica">Carica file .py</button>
         <button class="primario" id="btnZipIn">Carica progetto ZIP</button>
+        <button class="primario" id="btnHtmlIn">Carica app HTML</button>
         <button id="btnEsempio">Esempio</button>
       </div>
+      <input type="file" id="fileHtml" multiple hidden
+        accept=".html,.htm,.zip,.css,.js,.json,.png,.jpg,.jpeg,.gif,.svg,.webp,.ico,.woff,.woff2,.ttf,.txt,.csv,.mp3,.ogg,.wav,.mp4,.webm">
       <input type="file" id="fileScript" accept=".py,.txt,text/plain,text/x-python" hidden>
       <input type="file" id="fileZip" accept=".zip,application/zip,application/x-zip-compressed" hidden>
       <div id="pannelloProgetto" class="progetto" hidden>
@@ -338,6 +341,15 @@ footer{text-align:center;color:var(--tenue);font-size:12.5px;padding:10px}
           <select id="avvio"></select></label>
         <details><summary id="titoloAlbero">File del progetto</summary><div class="albero" id="albero"></div></details>
       </div>
+      <div id="pannelloHtml" class="progetto" hidden>
+        <div class="riga"><b id="nomeHtml"></b><span class="chip" id="infoHtml"></span></div>
+        <label class="campo">Pagina che si apre all'avvio
+          <select id="avvioHtml"></select></label>
+        <p class="nota" id="notaAvvioHtml" style="margin:0"></p>
+        <details><summary id="titoloAlberoHtml">File dell'app</summary><div class="albero" id="alberoHtml"></div></details>
+        <div class="riga"><button id="btnTornaPy">Torna a Python</button></div>
+      </div>
+      <div id="blocchiPython" style="display:grid;gap:10px">
       <div class="riga"><span class="nota">Stai modificando:</span><span class="chip" id="nomeFile">script_utente.py</span></div>
       <textarea class="codice" id="codice" spellcheck="false" autocapitalize="off" autocomplete="off"
         placeholder="Incolla qui il tuo script Python…"></textarea>
@@ -351,6 +363,7 @@ footer{text-align:center;color:var(--tenue);font-size:12.5px;padding:10px}
           <span class="nota">altri moduli .py, dati JSON/CSV/YAML… finiscono nella cartella principale del progetto</span></div>
         <input type="file" id="fileExtra" multiple hidden>
         <div class="elenco-file" id="elencoExtra" style="margin-top:8px"></div>
+      </div>
       </div>
     </div>
   </section>
@@ -404,8 +417,8 @@ footer{text-align:center;color:var(--tenue);font-size:12.5px;padding:10px}
     <h2><span class="n">4</span>Progetto pronto per la compilazione</h2>
     <div class="corpo">
       <button class="primario grande" id="btnZip">Scarica progetto ZIP</button>
-      <p class="nota" style="margin:0">Contiene tutto il necessario: <code>main.py</code>, il tuo script intatto,
-        <code>buildozer.spec</code> e il workflow GitHub che compila l'APK da solo.</p>
+      <p class="nota" style="margin:0">Contiene tutto il necessario: il tuo codice intatto, la configurazione (Python: <code>main.py</code> e
+        <code>buildozer.spec</code>; HTML: Capacitor) e il workflow GitHub che compila l'APK da solo.</p>
       <div class="schede" id="schede"></div>
       <pre class="anteprima" id="anteprima"></pre>
       <div class="riga"><button id="btnCopia">Copia questo file</button>
@@ -2354,7 +2367,7 @@ if __name__ == "__main__":
 /* ===== Crea APK (integrato in Pubblica) ===== */
 (() => {
 "use strict";
-const VERSIONE = "3.0";
+const VERSIONE = "3.1";
 const $ = id => document.getElementById(id);
 $("versione").textContent = "v" + VERSIONE;
 
@@ -2423,6 +2436,8 @@ for i in range(3):
    Stato
 ------------------------------------------------------------------ */
 const stato = {
+  tipo: "python",         // "python" · "html" (app web avvolta in una WebView con Capacitor)
+  html: null,             // {nome, file:[{percorso, dati}], scartati:[], avvio}
   modo: "singolo",        // "singolo" = un file .py · "progetto" = ZIP con più file
   nomeFile: "script_utente.py",
   progetto: null,         // {nome, file:[{percorso, dati:Uint8Array}], scartati:[], avvio}
@@ -2477,6 +2492,7 @@ function cartellaDi(percorso) { const i = percorso.lastIndexOf("/"); return i < 
    -> [{percorso, dati:Uint8Array}] relativi alla cartella progetto/
 ------------------------------------------------------------------ */
 function fileUtente() {
+  if (stato.tipo === "html") return stato.html.file.map(f => ({percorso: f.percorso, dati: f.dati}));
   let lista;
   if (stato.modo === "progetto") {
     lista = stato.progetto.file.map(f => ({percorso: f.percorso, dati: f.dati}));
@@ -2582,6 +2598,7 @@ function candidatiAvvio(file) {
    Analisi (uno o più file .py)
 ------------------------------------------------------------------ */
 function analizza() {
+  if (stato.tipo === "html") return analizzaHtml();
   const esiti = [], librerie = new Set(), permessi = new Set();
   const add = (livello, html) => esiti.push({livello, html});
   const tutti = fileUtente();
@@ -2709,6 +2726,289 @@ function mostraAnalisi() {
   if (!stato.librerieToccate) $("librerie").value = [...a.librerie].join(",");
   if (!stato.permessiToccati) $("permessi").value = [...a.permessi].join(",");
   $("btnZip").disabled = a.bloccante;
+}
+
+/* ------------------------------------------------------------------
+   App HTML → APK (Capacitor): analisi, caricamento, file generati
+------------------------------------------------------------------ */
+const CAP_VERSIONE = "6.2.1";     // Capacitor 6: Node 18+, Java 17, Android Gradle Plugin 8.2
+const RE_HTML = /\.html?$/i;
+
+function entrataHtml(file) {
+  const html = file.filter(f => RE_HTML.test(f.percorso)).map(f => f.percorso);
+  if (html.includes("index.html")) return "index.html";
+  const prof = p => p.split("/").length;
+  return html.sort((a, b) => prof(a) - prof(b) || a.localeCompare(b))[0] || "";
+}
+
+function analizzaHtml() {
+  const esiti = [], librerie = new Set(), permessi = new Set();
+  const add = (livello, html) => esiti.push({livello, html});
+  const file = stato.html.file, avvio = stato.html.avvio;
+  if (!avvio) { add("errore", "Nei file caricati non c'è nessuna pagina .html."); return {esiti, librerie, permessi, bloccante: true, sorgenti: []}; }
+  const testo = file.filter(f => /\.(html?|js|mjs|css)$/i.test(f.percorso)).map(f => DEC.decode(f.dati)).join("\n");
+  const htmlTesto = file.filter(f => RE_HTML.test(f.percorso)).map(f => DEC.decode(f.dati)).join("\n");
+  add("ok", `App HTML di ${file.length} file: all'avvio si apre <code>${esc(avvio)}</code>. Tutto finisce dentro l'APK e funziona anche senza rete.`);
+
+  const esterni = new Set();
+  for (const m of htmlTesto.matchAll(/(?:src|href)\s*=\s*["']https?:\/\/([^\/"']+)/gi)) esterni.add(m[1]);
+  if (esterni.size) add("avviso", `La pagina carica risorse da internet <span class="nota">(${[...esterni].slice(0, 4).map(esc).join(", ")})</span>: senza rete quelle parti non funzionano. Per l'uso offline scaricale e mettile nel progetto.`);
+
+  if (/navigator\s*\.\s*geolocation|watchPosition|getCurrentPosition/.test(testo)) {
+    permessi.add("ACCESS_FINE_LOCATION"); permessi.add("ACCESS_COARSE_LOCATION");
+    add("info", "Usa la posizione GPS: aggiunti i permessi di localizzazione. Al primo uso Android chiederà il consenso.");
+  }
+  if (/getUserMedia/.test(testo)) {
+    const video = /video\s*:/.test(testo), audio = /audio\s*:/.test(testo);
+    if (video || !audio) permessi.add("CAMERA");
+    if (audio || !video) permessi.add("RECORD_AUDIO");
+    add("info", "Usa fotocamera o microfono: aggiunti i relativi permessi.");
+  }
+  if (/\bdownload\s*=|createObjectURL|saveAs\s*\(/.test(testo))
+    add("avviso", "L'app sembra salvare file (download, esportazioni). Nella WebView Android il download di file generati dalla pagina può non funzionare come in Chrome: provalo, e se serve si aggiunge un plugin di salvataggio.");
+  if (/serviceWorker\s*\.\s*register/.test(testo))
+    add("info", "Registra un service worker: nell'APK non serve (i file sono già dentro), ma non dà fastidio.");
+  if (/\bfile:\/\//i.test(testo))
+    add("avviso", "Ci sono indirizzi <code>file://</code>: nell'APK la pagina vive su <code>https://localhost</code>, quegli indirizzi non funzioneranno. Usa percorsi relativi.");
+  if (/(^|\/)package\.json$/m.test(file.map(f => f.percorso).join("\n")))
+    add("info", "Il progetto ha un suo <code>package.json</code>: resta in <code>www/</code> ma non viene usato.");
+  const nascosti = file.filter(f => f.percorso.split("/").some(c => c.startsWith("."))).map(f => f.percorso);
+  if (nascosti.length) add("info", `File con nome che inizia per punto: vengono inclusi ma alcuni sistemi li ignorano <span class="nota">(${nascosti.slice(0, 3).map(esc).join(", ")})</span>.`);
+  const enormi = file.filter(f => f.dati.length > 50 * 1048576).map(f => f.percorso);
+  if (enormi.length) add("errore", `File oltre 50 MB: GitHub rifiuta i file sopra i 100 MB e l'APK diventa enorme <span class="nota">(${enormi.map(esc).join(", ")})</span>.`);
+  const ordine = {errore: 0, avviso: 1, info: 2, ok: 3};
+  esiti.sort((a, b) => ordine[a.livello] - ordine[b.livello]);
+  return {esiti, librerie, permessi, bloccante: esiti.some(e => e.livello === "errore"), sorgenti: []};
+}
+
+// Gira sul computer di GitHub (Node) dopo «npx cap add android»: rifinisce il progetto Android generato.
+// È scritta come funzione normale per poterla provare; nel repository finisce come file cap-prepara.js.
+function capPrepara() {
+  const fs = require("fs");
+  const app = JSON.parse(fs.readFileSync("app.json", "utf8"));
+  const run = parseInt(process.env.RUN_NUMBER || "1", 10) || 1;
+  // nome, numero e permessi
+  const gradle = "android/app/build.gradle";
+  fs.writeFileSync(gradle, fs.readFileSync(gradle, "utf8")
+    .replace(/versionCode \d+/, "versionCode " + run)
+    .replace(/versionName "[^"]*"/, 'versionName "' + String(app.versione).replace(/[^0-9.]/g, "") + '"'));
+  const man = "android/app/src/main/AndroidManifest.xml";
+  let m = fs.readFileSync(man, "utf8");
+  for (const p of app.permessi || []) {
+    if (!/^[A-Z0-9_]+$/.test(p)) continue;
+    const nome = "android.permission." + p;
+    if (!m.includes('"' + nome + '"')) m = m.replace("</manifest>", '    <uses-permission android:name="' + nome + '" />\n</manifest>');
+  }
+  if (app.orientamento === "portrait" || app.orientamento === "landscape")
+    m = m.replace('android:name=".MainActivity"', 'android:name=".MainActivity"\n            android:screenOrientation="' + app.orientamento + '"');
+  fs.writeFileSync(man, m);
+  // icona: sostituisce quella standard di Capacitor
+  if (fs.existsSync("icon.png")) {
+    const res = "android/app/src/main/res";
+    fs.rmSync(res + "/mipmap-anydpi-v26", {recursive: true, force: true});
+    for (const d of ["mdpi", "hdpi", "xhdpi", "xxhdpi", "xxxhdpi"])
+      for (const n of ["ic_launcher", "ic_launcher_round", "ic_launcher_foreground"])
+        fs.copyFileSync("icon.png", res + "/mipmap-" + d + "/" + n + ".png");
+    console.log("Icona personalizzata applicata");
+  }
+  console.log("Progetto Android preparato: versione " + app.versione + " (build " + run + ")");
+}
+
+function genCapPrepara() {
+  return "// Rifinisce il progetto Android generato da Capacitor (nome, versione, permessi, orientamento, icona).\n"
+    + "// Generato da Crea APK · by Lollo ®2026\n(" + capPrepara.toString() + ")();\n";
+}
+
+function genPackageJson(s) {
+  return JSON.stringify({name: s.pacchetto, version: "1.0.0", private: true, description: s.titolo,
+    dependencies: {"@capacitor/android": CAP_VERSIONE, "@capacitor/cli": CAP_VERSIONE, "@capacitor/core": CAP_VERSIONE}}, null, 2) + "\n";
+}
+function genCapConfig(s) {
+  return JSON.stringify({appId: s.dominio + "." + s.pacchetto, appName: s.titolo, webDir: "www"}, null, 2) + "\n";
+}
+function genAppJson(s) {
+  const orient = s.orientamento === "portrait" || s.orientamento === "landscape" ? s.orientamento : "";
+  return JSON.stringify({titolo: s.titolo, versione: s.versione, orientamento: orient, permessi: s.permessi}, null, 2) + "\n";
+}
+
+const PASSO_FIRMA = `      - name: Chiave di firma stabile
+        # Senza una chiave fissa ogni APK avrebbe una firma diversa e Android
+        # rifiuterebbe di installarlo sopra la versione precedente.
+        run: |
+          mkdir -p ~/.android
+          if [ -f firma/debug.keystore ]; then
+            cp firma/debug.keystore ~/.android/debug.keystore
+            echo "Chiave di firma esistente riutilizzata"
+          else
+            keytool -genkeypair -keystore ~/.android/debug.keystore -storepass android \\
+              -alias androiddebugkey -keypass android -keyalg RSA -keysize 2048 \\
+              -validity 10000 -dname "CN=Android Debug,O=Android,C=US"
+            mkdir -p firma
+            cp ~/.android/debug.keystore firma/debug.keystore
+            git config user.name "github-actions[bot]"
+            git config user.email "41898283+github-actions[bot]@users.noreply.github.com"
+            git add firma/debug.keystore
+            git commit -m "Chiave di firma per gli aggiornamenti [skip ci]"
+            git push || echo "ATTENZIONE: chiave non salvata nel repository, il prossimo APK avrà una firma diversa"
+          fi
+
+`;
+
+function genWorkflowHtml(s) {
+  return `# Compila l'APK ad ogni push (o a mano: Actions -> Build APK -> Run workflow)
+# e lo pubblica nelle Releases del repository.  Generato da Crea APK · by Lollo ®2026
+name: Build APK
+
+on:
+  push:
+    paths-ignore:
+      - "firma/**"
+      - "README.md"
+      - "LEGGIMI.md"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+# Una nuova pubblicazione annulla la compilazione precedente ancora in corso
+concurrency:
+  group: build-apk-\${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - name: Scarica il codice
+        uses: actions/checkout@v4
+
+      - name: Node 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Cache Gradle
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: gradle-\${{ runner.os }}-\${{ hashFiles('package.json') }}
+          restore-keys: gradle-\${{ runner.os }}-
+
+      - name: Installa Capacitor
+        run: npm install --no-audit --no-fund
+
+${PASSO_FIRMA}      - name: Crea il progetto Android
+        run: npx cap add android
+
+      - name: Prepara nome, versione, permessi e icona
+        env:
+          RUN_NUMBER: \${{ github.run_number }}
+        run: node cap-prepara.js
+
+      - name: Copia le pagine nell'app
+        run: npx cap sync android
+
+      - name: Compila APK
+        run: |
+          cd android
+          chmod +x gradlew
+          ./gradlew assembleDebug --no-daemon --stacktrace
+
+      - name: Raccogli APK
+        run: |
+          mkdir -p bin
+          cp android/app/build/outputs/apk/debug/app-debug.apk bin/${s.pacchetto}-debug.apk
+
+      - name: Salva APK tra gli artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: apk
+          path: bin/*.apk
+          if-no-files-found: error
+
+      - name: Pubblica APK nelle Releases
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: apk-\${{ github.run_number }}
+          name: APK build \${{ github.run_number }}
+          body: Compilato automaticamente dal commit \${{ github.sha }}
+          files: bin/*.apk
+`;
+}
+
+function genLeggimiHtml(s) {
+  return `# ${s.titolo}
+
+App Android generata con **Crea APK** (by Lollo ®2026) dall'app HTML \`${stato.html.nome}\` (${stato.html.file.length} file), pagina di avvio \`${stato.html.avvio}\`.
+
+## Struttura
+- \`www/\` — la tua app HTML, intatta: viene messa dentro l'APK
+- \`package.json\`, \`capacitor.config.json\` — configurazione di Capacitor (la WebView che mostra le pagine)
+- \`app.json\` — versione, permessi e orientamento
+- \`cap-prepara.js\` — applica nome, versione, permessi e icona al progetto Android
+- \`.github/workflows/build-apk.yml\` — compila l'APK su GitHub a ogni push
+- \`firma/\` — creata al primo giro: chiave che permette gli aggiornamenti. Non cancellarla.
+
+## Come ottenere l'APK
+1. Carica tutti questi file in un repository GitHub (anche la cartella \`.github\`).
+2. Scheda **Actions** → attendi il pallino verde (prima volta 5–10 min).
+3. Sezione **Releases** → "APK build N" → scarica il file \`.apk\` e installalo.
+
+## Note
+- L'app gira su \`https://localhost\` dentro l'APK: usa percorsi relativi, non \`file://\`.
+- \`localStorage\` e IndexedDB funzionano e restano tra un aggiornamento e l'altro (stessa chiave di firma).
+
+Pacchetto: \`${s.dominio}.${s.pacchetto}\` · versione ${s.versione}
+`;
+}
+
+function generaFileHtml(s) {
+  const file = [
+    {percorso: "package.json", testo: genPackageJson(s)},
+    {percorso: "capacitor.config.json", testo: genCapConfig(s)},
+    {percorso: "app.json", testo: genAppJson(s)},
+    {percorso: "cap-prepara.js", testo: genCapPrepara()},
+    {percorso: ".github/workflows/build-apk.yml", testo: genWorkflowHtml(s)},
+    {percorso: "LEGGIMI.md", testo: genLeggimiHtml(s)}
+  ];
+  const utente = fileUtente();
+  for (const f of utente) file.push({percorso: "www/" + f.percorso, dati: f.dati});
+  if (!utente.some(f => f.percorso === "index.html")) {           // Capacitor apre sempre www/index.html
+    const url = encodeURI(stato.html.avvio);
+    file.push({percorso: "www/index.html", testo: `<!doctype html>\n<meta charset="utf-8">\n<meta http-equiv="refresh" content="0;url=${url}">\n<a href="${url}">Apri l'app</a>\n`});
+  }
+  if (stato.icona) file.push({percorso: "icon.png", dati: stato.icona});
+  return file;
+}
+
+async function caricaHtml(lista) {
+  let voci;
+  try {
+    const zip = lista.find(f => /\.zip$/i.test(f.name));
+    if (zip) voci = await leggiZip(await zip.arrayBuffer());
+    else voci = await Promise.all(lista.map(async f => ({percorso: f.name, dati: new Uint8Array(await f.arrayBuffer())})));
+  } catch (e) { toast("File non letto: " + e.message); return; }
+  const {tenuti, scartati} = pulisciVoci(voci);
+  const nome = (lista.find(f => RE_HTML.test(f.name)) || lista[0]).name;
+  const avvio = entrataHtml(tenuti);
+  if (!avvio) { toast("Non c'è nessun file .html"); return; }
+  salvaEditor();
+  stato.tipo = "html";
+  stato.html = {nome: lista.length > 1 && !lista.some(f => /\.zip$/i.test(f.name)) ? nome : lista[0].name, file: tenuti, scartati, avvio};
+  $("titolo").value = titoloDaFile(stato.html.nome);
+  if (!stato.pacchettoToccato) $("pacchetto").value = nomePacchetto($("titolo").value);
+  stato.permessiToccati = false;
+  disegnaProgetto(); aggiornaTutto();
+  toast(`App HTML caricata: ${tenuti.length} file, si apre ${avvio}`);
 }
 
 /* ------------------------------------------------------------------
@@ -2844,28 +3144,7 @@ jobs:
           key: buildozer-\${{ runner.os }}-\${{ steps.chiave.outputs.k }}
           restore-keys: buildozer-\${{ runner.os }}-
 
-      - name: Chiave di firma stabile
-        # Senza una chiave fissa ogni APK avrebbe una firma diversa e Android
-        # rifiuterebbe di installarlo sopra la versione precedente.
-        run: |
-          mkdir -p ~/.android
-          if [ -f firma/debug.keystore ]; then
-            cp firma/debug.keystore ~/.android/debug.keystore
-            echo "Chiave di firma esistente riutilizzata"
-          else
-            keytool -genkeypair -keystore ~/.android/debug.keystore -storepass android \\
-              -alias androiddebugkey -keypass android -keyalg RSA -keysize 2048 \\
-              -validity 10000 -dname "CN=Android Debug,O=Android,C=US"
-            mkdir -p firma
-            cp ~/.android/debug.keystore firma/debug.keystore
-            git config user.name "github-actions[bot]"
-            git config user.email "41898283+github-actions[bot]@users.noreply.github.com"
-            git add firma/debug.keystore
-            git commit -m "Chiave di firma per gli aggiornamenti [skip ci]"
-            git push || echo "ATTENZIONE: chiave non salvata nel repository, il prossimo APK avrà una firma diversa"
-          fi
-
-      - name: Compila APK
+${PASSO_FIRMA}      - name: Compila APK
         run: buildozer android debug
 
       - name: Salva APK tra gli artifact
@@ -2920,6 +3199,11 @@ Pacchetto: \`${s.dominio}.${s.pacchetto}\` · versione ${s.versione}
 
 function generaFile() {
   const s = impostazioni();
+  if (stato.tipo === "html") {
+    stato.file = generaFileHtml(s);
+    document.querySelectorAll(".pk").forEach(el => el.textContent = s.pacchetto);
+    return s;
+  }
   const file = [
     {percorso: "main.py", testo: genMain(s)},
     {percorso: "buildozer.spec", testo: genSpec(s)},
@@ -3003,12 +3287,35 @@ function scarica(blob, nome) {
    Modo progetto: pannello, albero dei file, scelta del file di avvio
 ------------------------------------------------------------------ */
 function salvaEditor() {            // il testo dell'editor torna nel file di avvio del progetto
-  if (stato.modo !== "progetto") return;
+  if (stato.tipo === "html" || stato.modo !== "progetto") return;
   const f = stato.progetto.file.find(x => x.percorso === stato.progetto.avvio);
   if (f) f.dati = ENC.encode($("codice").value);
 }
 
+function disegnaHtml() {
+  const h = stato.tipo === "html";
+  $("pannelloHtml").hidden = !h;
+  $("blocchiPython").style.display = h ? "none" : "grid";
+  for (const id of ["arch", "librerie", "autoAvvio"]) $(id).closest("label").style.display = h ? "none" : "";
+  if (!stato.icona) $("nomeIcona").textContent = h ? "nessuna: verrà usata l'icona standard" : "nessuna: verrà usata l'icona Kivy";
+  if (!h) return;
+  const pr = stato.html, peso = pr.file.reduce((a, f) => a + f.dati.length, 0);
+  $("nomeHtml").textContent = pr.nome;
+  $("infoHtml").textContent = `${pr.file.length} file · ${kb(peso)}`;
+  const pagine = pr.file.filter(f => RE_HTML.test(f.percorso)).map(f => f.percorso).sort();
+  const haIndex = pagine.includes("index.html");
+  $("avvioHtml").innerHTML = pagine.map(p => `<option ${p === pr.avvio ? "selected" : ""}>${esc(p)}</option>`).join("");
+  $("avvioHtml").disabled = haIndex;
+  $("notaAvvioHtml").textContent = haIndex ? "C'è un index.html: è lui la pagina di avvio." : "Non c'è un index.html: scegli quale pagina aprire all'avvio.";
+  $("titoloAlberoHtml").textContent = `File dell'app (${pr.file.length}${pr.scartati.length ? `, ${pr.scartati.length} esclusi` : ""})`;
+  $("alberoHtml").innerHTML = pr.file.map(f =>
+      `<div class="${f.percorso === pr.avvio ? "avvio" : ""}">${f.percorso === pr.avvio ? "▶ " : "  "}${esc(f.percorso)} · ${kb(f.dati.length)}</div>`).join("")
+    + pr.scartati.map(p => `<div class="esc" title="escluso">  ${esc(p)}</div>`).join("");
+}
+
 function disegnaProgetto() {
+  disegnaHtml();
+  if (stato.tipo === "html") return;
   const pr = stato.progetto, attivo = stato.modo === "progetto";
   $("pannelloProgetto").hidden = !attivo;
   $("btnCarica").textContent = attivo ? "Torna a file .py singolo" : "Carica file .py";
@@ -3033,6 +3340,7 @@ async function caricaProgetto(file) {
   const candidati = candidatiAvvio(tenuti);
   if (!candidati.length) { toast("Nello ZIP non c'è nessun file .py"); return; }
   salvaEditor();
+  stato.tipo = "python"; stato.html = null;
   stato.modo = "progetto";
   stato.progetto = {nome: file.name, file: tenuti, scartati, avvio: candidati[0]};
   const avvioFile = tenuti.find(f => f.percorso === candidati[0]);
@@ -3064,6 +3372,7 @@ function aggiornaTutto() {
 }
 
 function impostaScript(testo, nome) {
+  stato.tipo = "python"; stato.html = null;
   stato.modo = "singolo"; stato.progetto = null;
   $("codice").value = testo;
   stato.nomeFile = /\.py$/i.test(nome) ? nome.replace(/[\\/:*?"<>|]/g, "_") : "script_utente.py";
@@ -3093,6 +3402,14 @@ $("avvio").onchange = () => {
   stato.progetto.avvio = $("avvio").value;
   $("codice").value = DEC.decode(stato.progetto.file.find(f => f.percorso === stato.progetto.avvio).dati);
   disegnaProgetto(); aggiornaTutto();
+};
+$("btnHtmlIn").onclick = () => $("fileHtml").click();
+$("fileHtml").onchange = e => { const l = [...e.target.files]; e.target.value = ""; if (l.length) caricaHtml(l); };
+$("avvioHtml").onchange = () => { stato.html.avvio = $("avvioHtml").value; disegnaProgetto(); aggiornaTutto(); };
+$("btnTornaPy").onclick = () => {
+  stato.tipo = "python"; stato.html = null;
+  if (stato.modo !== "progetto" && !$("codice").value.trim()) { impostaScript(ESEMPIO, "script_esempio.py"); return; }
+  disegnaProgetto(); aggiornaTutto(); toast("Di nuovo in modo Python");
 };
 $("btnEsempio").onclick = () => impostaScript(ESEMPIO, "script_esempio.py");
 
@@ -3395,11 +3712,13 @@ async function leggiRepo(repo, info) {
 }
 
 async function versioneRemota(ctx) {
-  const v = ctx.mappa.get("buildozer.spec"); if (!v) return null;
+  const v = ctx.mappa.get("buildozer.spec") || ctx.mappa.get("app.json"); if (!v) return null;
   try {
     const { dati } = await gh(`/repos/${ctx.repo}/git/blobs/${v.sha}`);
-    const m = DEC.decode(daBase64(dati.content)).match(/^version\s*=\s*([0-9.]+)\s*$/m);
-    return m ? m[1] : null;
+    const testo = DEC.decode(daBase64(dati.content));
+    if (ctx.mappa.has("buildozer.spec")) { const m = testo.match(/^version\s*=\s*([0-9.]+)\s*$/m); return m ? m[1] : null; }
+    const m = String(JSON.parse(testo).versione || "").match(/^[0-9.]+$/);
+    return m ? m[0] : null;
   } catch (e) { return null; }
 }
 
@@ -3409,7 +3728,11 @@ async function differenze(ctx) {
   const cambiati = nuovi.filter(f => { const e = ctx.mappa.get(f.path); return !e || !f.sha || e.sha !== f.sha; });
   const percorsi = new Set(nuovi.map(f => f.path));
   // si tolgono solo i file del tuo codice che non ci sono più; firma/, README e il resto restano
-  const tolti = [...ctx.mappa.keys()].filter(p => p.startsWith("progetto/") && !percorsi.has(p));
+  // (se il repository era già di Crea APK, spariscono anche i file dell'altro tipo di app: Python ↔ HTML)
+  const eraNostro = ctx.mappa.has(WF_PERCORSO) && (ctx.mappa.has("buildozer.spec") || ctx.mappa.has("app.json"));
+  const GENERATI = ["main.py", "buildozer.spec", "package.json", "capacitor.config.json", "app.json", "cap-prepara.js", "icon.png"];
+  const tolti = [...ctx.mappa.keys()].filter(p => !percorsi.has(p)
+    && (p.startsWith("progetto/") || p.startsWith("www/") || (eraNostro && GENERATI.includes(p))));
   return { cambiati, tolti };
 }
 
@@ -3481,7 +3804,7 @@ async function pubblicaECompila(soloRicompila) {
 
       // un repository con altro dentro non va sovrascritto senza chiedere
       const LIBERI = new Set(["README.md", "README", "LICENSE", "LICENSE.md", ".gitignore", ".gitattributes", "LEGGIMI.md"]);
-      const nostro = ctx.mappa.has(WF_PERCORSO) && ctx.mappa.has("buildozer.spec");
+      const nostro = ctx.mappa.has(WF_PERCORSO) && (ctx.mappa.has("buildozer.spec") || ctx.mappa.has("app.json"));
       const estranei = [...ctx.mappa.keys()].filter(p => !LIBERI.has(p) && !p.startsWith("firma/"));
       if (!nostro && estranei.length && tentativo === 1) {
         const sost = stato.file.map(f => f.percorso).filter(p => ctx.mappa.has(p));
@@ -3684,7 +4007,7 @@ async function concludi(repo, run, job, gen) {
     document.title = "✓ APK pronto · Crea APK";
     chip("APK pronto", "on");
     const vista = document.getElementById("v-apk");
-    if (vista && vista.hidden) toast("✓ APK pronto: apri «Crea APK da Python» per scaricarlo");
+    if (vista && vista.hidden) toast("✓ APK pronto: apri «Crea APK» per scaricarlo");
     try { navigator.vibrate && navigator.vibrate([120, 80, 120]); } catch (e) { /* niente */ }
     let rel = null;
     for (let i = 0; i < 5 && !rel; i++) {
@@ -3747,12 +4070,13 @@ async function scaricaApk(repo, asset, btn) {
 const SUGGERIMENTI = [
   [/No matching distribution found for ([\w.-]+)|Could not find a version that satisfies the requirement ([\w.-]+)/i,
     m => `La libreria «${m[1] || m[2]}» non è installabile per Android: toglila dal campo «Librerie extra» (punto 3) o correggi il nome.`],
+  [/npm ERR!|npm error/i, () => "Errore nell'installazione di Capacitor (npm): di solito è la rete di GitHub, premi «Ricompila senza modifiche»."],
   [/No space left on device/i, () => "Spazio esaurito sulla macchina di GitHub: riprova; se si ripete, togli dal progetto file grandi non necessari."],
   [/Aidl not found|accept.*licen[cs]e/i, () => "Problema con gli strumenti Android (SDK): premi «Ricompila senza modifiche», spesso al secondo giro passa."],
   [/(error: |Error compiling Cython|cython)/i, () => "Errore nella compilazione di una libreria con parti in C: prova a togliere le librerie extra una alla volta per capire quale."],
   [/Unable to (download|fetch)|Connection (timed out|reset)|HTTP Error 5\d\d|Temporary failure in name resolution/i,
     () => "Errore di rete durante lo scaricamento degli strumenti: premi «Ricompila senza modifiche»."],
-  [/BUILD FAILED|gradlew/i, () => "Errore nella fase finale (Gradle): spesso dipende dal nome pacchetto o dall'icona. Controlla che l'icona sia un PNG valido e che il nome pacchetto contenga solo lettere minuscole e cifre."]
+  [/BUILD FAILED|gradlew/i, () => "Errore nella fase finale (Gradle): spesso dipende dal nome pacchetto o dall'icona. Controlla che l'icona sia un PNG valido e che il nome pacchetto contenga solo lettere minuscole e cifre; per le app HTML, che non ci siano file enormi in www/."]
 ];
 
 async function mostraErrore(repo, run, job) {

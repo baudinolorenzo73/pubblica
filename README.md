@@ -12,9 +12,10 @@ Pubblica i tuoi progetti su GitHub dal telefono, senza Termux. App installabile 
 | `manifest.webmanifest` | Nome, colori e icone per l'installazione |
 | `icone/` | Icone dell'app |
 
-## Novità della 3.0
+## Novità della 3.1 (e della 3.0)
 
-- **📱 Crea APK da Python**: trasforma uno script Python normale (print/input) o un progetto ZIP in un'app Android.
+- **📱 Crea APK (Python o HTML)**: trasforma uno script Python normale (print/input), un progetto ZIP o un'**app HTML**
+  (file .html o ZIP con le pagine) in un'app Android. Le app HTML sono avvolte da Capacitor (WebView) e funzionano offline.
   Crea il repository, invia i file, GitHub compila e compare il pulsante «Scarica APK».
 - **🗺️ Apri il sito (HTML)** nel menu principale: apre la pagina online del progetto attivo (da lì Chrome → ⋮ → «Installa app»).
   Se GitHub Pages non è attivo, lo attiva.
