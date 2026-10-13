@@ -12,6 +12,11 @@ Pubblica i tuoi progetti su GitHub dal telefono, senza Termux. App installabile 
 | `manifest.webmanifest` | Nome, colori e icone per l'installazione |
 | `icone/` | Icone dell'app |
 
+## Novità della 3.4
+
+- **Nome dell'APK come il repository**: `nomerepository-versione.apk` (con più processori, anche il tipo: `…-arm64-v8a.apk`).
+  Vale per le app Python e HTML; si aggiorna alla prossima compilazione.
+
 ## Novità della 3.3
 
 - **🔑 «Chiedi il token a GitHub»** nelle Impostazioni: scegli cosa ti serve, il pulsante apre GitHub con nome e permessi già compilati,

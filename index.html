@@ -3198,10 +3198,13 @@ ${PASSO_FIRMA}      - name: Crea il progetto Android
           chmod +x gradlew
           ./gradlew assembleDebug --no-daemon --stacktrace
 
-      - name: Raccogli APK
+      - name: Raccogli APK (nome come il repository)
         run: |
           mkdir -p bin
-          cp android/app/build/outputs/apk/debug/app-debug.apk bin/${s.pacchetto}-debug.apk
+          REPO="\${GITHUB_REPOSITORY#*/}"
+          VER=$(node -p "require('./app.json').versione")
+          cp android/app/build/outputs/apk/debug/app-debug.apk "bin/\${REPO}-\${VER}.apk"
+          ls -l bin
 
       - name: Salva APK tra gli artifact
         uses: actions/upload-artifact@v4
@@ -3423,6 +3426,18 @@ jobs:
 
 ${PASSO_FIRMA}      - name: Compila APK
         run: buildozer android debug
+
+      - name: Nome del file APK (come il repository)
+        run: |
+          REPO="\${GITHUB_REPOSITORY#*/}"
+          VER=$(grep -E '^version *=' buildozer.spec | head -1 | sed -E 's/^version *= *//' | tr -d '[:space:]')
+          N=$(ls bin/*.apk | wc -l)
+          for f in bin/*.apk; do
+            ARCH=$(echo "$f" | grep -oE '(arm64-v8a|armeabi-v7a|x86_64|x86)' | head -1)
+            if [ "$N" -gt 1 ] && [ -n "$ARCH" ]; then NEW="bin/\${REPO}-\${VER}-\${ARCH}.apk"; else NEW="bin/\${REPO}-\${VER}.apk"; fi
+            mv "$f" "$NEW"
+          done
+          ls -l bin
 
       - name: Salva APK tra gli artifact
         uses: actions/upload-artifact@v4
