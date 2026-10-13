@@ -12,6 +12,11 @@ Pubblica i tuoi progetti su GitHub dal telefono, senza Termux. App installabile 
 | `manifest.webmanifest` | Nome, colori e icone per l'installazione |
 | `icone/` | Icone dell'app |
 
+## Novità della 3.3
+
+- **🔑 «Chiedi il token a GitHub»** nelle Impostazioni: scegli cosa ti serve, il pulsante apre GitHub con nome e permessi già compilati,
+  con la guida passo per passo, l'opzione fine-grained e «Controlla il mio token» che dice cosa manca.
+
 ## Novità della 3.2
 
 - **Librerie Python cercate in automatico**: se lo script importa una libreria che Crea APK non conosce, la cerca su PyPI,

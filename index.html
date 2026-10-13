@@ -185,7 +185,7 @@ footer{text-align:center;color:var(--tenue);font-size:12.5px;padding:10px}
 .voce .stato-apk{font-weight:600}
 .voce>span{min-width:0}
 #voce-sito-nota{overflow-wrap:anywhere}
-</style>
+.riquadro-token{border:1.5px solid var(--prim);border-radius:14px;padding:12px 14px;margin:10px 0 14px;background:color-mix(in srgb,var(--prim) 6%,transparent)}.riquadro-token h3{margin:0 0 6px;font-size:16px}.riquadro-token ol{display:grid;gap:8px;padding-left:20px}.riquadro-token .btn{flex:1 1 200px}</style>
 </head>
 <body>
 <header>
@@ -604,6 +604,41 @@ pip install --upgrade buildozer "cython==0.29.33" setuptools</pre></li>
     <h2>1 · Accesso a GitHub</h2>
     <p class="nota">Il token resta nel browser di questo dispositivo. La pagina parla solo con <code>api.github.com</code> (lo impone anche il browser).</p>
     <p class="nota">⚠ Se apri questa pagina da <code>…github.io</code>, tutte le tue app su quel dominio condividono la memoria del browser. Più sicuro: aprila come file salvato sul telefono, oppure non far ricordare il token.</p>
+    <div id="guida-token" class="riquadro-token">
+      <h3>🔑 Non hai ancora il token? Chiedilo a GitHub</h3>
+      <p class="nota">Il token è una «password per le app»: serve a Pubblica per scrivere sui tuoi repository al posto tuo. Scegli cosa vuoi fare e premi il pulsante: GitHub si apre già compilato.</p>
+      <label class="chk"><input type="checkbox" id="tk-pubblica" checked disabled> <span><b>Pubblicare e leggere i repository</b> (sempre incluso)</span></label>
+      <label class="chk"><input type="checkbox" id="tk-apk" checked> <span><b>Compilare APK</b> con Crea APK (serve per i file dei workflow)</span></label>
+      <label class="chk"><input type="checkbox" id="tk-crea"> <span><b>Creare ed eliminare repository</b> da qui (permesso più potente: attivalo solo se serve)</span></label>
+      <div class="riga" style="margin-top:8px">
+        <a id="tk-classico" class="btn primario" target="_blank" rel="noopener">🔑 Chiedi il token a GitHub</a>
+        <button id="tk-controlla" type="button">✔ Controlla il mio token</button>
+      </div>
+      <div id="tk-esito" aria-live="polite"></div>
+      <details open>
+        <summary>Passo per passo (la prima volta)</summary>
+        <ol>
+          <li>Premi <b>«Chiedi il token a GitHub»</b>: si apre github.com. Se non sei già dentro, accedi con il tuo account.</li>
+          <li>GitHub mostra la pagina <b>«New personal access token (classic)»</b>. Il nome e le caselle giuste sono già compilati: <b>non cambiare le caselle spuntate</b>.</li>
+          <li>Nel campo <b>Expiration</b> (scadenza) scegli <b>30 days</b> o <b>90 days</b>. Alla scadenza ne rifai uno uguale: è più sicuro di un token che non scade mai.</li>
+          <li>Scorri in fondo e premi il pulsante verde <b>«Generate token»</b>.</li>
+          <li>Compare un codice che inizia con <code>ghp_…</code>. <b>Copialo subito</b> (icona dei due quadratini): GitHub lo mostra una volta sola. Se lo perdi, ne crei un altro.</li>
+          <li>Torna qui, incolla il codice nel campo <b>«Token personale»</b> e premi <b>«Salva e verifica»</b>. Deve comparire «✓ Collegato come …».</li>
+        </ol>
+        <p class="nota">Non mandare mai il token a nessuno e non scriverlo in chat o nei file: chi lo ha può modificare i tuoi repository. Se pensi che sia finito in mani sbagliate, eliminalo da <a href="https://github.com/settings/tokens" target="_blank" rel="noopener">github.com/settings/tokens</a>.</p>
+      </details>
+      <details>
+        <summary>Opzione più sicura: token «fine-grained» (limitato a certi repository)</summary>
+        <p class="nota">Il token classico vale per <b>tutti</b> i tuoi repository. Quello fine-grained puoi limitarlo ai soli repository che scegli, ma è un po' più lungo da impostare e non può creare repository nuovi senza il permesso «Administration».</p>
+        <ol>
+          <li>Premi <a id="tk-fine" class="btn" target="_blank" rel="noopener">Apri il token fine-grained</a>: i permessi sono già compilati, il nome e la scadenza anche.</li>
+          <li>In <b>Repository access</b> scegli <b>«Only select repositories»</b> e aggiungi i repository che pubblichi (per gli APK, anche quelli delle app).</li>
+          <li>Controlla in <b>Permissions</b> che ci siano: <b>Contents</b>, <b>Workflows</b>, <b>Actions</b>, <b>Pages</b> in «Read and write» (e <b>Administration</b> se vuoi creare repository). <b>Metadata</b> resta «Read-only».</li>
+          <li>Premi <b>«Generate token»</b>, copia il codice <code>github_pat_…</code>, incollalo qui e premi «Salva e verifica».</li>
+        </ol>
+        <p class="nota">Link utili: <a href="https://github.com/settings/tokens" target="_blank" rel="noopener">i tuoi token</a> · <a href="https://github.com/settings/tokens/new" target="_blank" rel="noopener">token classico vuoto</a> · <a href="https://docs.github.com/it/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens" target="_blank" rel="noopener">guida ufficiale di GitHub</a></p>
+      </details>
+    </div>
     <label for="cfg-utente">Account GitHub</label>
     <input id="cfg-utente" type="text" autocomplete="off" autocapitalize="off" spellcheck="false">
     <label for="token">Token personale</label>
@@ -1586,6 +1621,39 @@ $('#voce-sito').addEventListener('click', async (e) => {
       ? 'GitHub non lo permette per questo repository (i repository privati richiedono un piano a pagamento).'
       : er.status === 403 || er.status === 404 ? 'al token manca il permesso «Pages: Read and write» (token classico: «repo»).' : er.message);
   }
+});
+
+/* ---------- 🔑 Chiedi il token giusto a GitHub ---------- */
+function linkToken() {
+  const data = new Date().toISOString().slice(0, 10);
+  const apk = $('#tk-apk').checked, crea = $('#tk-crea').checked;
+  const ambiti = ['repo', ...(apk ? ['workflow'] : []), ...(crea ? ['delete_repo'] : [])];
+  $('#tk-classico').href = 'https://github.com/settings/tokens/new?scopes=' + ambiti.join(',')
+    + '&description=' + encodeURIComponent('Pubblica ' + data);
+  const perm = ['contents=write', 'pages=write', 'metadata=read', ...(apk ? ['workflows=write', 'actions=write'] : []), ...(crea ? ['administration=write'] : [])];
+  $('#tk-fine').href = 'https://github.com/settings/personal-access-tokens/new?name=' + encodeURIComponent('Pubblica ' + data)
+    + '&description=' + encodeURIComponent('Pubblica e Crea APK') + '&expires_in=90&' + perm.join('&');
+}
+['#tk-apk', '#tk-crea'].forEach((s) => $(s).addEventListener('change', linkToken));
+linkToken();
+$('#tk-controlla').addEventListener('click', async () => {
+  const out = '#tk-esito'; pulisci(out);
+  if (!TOKEN) return msg(out, 'err', 'Non c\'è ancora nessun token: incollalo nel campo «Token personale» qui sotto e premi «Salva e verifica».');
+  try {
+    const { dati, r } = await gh('/user');
+    const ambiti = r.headers.get('x-oauth-scopes');
+    if (ambiti == null) {
+      msg(out, 'ok', `✓ Token valido per ${dati.login} (tipo fine-grained). GitHub non dice i permessi: verifica a mano che Contents, Workflows, Actions e Pages siano «Read and write» sui repository scelti.`);
+      return;
+    }
+    const ha = ambiti.split(',').map((x) => x.trim());
+    const voce = (ok, t) => msg(out, ok ? 'ok' : 'err', (ok ? '✓ ' : '✗ ') + t);
+    msg(out, 'inf', `Token valido per ${dati.login}. Permessi trovati: ${ha.join(', ') || 'nessuno'}.`);
+    voce(ha.includes('repo'), 'Pubblicare e leggere repository, attivare il sito (repo)');
+    voce(ha.includes('workflow'), 'Compilare APK (workflow)' + (ha.includes('workflow') ? '' : ' — manca: crea un nuovo token con «Compilare APK» spuntato'));
+    if (ha.includes('delete_repo')) voce(true, 'Eliminare repository (delete_repo)');
+    else msg(out, 'inf', '– Eliminare repository (delete_repo): non attivo, serve solo se vuoi eliminare repository da qui.');
+  } catch (e) { msg(out, 'err', '✗ ' + e.message); }
 });
 
 /* ---------- viste e menu ---------- */
