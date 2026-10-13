@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#1c3270">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; connect-src https://api.github.com; script-src 'self' 'unsafe-inline'; style-src 'unsafe-inline'; img-src 'self' data: blob:; manifest-src 'self'; worker-src 'self'; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; connect-src https://api.github.com https://*.githubusercontent.com https://*.blob.core.windows.net; script-src 'self' 'unsafe-inline'; style-src 'unsafe-inline'; img-src 'self' data: blob:; manifest-src 'self'; worker-src 'self'; base-uri 'none'; form-action 'none'">
 <title>Pubblica</title>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" type="image/png" href="icone/icona-192.png">
@@ -92,11 +92,104 @@ a.btn[aria-disabled="true"]{opacity:.55;pointer-events:none;cursor:not-allowed}
 .barra-app #stato-app{flex-basis:100%;margin:0}
 .barra-app #stato-app:empty{display:none}
 footer{text-align:center;color:var(--tenue);font-size:12.5px;padding:10px}
+/* ===================== CREA APK (dentro Pubblica) ===================== */
+#v-apk{--bg:var(--carta);--card:var(--foglio);--bordo:var(--linea);--bordo2:var(--linea);--testo:var(--inchiostro);
+  --spento:var(--tenue);--blu:var(--prim);--blu2:var(--prim);--verde:var(--ok);--giallo:var(--ambra);--rosso:var(--ruggine);
+  --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,"Roboto Mono",monospace;display:grid;gap:12px}
+#v-apk .intro{margin:0;color:var(--tenue);font-size:13.5px}
+#v-apk .card{padding:0;margin:0;overflow:hidden}
+#v-apk .card>h2{margin:0;padding:12px 14px;font:700 16px system-ui,sans-serif;color:var(--inchiostro);
+  border-bottom:1px solid var(--linea);display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+#v-apk .card>h2 .n{width:24px;height:24px;border-radius:7px;background:var(--prim);color:#fff;display:grid;place-items:center;font-size:13px;flex:none}
+@media (prefers-color-scheme:dark){#v-apk .card>h2 .n{color:#10141f}}
+#v-apk .card>h2 .chip{margin-left:auto}
+#v-apk .corpo{padding:12px 14px;display:grid;gap:10px}
+#v-apk label.campo{display:grid;gap:4px;font-size:13px;font-weight:600;color:var(--tenue);margin:0}
+#v-apk label.campo input,#v-apk label.campo select{color:var(--inchiostro);font-weight:400}
+#v-apk input[type=password]{width:100%;padding:11px 12px;min-height:46px;border:1.5px solid var(--linea);border-radius:10px;
+  background:var(--carta);color:inherit;font:14px var(--mono)}
+#v-apk textarea.codice{font:12.5px/1.6 var(--mono);min-height:280px;resize:vertical;white-space:pre;tab-size:4}
+#v-apk .griglia{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media (max-width:560px){#v-apk .griglia{grid-template-columns:1fr}}
+#v-apk .riga>span{flex:0 1 auto}
+#v-apk button.grande,#v-apk a.btn.grande{width:100%;font-size:16px;min-height:52px}
+#v-apk .nota{font-size:13px;color:var(--tenue);margin:0}
+#v-apk .chip{font:12px var(--mono);padding:2px 9px;border-radius:99px;background:var(--carta);border:1px solid var(--linea);
+  color:var(--tenue);white-space:nowrap}
+#v-apk .chip.on{color:var(--ok);border-color:var(--ok)}
+#v-apk .chip.lavoro{color:var(--prim);border-color:var(--prim)}
+#v-apk .chip.male{color:var(--ruggine);border-color:var(--ruggine)}
+#v-apk .stat{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+#v-apk .stat div{background:var(--carta);border:1px solid var(--linea);border-radius:10px;padding:8px}
+#v-apk .stat b{display:block;font:700 16px var(--mono)}
+#v-apk .stat span{font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--tenue)}
+#v-apk ul.esiti{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+#v-apk ul.esiti li{display:flex;gap:8px;align-items:flex-start;padding:8px 10px;border-radius:9px;font-size:13.5px;
+  background:var(--carta);border:1px solid var(--linea)}
+#v-apk ul.esiti li i{font-style:normal;font-weight:800;width:16px;flex:none;text-align:center}
+#v-apk ul.esiti li span{overflow-wrap:anywhere}
+#v-apk ul.esiti li a{margin-left:4px}
+#v-apk li.ok i{color:var(--ok)} #v-apk li.info i{color:var(--prim)} #v-apk li.avviso i{color:var(--ambra)} #v-apk li.errore i{color:var(--ruggine)}
+#v-apk li.avviso{border-color:var(--ambra)} #v-apk li.errore{border-color:var(--ruggine)}
+#v-apk li.corso i{color:var(--prim);animation:apkPulsa 1.2s ease-in-out infinite}
+@keyframes apkPulsa{50%{opacity:.25}}
+#v-apk .schede{display:flex;gap:6px;overflow-x:auto;padding-bottom:2px}
+#v-apk .schede button{white-space:nowrap;font:600 12.5px var(--mono);padding:6px 10px;min-height:36px;flex:none}
+#v-apk .schede button.attiva{background:var(--prim);color:#fff}
+@media (prefers-color-scheme:dark){#v-apk .schede button.attiva{color:#10141f}}
+#v-apk pre.anteprima{margin:0;background:var(--carta);border:1px solid var(--linea);border-radius:10px;padding:10px;
+  font:11.5px/1.65 var(--mono);max-height:420px;overflow:auto;white-space:pre}
+#v-apk details{background:var(--carta);border:1px solid var(--linea);border-radius:10px;padding:0 12px;margin:0}
+#v-apk details>summary{padding:11px 0;font-weight:700;font-size:14.5px}
+#v-apk details ol{margin:0 0 12px;padding-left:20px;display:grid;gap:8px;font-size:14px}
+#v-apk details pre{background:var(--foglio);border:1px solid var(--linea);border-radius:8px;padding:8px;font:11.5px/1.6 var(--mono);
+  overflow-x:auto;white-space:pre;margin:6px 0 0}
+#v-apk .elenco-file{display:grid;gap:4px;font:12.5px var(--mono)}
+#v-apk .elenco-file div{display:flex;justify-content:space-between;align-items:center;gap:8px;background:var(--carta);
+  border:1px solid var(--linea);border-radius:8px;padding:6px 8px}
+#v-apk .elenco-file button{min-height:34px;padding:2px 10px;font-size:13px;flex:none}
+#v-apk .check{display:flex;gap:8px;align-items:center;font-size:14px;font-weight:500;margin:0}
+#v-apk .check input{width:18px;height:18px;accent-color:var(--prim);flex:none}
+#v-apk .progetto{display:grid;gap:8px;background:var(--carta);border:1px solid var(--linea);border-radius:12px;padding:10px}
+#v-apk .progetto details{background:var(--foglio)}
+#v-apk .albero{font:11.5px/1.7 var(--mono);color:var(--tenue);max-height:260px;overflow:auto;padding-bottom:8px}
+#v-apk .albero .esc{text-decoration:line-through;opacity:.7}
+#v-apk .albero .avvio{color:var(--prim);font-weight:700}
+#v-apk progress{width:100%;height:10px;accent-color:var(--prim)}
+#v-apk .build{background:var(--carta);border:1px solid var(--linea);border-radius:12px;padding:10px;display:grid;gap:8px}
+#v-apk .build .testa{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+#v-apk .build .testa b{font-size:14.5px}
+#v-apk .build .tempo{margin-left:auto;font:12px var(--mono);color:var(--tenue)}
+#v-apk .passiBuild{display:grid;gap:2px;font:12px/1.5 var(--mono)}
+#v-apk .passiBuild div{display:flex;gap:8px;color:var(--tenue);opacity:.75}
+#v-apk .passiBuild div i{font-style:normal;width:14px;text-align:center;flex:none}
+#v-apk .passiBuild div span:last-child{margin-left:auto}
+#v-apk .passiBuild .ok{opacity:1} #v-apk .passiBuild .ok i{color:var(--ok)}
+#v-apk .passiBuild .corso{color:var(--inchiostro);font-weight:700;opacity:1}
+#v-apk .passiBuild .corso i{color:var(--prim);animation:apkPulsa 1.2s infinite}
+#v-apk .passiBuild .errore{color:var(--ruggine);opacity:1}
+#v-apk .apk{border:2px solid var(--ok);border-radius:12px;padding:12px;display:grid;gap:8px;
+  background:color-mix(in srgb,var(--ok) 8%,transparent)}
+#v-apk .apk b{color:var(--ok);font-size:16px}
+#v-apk button.verde{width:100%;min-height:52px;font-size:16px;background:var(--ok);border-color:var(--ok);color:#fff}
+@media (prefers-color-scheme:dark){#v-apk button.verde{color:#10141f}}
+#v-apk pre.log{margin:0;background:var(--carta);border:1px solid var(--linea);border-radius:8px;padding:8px;
+  font:11px/1.55 var(--mono);max-height:300px;overflow:auto;white-space:pre-wrap;overflow-wrap:anywhere}
+#v-apk .errbox{border:1.5px solid var(--ruggine);border-radius:12px;padding:10px;display:grid;gap:8px;
+  background:color-mix(in srgb,var(--ruggine) 6%,transparent)}
+#v-apk .errbox b{color:var(--ruggine)}
+#v-apk .errbox .nota[style]{color:var(--ambra)!important}
+.toast{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);background:var(--inchiostro);color:var(--foglio);
+  padding:10px 14px;border-radius:10px;font-weight:600;font-size:14px;box-shadow:0 10px 30px rgba(0,0,0,.35);
+  z-index:20;display:none;max-width:90vw}
+.voce .stato-apk{font-weight:600}
+.voce>span{min-width:0}
+#voce-sito-nota{overflow-wrap:anywhere}
 </style>
 </head>
 <body>
 <header>
-  <div class="tit"><h1>Pubblica</h1><p>GitHub dal browser, senza Termux · by Lollo ®2026</p></div>
+  <div class="tit"><h1>Pubblica</h1><p>GitHub dal browser e app Android da Python · by Lollo ®2026</p></div>
   <button id="btn-menu" type="button" hidden>← Menu</button>
 </header>
 <div class="barra-app" role="region" aria-label="Versione e aggiornamenti dell'app">
@@ -116,7 +209,9 @@ footer{text-align:center;color:var(--tenue);font-size:12.5px;padding:10px}
     <div id="avviso-menu"></div>
     <div class="menu">
       <button type="button" class="voce princ" data-vai="pubblica"><span class="ico">🚀</span><span><b>Pubblica su GitHub</b><small>Scegli lo ZIP: il resto è nelle impostazioni</small></span></button>
+      <button type="button" class="voce princ" data-vai="apk"><span class="ico">📱</span><span><b>Crea APK da Python</b><small id="apk-menu-stato">Script .py o progetto ZIP → app Android</small></span></button>
       <a id="voce-apri" class="btn voce" target="_blank" rel="noopener" href="https://github.com/" data-url="https://github.com/" data-testo="Apri repository"><span class="ico">🌐</span><span><b class="etichetta">Apri repository</b><small>Su GitHub. Dopo una pubblicazione si attiva in 60 secondi; se vedi la versione vecchia, ricarica la pagina</small></span></a>
+      <a id="voce-sito" class="btn voce" target="_blank" rel="noopener" data-testo="Apri il sito (HTML)"><span class="ico">🗺️</span><span><b class="etichetta">Apri il sito (HTML)</b><small id="voce-sito-nota">La pagina online del progetto: da lì «Installa app»</small></span></a>
       <button type="button" class="voce" data-vai="link"><span class="ico">🔗</span><span><b>Collegamenti</b><small>Apri il sito e scarica lo ZIP</small></span></button>
       <button type="button" class="voce" data-vai="crea"><span class="ico">➕</span><span><b>Crea un repository</b><small>Nome e conferma, il resto è automatico</small></span></button>
       <button type="button" class="voce" data-vai="svuota"><span class="ico">🧹</span><span><b>Svuota un repository</b><small>Cancella i file, tiene la cronologia</small></span></button>
@@ -221,6 +316,275 @@ footer{text-align:center;color:var(--tenue);font-size:12.5px;padding:10px}
   </div>
 </section>
 
+<!-- ===================== CREA APK ===================== -->
+<section id="v-apk" class="vista" hidden>
+  <p class="intro">Crea APK <span id="versione"></span> · trasforma uno script Python normale (print/input) o un
+    progetto ZIP in un'app Android: GitHub compila, tu scarichi l'APK.</p>
+
+  <!-- 1. SCRIPT -->
+  <section class="card">
+    <h2><span class="n">1</span>Script o progetto Python</h2>
+    <div class="corpo">
+      <div class="riga">
+        <button class="primario" id="btnCarica">Carica file .py</button>
+        <button class="primario" id="btnZipIn">Carica progetto ZIP</button>
+        <button id="btnEsempio">Esempio</button>
+      </div>
+      <input type="file" id="fileScript" accept=".py,.txt,text/plain,text/x-python" hidden>
+      <input type="file" id="fileZip" accept=".zip,application/zip,application/x-zip-compressed" hidden>
+      <div id="pannelloProgetto" class="progetto" hidden>
+        <div class="riga"><b id="nomeProgetto"></b><span class="chip" id="infoProgetto"></span></div>
+        <label class="campo">File da avviare (quello che lanceresti con «python nome.py»)
+          <select id="avvio"></select></label>
+        <details><summary id="titoloAlbero">File del progetto</summary><div class="albero" id="albero"></div></details>
+      </div>
+      <div class="riga"><span class="nota">Stai modificando:</span><span class="chip" id="nomeFile">script_utente.py</span></div>
+      <textarea class="codice" id="codice" spellcheck="false" autocapitalize="off" autocomplete="off"
+        placeholder="Incolla qui il tuo script Python…"></textarea>
+      <div class="stat">
+        <div><span>Righe</span><b id="sRighe">0</b></div>
+        <div><span>print</span><b id="sPrint">0</b></div>
+        <div><span>input</span><b id="sInput">0</b></div>
+      </div>
+      <div>
+        <div class="riga"><button id="btnExtra">+ File aggiuntivi</button>
+          <span class="nota">altri moduli .py, dati JSON/CSV/YAML… finiscono nella cartella principale del progetto</span></div>
+        <input type="file" id="fileExtra" multiple hidden>
+        <div class="elenco-file" id="elencoExtra" style="margin-top:8px"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2. ANALISI -->
+  <section class="card">
+    <h2><span class="n">2</span>Analisi compatibilità Android</h2>
+    <div class="corpo"><ul class="esiti" id="esiti"></ul></div>
+  </section>
+
+  <!-- 3. IMPOSTAZIONI -->
+  <section class="card">
+    <h2><span class="n">3</span>Impostazioni dell'app</h2>
+    <div class="corpo">
+      <div class="griglia">
+        <label class="campo">Nome dell'app (sotto l'icona)
+          <input type="text" id="titolo" maxlength="40"></label>
+        <label class="campo">Nome pacchetto (solo minuscole e cifre)
+          <input type="text" id="pacchetto" maxlength="30"></label>
+        <label class="campo">Dominio (identifica te come autore)
+          <input type="text" id="dominio" value="org.lollo"></label>
+        <label class="campo">Versione
+          <input type="text" id="versioneApp" value="1.0"></label>
+        <label class="campo">Orientamento
+          <select id="orientamento">
+            <option value="portrait">Verticale</option>
+            <option value="landscape">Orizzontale</option>
+            <option value="portrait, landscape">Entrambi</option>
+          </select></label>
+        <label class="campo">Processori supportati
+          <select id="arch">
+            <option value="arm64-v8a">arm64-v8a (telefoni dal 2017 in poi, build più veloce)</option>
+            <option value="arm64-v8a, armeabi-v7a">arm64 + armeabi-v7a (anche telefoni vecchi)</option>
+          </select></label>
+      </div>
+      <label class="campo">Librerie extra (requirements) — compilate in automatico dall'analisi, modificabili
+        <input type="text" id="librerie" placeholder="es. requests,urllib3,idna"></label>
+      <label class="campo">Permessi Android — compilati in automatico, modificabili
+        <input type="text" id="permessi" placeholder="es. INTERNET"></label>
+      <label class="check"><input type="checkbox" id="autoAvvio" checked>Avvia lo script appena si apre l'app</label>
+      <div class="riga">
+        <button id="btnIcona">Icona PNG (facoltativa)</button>
+        <span class="nota" id="nomeIcona">nessuna: verrà usata l'icona Kivy</span>
+      </div>
+      <input type="file" id="fileIcona" accept="image/png" hidden>
+    </div>
+  </section>
+
+  <!-- 4. GENERA -->
+  <section class="card">
+    <h2><span class="n">4</span>Progetto pronto per la compilazione</h2>
+    <div class="corpo">
+      <button class="primario grande" id="btnZip">Scarica progetto ZIP</button>
+      <p class="nota" style="margin:0">Contiene tutto il necessario: <code>main.py</code>, il tuo script intatto,
+        <code>buildozer.spec</code> e il workflow GitHub che compila l'APK da solo.</p>
+      <div class="schede" id="schede"></div>
+      <pre class="anteprima" id="anteprima"></pre>
+      <div class="riga"><button id="btnCopia">Copia questo file</button>
+        <span class="nota" id="infoFile"></span></div>
+    </div>
+  </section>
+
+  <!-- 5. GITHUB -->
+  <section class="card" id="cardGH">
+    <h2><span class="n">5</span>Compila su GitHub e scarica l'APK<span class="chip" id="ghStato">non collegato</span></h2>
+    <div class="corpo">
+      <p class="nota" style="margin:0">Un tocco solo: crea il repository se non c'è, invia il progetto, GitHub compila
+        e qui compare il pulsante <b>Scarica APK</b>. Puoi chiudere la pagina durante la compilazione:
+        quando la riapri riprende a seguirla da sola.</p>
+
+      <details id="ghAccesso">
+        <summary id="ghAccessoTit">Accesso a GitHub (si fa una volta sola)</summary>
+        <div style="display:grid;gap:8px;padding-bottom:12px">
+          <label class="campo">Token personale GitHub (è come una password: resta solo in questo browser)
+            <input type="password" id="ghToken" autocomplete="off" autocapitalize="off" spellcheck="false"
+              placeholder="ghp_…  oppure  github_pat_…"></label>
+          <label class="check"><input type="checkbox" id="ghRicorda" checked>Ricordalo su questo dispositivo
+            (se togli la spunta vale solo finché la scheda resta aperta)</label>
+          <div class="riga">
+            <button class="primario" id="ghSalva">Salva e verifica</button>
+            <button class="pericolo" id="ghDimentica">Dimentica il token</button>
+          </div>
+          <ul class="esiti" id="ghEsitoToken"></ul>
+          <details>
+            <summary>Come creare il token (5 minuti)</summary>
+            <ol>
+              <li><b>Modo semplice, token classico.</b> Apri questo link (se GitHub chiede di accedere, accedi):<br>
+                <a href="https://github.com/settings/tokens/new?scopes=repo,workflow&amp;description=Crea%20APK" target="_blank" rel="noopener">github.com/settings/tokens/new</a><br>
+                Si apre la pagina <i>New personal access token (classic)</i> con già spuntate le caselle
+                <code>repo</code> e <code>workflow</code>: servono entrambe.</li>
+              <li>In <b>Expiration</b> scegli <b>90 days</b>. Quando scade ne crei un altro nello stesso modo.</li>
+              <li>Scorri in fondo e premi <b>Generate token</b>.</li>
+              <li>Copia il codice che inizia con <code>ghp_</code>. GitHub lo mostra <b>una volta sola</b>:
+                se chiudi la pagina prima di copiarlo devi crearne un altro.</li>
+              <li>Incollalo nel campo qui sopra e premi <b>Salva e verifica</b>. Deve comparire «Collegato come …».</li>
+              <li><b>In alternativa, token fine-grained</b> (più restrittivo):
+                <a href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener">github.com/settings/personal-access-tokens/new</a>
+                → <i>Repository access</i>: <b>All repositories</b> → <i>Permissions</i>, sezione Repository, metti
+                <b>Read and write</b> a: <b>Actions</b>, <b>Administration</b> (serve solo per creare i repository),
+                <b>Contents</b>, <b>Workflows</b>. <i>Metadata</i> si attiva da solo.</li>
+              <li>Se l'app <b>Pubblica</b> ha già un token salvato in questo browser, Crea APK lo trova e lo usa.
+                Se però manca qualche permesso tra quelli sopra, qui ti viene detto quale.</li>
+            </ol>
+          </details>
+        </div>
+      </details>
+
+      <div class="riga" id="ghAccessoInt" hidden>
+        <span class="nota" id="ghAccessoIntTesto"></span>
+        <button id="ghVaiImpostazioni">Impostazioni → Accesso</button>
+      </div>
+
+      <div class="griglia">
+        <label class="campo">Repository dell'app (proprietario/nome)
+          <input type="text" id="ghRepo" autocomplete="off" autocapitalize="off" spellcheck="false"
+            placeholder="tuonome/nomeapp"></label>
+        <label class="campo">Se non esiste lo creo
+          <select id="ghVisibilita">
+            <option value="pubblico">Pubblico · compilazioni illimitate</option>
+            <option value="privato">Privato · minuti gratis limitati</option>
+          </select></label>
+      </div>
+      <label class="check"><input type="checkbox" id="ghAutoVer" checked>Aumenta da sola la versione a ogni
+        pubblicazione con modifiche (1.0 → 1.1 → 1.2 …)</label>
+      <button class="primario grande" id="ghVai">Pubblica su GitHub e compila</button>
+      <div class="riga" id="ghAzioni">
+        <button id="ghRicompila">Ricompila senza modifiche</button>
+        <button class="pericolo" id="ghFerma" hidden>Ferma la compilazione</button>
+        <a class="btn" id="ghApri" target="_blank" rel="noopener" hidden>Apri su GitHub</a>
+      </div>
+      <progress id="ghBarra" hidden></progress>
+      <ul class="esiti" id="ghPassi"></ul>
+      <div id="ghBuild" hidden></div>
+      <div id="ghRisultato" style="display:grid;gap:10px"></div>
+      <details id="ghStorico" hidden>
+        <summary>APK compilati in precedenza</summary>
+        <div class="elenco-file" id="ghStoricoLista" style="padding-bottom:12px"></div>
+      </details>
+    </div>
+  </section>
+
+  <!-- 6. GUIDA -->
+  <section class="card">
+    <h2><span class="n">6</span>Guida passo-passo</h2>
+    <div class="corpo">
+      <details open>
+        <summary>A · Tutto automatico dal telefono (consigliato)</summary>
+        <ol>
+          <li><b>Una volta sola</b>: crea il token in <i>Impostazioni → 1 · Accesso a GitHub</i>
+            (istruzioni in «Come creare il token»). Per gli APK servono i permessi <code>repo</code> e <code>workflow</code>.</li>
+          <li>Carica lo script o lo ZIP del progetto (punto 1) e controlla che l'analisi (punto 2) non segnali errori rossi.</li>
+          <li>Nel punto 5 controlla il nome del repository. Viene proposto <code>tuonome/<span class="pk"></span></code>:
+            se non esiste viene creato. Usa un repository <b>solo per questa app</b>.</li>
+          <li>Premi <b>Pubblica su GitHub e compila</b>. Vedi i passaggi uno per uno; poi parte la compilazione con il
+            tempo trascorso. La prima volta servono 20–40 minuti, le successive meno.</li>
+          <li>Quando finisce compare il riquadro verde <b>Scarica APK</b>. Tocca, apri il file scaricato e installa.
+            La prima volta Android chiede di consentire «Installa app sconosciute» al browser: consentilo.</li>
+          <li><b>Per aggiornare</b>: modifica lo script qui e premi di nuovo lo stesso pulsante. Vengono inviati solo i file
+            cambiati, la versione sale da sola e la nuova app si installa sopra la vecchia senza perdere i dati.</li>
+          <li><b>Se fallisce</b>: qui compaiono il passaggio che si è fermato, le ultime righe del log con il pulsante
+            <i>Copia il log</i> e, se possibile, un suggerimento. Incolla il log a Claude.</li>
+        </ol>
+      </details>
+      <details>
+        <summary>A2 · A mano: ZIP + GitHub (o la tua app Pubblica)</summary>
+        <ol>
+          <li><b>Scarica lo ZIP</b> con il pulsante del punto 4. Finisce nella cartella Download.</li>
+          <li><b>Crea un repository GitHub nuovo</b>, vuoto. Come nome usa il nome pacchetto (<span class="pk"></span>).
+            Puoi crearlo con la tua app <b>Pubblica</b> oppure da github.com → pulsante <b>+</b> → <i>New repository</i>.
+            Pubblico: compilazioni senza limiti. Privato: hai un numero di minuti gratuiti al mese
+            (una compilazione completa ne usa circa 20–40).</li>
+          <li><b>Carica il contenuto dello ZIP</b> nel repository. Con la voce 🚀 <b>Pubblica su GitHub</b> del menu: scegli il repository, seleziona lo ZIP, pubblica.
+            In Pubblica imposta prima <i>Impostazioni → Regole → Workflow GitHub</i> su <b>Includi le modifiche</b>,
+            altrimenti il file della compilazione non viene inviato.
+            Importante: deve arrivare anche il file <code>.github/workflows/build-apk.yml</code>.
+            La cartella <code>.github</code> inizia con un punto, quindi molti file manager la nascondono: è normale, nello ZIP c'è.</li>
+          <li><b>La compilazione parte da sola</b> appena i file arrivano su GitHub.
+            Apri il repository → scheda <b>Actions</b> → vedi "Build APK" con un pallino giallo = in corso.
+            La prima volta dura 20–40 minuti perché scarica gli strumenti Android (SDK e NDK);
+            le volte successive è più rapida grazie alla cache.</li>
+          <li><b>Pallino verde</b> = APK pronto. Torna alla pagina principale del repository → sezione <b>Releases</b>
+            (sul telefono è in fondo alla pagina) → apri "APK build N" → tocca il file <code>.apk</code> per scaricarlo.</li>
+          <li><b>Installa</b>: apri il file scaricato. Android chiede di consentire "Installa app sconosciute"
+            all'app da cui lo apri (browser o file manager): consentilo solo a quella.
+            Play Protect può segnalare un'app sconosciuta: succede a tutte le app non scaricate dal Play Store.</li>
+          <li><b>Aggiornare l'app</b>: modifica i file nella cartella <code>progetto/</code> del repository (o ripubblica un nuovo ZIP)
+            e la compilazione riparte da sola. Al primo giro il workflow crea la cartella <code>firma/</code>
+            con la chiave di firma: <b>non cancellarla</b>, è ciò che permette di installare la nuova versione
+            sopra la vecchia senza perdere i dati. Se la cancelli, dovrai disinstallare l'app prima di reinstallarla.</li>
+          <li><b>Se il pallino diventa rosso</b>: tocca la compilazione fallita → passaggio <i>Compila APK</i> →
+            scorri fino in fondo, copia le ultime 50 righe del log e incollale a Claude.</li>
+        </ol>
+      </details>
+      <details>
+        <summary>B · Su un PC Linux o Windows con WSL (Ubuntu)</summary>
+        <ol>
+          <li>Estrai lo ZIP in una cartella e apri il terminale in quella cartella.</li>
+          <li>Installa gli strumenti di sistema (una volta sola):
+<pre>sudo apt update
+sudo apt install -y git zip unzip openjdk-17-jdk python3-pip python3-venv \
+  autoconf automake libtool pkg-config zlib1g-dev libncurses-dev \
+  libffi-dev libssl-dev cmake build-essential</pre></li>
+          <li>Crea un ambiente Python separato (sulle Ubuntu recenti <code>pip</code> fuori da un ambiente è bloccato):
+<pre>python3 -m venv ~/venv-buildozer
+source ~/venv-buildozer/bin/activate
+pip install --upgrade buildozer "cython==0.29.33" setuptools</pre></li>
+          <li>Compila:
+<pre>buildozer android debug</pre>
+            L'APK compare nella cartella <code>bin/</code>.</li>
+        </ol>
+      </details>
+      <details>
+        <summary>Cosa fa l'app generata</summary>
+        <ol>
+          <li>Il tuo script o progetto resta <b>intatto</b> nella cartella <code>progetto/</code> (sottocartelle comprese)
+            e il file di avvio viene eseguito come con <code>python file.py</code>. Anche un tuo <code>main.py</code> va bene:
+            non si scontra con quello della console.</li>
+          <li><code>print()</code> → riquadro di testo (selezionabile, con pulsante Copia). <code>input()</code> → campo di testo + Invio.</li>
+          <li>Colori ANSI rimossi; <code>os.system("clear")</code> e <code>\033[2J</code> puliscono lo schermo.</li>
+          <li><b>Ferma</b> interrompe lo script anche in un ciclo infinito; <b>Esegui</b> lo rilancia.</li>
+          <li><b>Dati che non si perdono</b>: Android cancella e riestrae la cartella dell'app a ogni aggiornamento.
+            Per questo lo script lavora in una cartella dati separata: al primo avvio vi vengono copiati i file
+            di dati del progetto (JSON, YAML, CSV…) e ciò che lo script salva con percorsi relativi resta lì anche
+            dopo gli aggiornamenti. Se in una nuova versione cambi un file di dati che lo script non ha mai modificato,
+            arriva la versione nuova; se lo script l'ha modificato, resta la sua copia. Il percorso è in
+            <code>os.environ["CREA_APK_DATI"]</code>. Tutto si cancella solo disinstallando l'app.</li>
+          <li>File e cartelle che iniziano con il punto (es. <code>.env</code>) non entrano nell'APK: Buildozer li salta sempre.</li>
+        </ol>
+      </details>
+    </div>
+  </section>
+
+</section>
+
 <!-- ===================== IMPOSTAZIONI ===================== -->
 <section id="v-config" class="vista" hidden>
   <div class="card">
@@ -245,6 +609,10 @@ footer{text-align:center;color:var(--tenue);font-size:12.5px;padding:10px}
         <li>Permessi: <b>Contents → Read and write</b>. Aggiungi <b>Workflows</b> solo se vuoi modificare i workflow, <b>Pages</b> per attivare il sito.</li>
         <li>Per <b>creare o eliminare</b> repository serve un token classico con <code>repo</code> e <code>delete_repo</code>.</li>
         <li>Imposta una scadenza breve e incolla il token qui.</li>
+        <li><b>Per creare APK</b> (voce 📱 del menu) servono anche <b>Workflows</b> e <b>Actions</b> in «Read and write»
+          e, per far creare i repository, <b>Administration</b>. Più semplice: un token classico con <code>repo</code> e <code>workflow</code>,
+          <a href="https://github.com/settings/tokens/new?scopes=repo,workflow&amp;description=Pubblica" target="_blank" rel="noopener">crealo da qui</a>
+          (le due caselle sono già spuntate; scegli la scadenza, premi «Generate token», copia il codice <code>ghp_…</code> e incollalo sopra).</li>
       </ol>
     </details>
   </div>
@@ -326,7 +694,8 @@ footer{text-align:center;color:var(--tenue);font-size:12.5px;padding:10px}
 </section>
 
 </main>
-<footer>Pubblica <span class="num-versione">…</span> · by Lollo ®2026</footer>
+<div class="toast" id="toast"></div>
+<footer>Pubblica <span class="num-versione">…</span> con Crea APK · by Lollo ®2026</footer>
 
 <script>
 /*!
@@ -733,6 +1102,7 @@ function calcola(includiWf) {
     for (const [p] of blob) {
       if (presenti.has(p) || sotto(p)) continue;
       if (!includiWf && p.startsWith(WF)) continue;
+      if (p.startsWith('firma/') && blob.has(WF + 'build-apk.yml')) continue; // chiave di firma di Crea APK: serve per gli aggiornamenti
       if (ambito && !p.startsWith(ambito)) continue;
       const relativo = ambito ? p.slice(ambito.length) : p; // le regole del .gitignore valgono dalla sua cartella
       if (protetti.has(p) || regole.some((re) => re.test(relativo))) { conservati.push(p); continue; }
@@ -1129,8 +1499,84 @@ async function caricaMiei(aggiungi) {
   $('#elenco-repo').replaceChildren(...[...nomi].map((n) => new Option('', n)));
 }
 
+/* ---------- 🗺️ Apri il sito (HTML) dal menu principale ----------
+   Legge GitHub Pages del progetto attivo e prepara il link alla pagina online,
+   da cui Chrome può installare l'app (⋮ → «Installa app»). Se Pages è spento, lo attiva. */
+const SITI = new Map();          // repository → { stato: 'attivo' | 'assente' | 'errore', url, file, msg }
+let sitoRichiesto = '';
+async function infoSito(repo, forza) {
+  if (!forza && SITI.has(repo)) return SITI.get(repo);
+  let info;
+  try {
+    const { dati: pg } = await gh(`/repos/${repo}/pages`, { ripeti: false });
+    let file = '';
+    try {   // se manca index.html apro il primo file .html della cartella del sito
+      const cartella = pg.source && pg.source.path && pg.source.path !== '/' ? pg.source.path.replace(/^\/|\/$/g, '') : '';
+      const { dati: el } = await gh(`/repos/${repo}/contents/${cartella}`, { ripeti: false });
+      const html = (Array.isArray(el) ? el : []).filter((x) => x.type === 'file' && /\.html?$/i.test(x.name)).map((x) => x.name).sort();
+      if (html.length && !html.some((n) => /^index\.html?$/i.test(n))) file = html[0];
+    } catch { /* elenco non leggibile: apro la radice del sito */ }
+    info = { stato: 'attivo', url: String(pg.html_url).replace(/\/?$/, '/') + encodeURI(file), file };
+  } catch (e) {
+    const [prop, nome] = repo.split('/');
+    info = e.status === 404 ? { stato: 'assente' }
+      : { stato: 'errore', msg: e.message, url: `https://${prop.toLowerCase()}.github.io/${nome}/` };
+  }
+  SITI.set(repo, info);
+  return info;
+}
+function applicaSito(info) {
+  const a = $('#voce-sito'), nota = $('#voce-sito-nota'), et = a.querySelector('.etichetta');
+  if (info && info.url && info.stato !== 'assente') {
+    // dopo una pubblicazione aggiungo ?agg=… così il browser non mostra la copia vecchia (GitHub la tiene 10 minuti)
+    a.dataset.url = info.url + (prontoAlle ? `?agg=${prontoAlle}` : '');
+    nota.textContent = info.stato === 'attivo'
+      ? `…${info.url.replace(/^https:\/\/[^/]+/, '')} · poi in Chrome ⋮ → «Installa app»`
+      : `Non riesco a verificare il sito (${info.msg}): provo l'indirizzo standard`;
+    aggiornaApri();
+  } else {
+    delete a.dataset.url; a.removeAttribute('href'); a.removeAttribute('aria-disabled');
+    et.textContent = a.dataset.testo;
+    nota.textContent = info ? 'Sito non attivo: tocca per attivarlo (GitHub Pages, gratis)' : '';
+  }
+}
+async function aggiornaSito(forza) {
+  const repo = CFG.attivo;
+  sitoRichiesto = repo;
+  if (!repo || !TOKEN) { applicaSito(null); $('#voce-sito-nota').textContent = 'Serve un progetto attivo e il token'; return; }
+  if (!forza && SITI.has(repo)) { applicaSito(SITI.get(repo)); return; }
+  applicaSito(null); $('#voce-sito-nota').textContent = 'Controllo se il sito è attivo…';
+  const info = await infoSito(repo, forza);
+  if (sitoRichiesto === repo) applicaSito(info);
+}
+$('#voce-sito').addEventListener('click', async (e) => {
+  const a = e.currentTarget;
+  if (a.getAttribute('href')) return;                    // link pronto: lo apre il browser
+  e.preventDefault();
+  if (a.getAttribute('aria-disabled') === 'true' || S.occupato) return;   // conto alla rovescia in corso
+  const repo = CFG.attivo; if (!repo || !TOKEN) { vai('config'); return; }
+  const nota = $('#voce-sito-nota');
+  nota.textContent = 'Controllo…';
+  const info = await infoSito(repo, true);               // magari l'hai attivato su github.com nel frattempo
+  if (info.stato !== 'assente') { applicaSito(info); nota.textContent += ' · tocca di nuovo per aprirlo'; return; }
+  applicaSito(info);
+  if (!confirm(`Il sito di ${repo} non è attivo.\n\nAttivo GitHub Pages sul ramo principale? Il sito sarà online dopo 1–2 minuti all'indirizzo …github.io/${repo.split('/')[1]}/`)) return;
+  try {
+    const ramo = (await gh(`/repos/${repo}`)).dati.default_branch;
+    await gh(`/repos/${repo}/pages`, { metodo: 'POST', corpo: { source: { branch: ramo, path: '/' } } });
+    SITI.delete(repo);
+    avviaContoApri();                                    // i pulsanti «Apri» aspettano che GitHub lo pubblichi
+    await aggiornaSito(true);
+    nota.textContent = '✓ Sito attivato: sarà pronto tra 1–2 minuti · ' + nota.textContent;
+  } catch (er) {
+    nota.textContent = '✗ Non attivato: ' + (er.status === 422
+      ? 'GitHub non lo permette per questo repository (i repository privati richiedono un piano a pagamento).'
+      : er.status === 403 || er.status === 404 ? 'al token manca il permesso «Pages: Read and write» (token classico: «repo»).' : er.message);
+  }
+});
+
 /* ---------- viste e menu ---------- */
-const VISTE = ['menu', 'pubblica', 'link', 'crea', 'svuota', 'elimina', 'config'];
+const VISTE = ['menu', 'pubblica', 'link', 'crea', 'svuota', 'elimina', 'config', 'apk'];
 function vai(nome) {
   if (S.occupato) return;
   for (const v of VISTE) $('#v-' + v).hidden = v !== nome;
@@ -1139,6 +1585,7 @@ function vai(nome) {
   if (nome === 'pubblica') applicaCambi();
   if (nome === 'config') rendiConfig();
   if (nome === 'link') mostraLink();
+  if (nome === 'apk' && window.creaApk) window.creaApk.mostrata();
   if (nome === 'crea') $('#riep-crea').textContent = `Il repository sarà ${CFG.nuoviVis === 'privata' ? 'privato' : 'pubblico'}${CFG.nuoviVis === 'pubblica' && CFG.nuoviPages ? ' con GitHub Pages attivo' : ''}, con un README iniziale. Si cambia in Impostazioni.`;
   window.scrollTo(0, 0);
 }
@@ -1152,6 +1599,7 @@ function aggiornaTutto() {
   $('#elimina-atteso').textContent = 'ELIMINA ' + (CFG.attivo || '…');
   $('#voce-apri').dataset.url = 'https://github.com/' + (CFG.attivo || encodeURIComponent(CFG.utente));
   aggiornaApri();
+  aggiornaSito();
   pulisci('#avviso-menu');
   if (!CFG.repo.length) msg('#avviso-menu', 'avv', 'Nessun repository: aggiungine uno in Impostazioni.');
   if (!TOKEN) msg('#avviso-menu', 'avv', 'Manca il token GitHub: inseriscilo in Impostazioni → Accesso (serve una volta sola).');
@@ -1290,11 +1738,13 @@ $('#btn-token-salva').addEventListener('click', async () => {
   if (nuovo) TOKEN = nuovo;
   $('#token').value = '';
   if (!memorizzaToken()) msg('#esito-token', 'avv', 'Questo browser non permette di ricordare il token: dovrai reinserirlo alla prossima apertura.');
-  await verificaToken(); rendiConfig(); aggiornaTutto(); caricaMiei();
+  SITI.clear(); await verificaToken(); rendiConfig(); aggiornaTutto(); caricaMiei();
+  if (window.creaApk) window.creaApk.tokenCambiato();
 });
 $('#btn-token-togli').addEventListener('click', () => {
   TOKEN = ''; mem.togli('localStorage', 'pubblica-token'); mem.togli('sessionStorage', 'pubblica-token');
-  $('#token').value = ''; pulisci('#esito-token'); msg('#esito-token', 'inf', 'Token dimenticato.'); rendiConfig(); aggiornaTutto();
+  $('#token').value = ''; pulisci('#esito-token'); msg('#esito-token', 'inf', 'Token dimenticato.'); SITI.clear(); rendiConfig(); aggiornaTutto();
+  if (window.creaApk) window.creaApk.tokenCambiato();
 });
 $('#btn-esporta').addEventListener('click', () => {
   const a = document.createElement('a');
@@ -1406,6 +1856,2054 @@ avviaPWA();
 aggiornaTutto();
 vai(TOKEN ? 'menu' : 'config');
 if (!TOKEN) msg('#esito-token', 'inf', 'Per iniziare incolla il tuo token GitHub: serve una volta sola.');
+</script>
+<script type="text/plain" id="tplMain">
+# -*- coding: utf-8 -*-
+"""
+main.py — Console Android per script Python "normali"
+Generato da «Crea APK» · by Lollo ®2026
+
+Come funziona
+- Il tuo progetto resta INTATTO nella cartella progetto/ (uno o più file, sottocartelle).
+- Il file di avvio viene eseguito in un thread separato con runpy, come "python file.py".
+- Cartella di lavoro: su Android è una cartella dati che SOPRAVVIVE agli aggiornamenti
+  dell'APK (i file di dati del progetto vi vengono copiati al primo avvio).
+  Il percorso è anche in os.environ["CREA_APK_DATI"].
+- print(), sys.stdout, sys.stderr  -> riquadro di output dell'app
+- input(), sys.stdin, getpass      -> campo di testo + tasto Invio
+- Codici colore ANSI               -> rimossi; "\\033[2J" e os.system("clear") puliscono lo schermo
+- Il pulsante Ferma interrompe lo script anche dentro un ciclo infinito.
+"""
+import os
+import re
+import sys
+import json
+import shutil
+import hashlib
+import queue
+import runpy
+import ctypes
+import builtins
+import threading
+import traceback
+
+os.environ.setdefault("KIVY_NO_CONSOLELOG", "1")   # i log di Kivy non finiscono nell'output
+os.environ.setdefault("KIVY_NO_ARGS", "1")
+
+# ---- Configurazione (scritta dal generatore) ----
+TITOLO = "__TITOLO__"
+AVVIO_AUTOMATICO = __AVVIO_AUTOMATICO__
+SCRIPT = "__SCRIPT__"            # file di avvio, relativo alla cartella di main.py
+CARTELLA_PROGETTO = "progetto"
+MARCHIO = "by Lollo ®2026"
+MAX_CARATTERI = 200_000          # oltre questa soglia le righe più vecchie vengono scartate
+
+# ---- Gestione sequenze ANSI ----
+_ANSI_PULISCI = re.compile(r"\x1b\[[23]J|\x1bc")
+_ANSI_ALTRO = re.compile(r"\x1b\[[0-9;?]*[ -/]*[@-~]|\x1b[()][A-Za-z0-9]|\x1b[=>78]")
+
+
+# ---- Cartella dati persistente ----
+def cartella_dati(cartella_progetto):
+    """Su Android la cartella dell'app viene cancellata e riestratta a ogni aggiornamento
+    dell'APK: i dati vanno quindi tenuti fuori, in ANDROID_PRIVATE/dati_app.
+    Su PC o in Termux (ANDROID_PRIVATE assente) si lavora direttamente nel progetto."""
+    base = os.environ.get("ANDROID_PRIVATE")
+    if not base:
+        return cartella_progetto
+    return os.path.join(base, "dati_app")
+
+
+def _impronta(percorso):
+    h = hashlib.sha1()
+    with open(percorso, "rb") as f:
+        for blocco in iter(lambda: f.read(65536), b""):
+            h.update(blocco)
+    return h.hexdigest()
+
+
+def sincronizza_dati(sorgente, destinazione):
+    """Copia i file NON .py del progetto nella cartella dati.
+    - file assente nella cartella dati           -> copiato
+    - file presente e mai modificato dallo script -> aggiornato se l'APK ne porta una versione nuova
+    - file modificato dallo script               -> lasciato com'è (i tuoi dati non si perdono)"""
+    if os.path.abspath(sorgente) == os.path.abspath(destinazione):
+        return
+    os.makedirs(destinazione, exist_ok=True)
+    manifesto_file = os.path.join(destinazione, ".crea_apk_manifesto.json")
+    try:
+        with open(manifesto_file, encoding="utf-8") as f:
+            manifesto = json.load(f)
+    except (OSError, ValueError):
+        manifesto = {}
+    for radice, cartelle, files in os.walk(sorgente):
+        cartelle[:] = [c for c in cartelle if c != "__pycache__"]
+        for nome in files:
+            if nome.endswith((".py", ".pyc", ".pyo")):
+                continue
+            orig = os.path.join(radice, nome)
+            rel = os.path.relpath(orig, sorgente).replace(os.sep, "/")
+            dest = os.path.join(destinazione, rel)
+            nuova = _impronta(orig)
+            if os.path.exists(dest):
+                vecchia = manifesto.get(rel)
+                if vecchia is None or vecchia == nuova or _impronta(dest) != vecchia:
+                    continue
+            os.makedirs(os.path.dirname(dest), exist_ok=True)
+            shutil.copyfile(orig, dest)
+            manifesto[rel] = nuova
+    temp = manifesto_file + ".tmp"                      # scrittura atomica
+    with open(temp, "w", encoding="utf-8") as f:
+        json.dump(manifesto, f, indent=1, sort_keys=True)
+    os.replace(temp, manifesto_file)
+
+
+class Interrotto(BaseException):
+    """Lanciata nel thread dello script quando si preme Ferma.
+    Deriva da BaseException così un 'except Exception' dello script non la blocca."""
+
+
+class _Uscita:
+    """Sostituto di sys.stdout / sys.stderr."""
+    encoding = "utf-8"
+    errors = "replace"
+
+    def __init__(self, motore):
+        self._m = motore
+
+    def write(self, testo):
+        testo = testo if isinstance(testo, str) else str(testo)
+        self._m.scrivi(testo)
+        return len(testo)
+
+    def writelines(self, righe):
+        for r in righe:
+            self.write(r)
+
+    def flush(self):
+        pass
+
+    def isatty(self):
+        return False
+
+    def writable(self):
+        return True
+
+    def fileno(self):
+        import io
+        raise io.UnsupportedOperation("fileno non disponibile nella console Android")
+
+
+class _Ingresso:
+    """Sostituto di sys.stdin: ogni lettura chiede una riga all'utente."""
+    encoding = "utf-8"
+    errors = "replace"
+
+    def __init__(self, motore):
+        self._m = motore
+
+    def readline(self, size=-1):
+        return self._m.attendi_riga("") + "\n"
+
+    def read(self, size=-1):
+        return self.readline()
+
+    def readlines(self, hint=-1):
+        return [self.readline()]
+
+    def __iter__(self):
+        while True:
+            yield self.readline()
+
+    def isatty(self):
+        return False
+
+    def readable(self):
+        return True
+
+    def fileno(self):
+        import io
+        raise io.UnsupportedOperation("fileno non disponibile nella console Android")
+
+
+class Motore:
+    """Esegue lo script e comunica con l'interfaccia SOLO tramite la coda 'eventi'.
+    Eventi: ("testo", str) · ("pulisci",) · ("input", prompt) · ("fine", esito)
+    Non importa Kivy: si può collaudare anche sul PC o in Termux."""
+
+    def __init__(self):
+        self.eventi = queue.Queue()
+        self.in_corso = False
+        self._stop = threading.Event()
+        self._attesa = None
+        self._valore = None
+        self._thread = None
+
+    # -- usate dallo script (thread secondario) --
+    def scrivi(self, testo):
+        testo = testo.replace("\r\n", "\n")
+        trovati = list(_ANSI_PULISCI.finditer(testo))
+        if trovati:
+            self.eventi.put(("pulisci",))
+            testo = testo[trovati[-1].end():]
+        testo = _ANSI_ALTRO.sub("", testo).replace("\r", "")
+        if testo:
+            self.eventi.put(("testo", testo))
+
+    def attendi_riga(self, prompt):
+        if self._stop.is_set():
+            raise Interrotto()
+        self._attesa = threading.Event()
+        self._valore = None
+        self.eventi.put(("input", prompt))
+        self._attesa.wait()
+        self._attesa = None
+        if self._stop.is_set():
+            raise Interrotto()
+        return self._valore if self._valore is not None else ""
+
+    def input(self, prompt=""):
+        prompt = str(prompt)
+        if prompt:
+            self.scrivi(prompt)
+        valore = self.attendi_riga(prompt)
+        self.scrivi(valore + "\n")           # eco, come in un terminale
+        return valore
+
+    # -- usate dall'interfaccia (thread principale) --
+    def consegna(self, valore):
+        """Il testo digitato dall'utente arriva allo script in attesa."""
+        if self._attesa is not None:
+            self._valore = valore
+            self._attesa.set()
+            return True
+        return False
+
+    def avvia(self, percorso, cartella_lavoro=None, radice_moduli=None):
+        """percorso: file da eseguire · cartella_lavoro: dove fare chdir (default: cartella del file)
+        radice_moduli: i moduli importati da qui vengono scaricati a fine esecuzione,
+        così ogni Esegui riparte pulito come un nuovo "python file.py"."""
+        if self.in_corso:
+            return False
+        self._stop.clear()
+        self.in_corso = True
+        self._thread = threading.Thread(target=self._esegui, daemon=True,
+                                        args=(percorso, cartella_lavoro, radice_moduli))
+        self._thread.start()
+        return True
+
+    def ferma(self):
+        if not self.in_corso:
+            return
+        self._stop.set()
+        if self._attesa is not None:      # lo script aspetta un input: basta sbloccarlo
+            self._attesa.set()
+            return
+        try:  # interrompe anche cicli che non chiedono input
+            ctypes.pythonapi.PyThreadState_SetAsyncExc(
+                ctypes.c_ulong(self._thread.ident), ctypes.py_object(Interrotto))
+        except Exception:
+            pass
+
+    # -- esecuzione --
+    def _esegui(self, percorso, cartella_lavoro=None, radice_moduli=None):
+        percorso = os.path.abspath(percorso)
+        if not os.path.exists(percorso) and os.path.exists(percorso + "c"):
+            percorso += "c"                       # APK compilato solo in .pyc
+        cartella = os.path.dirname(percorso)
+        cartella_lavoro = cartella_lavoro or cartella
+        radice_moduli = os.path.abspath(radice_moduli or cartella)
+        moduli_prima = set(sys.modules)
+        salvati = (sys.stdout, sys.stderr, sys.stdin, builtins.input, os.system, sys.argv)
+        cwd_orig = os.getcwd()
+        import getpass
+        getpass_orig = getpass.getpass
+        uscita = _Uscita(self)
+        sys.stdout = sys.stderr = uscita
+        sys.stdin = _Ingresso(self)
+        builtins.input = self.input
+        getpass.getpass = lambda prompt="Password: ", stream=None: self.input(prompt)
+        sys.argv = [percorso]
+
+        def _sistema(comando):
+            if str(comando).strip().lower() in ("clear", "cls", "reset"):
+                self.eventi.put(("pulisci",))
+                return 0
+            return salvati[4](comando)
+        os.system = _sistema
+
+        esito = "ok"
+        aggiunto = cartella not in sys.path
+        try:
+            os.makedirs(cartella_lavoro, exist_ok=True)
+            os.chdir(cartella_lavoro)
+            if aggiunto:
+                sys.path.insert(0, cartella)
+            runpy.run_path(percorso, run_name="__main__")
+        except Interrotto:
+            esito = "fermato"
+        except SystemExit as e:
+            esito = "ok" if e.code in (None, 0) else "uscita %s" % e.code
+        except BaseException as e:
+            self.scrivi("\n" + self._traccia(e, percorso))
+            esito = "errore"
+        finally:
+            try:  # annulla un eventuale "Ferma" arrivato a script già concluso
+                ctypes.pythonapi.PyThreadState_SetAsyncExc(
+                    ctypes.c_ulong(threading.get_ident()), None)
+            except Exception:
+                pass
+            (sys.stdout, sys.stderr, sys.stdin,
+             builtins.input, os.system, sys.argv) = salvati
+            getpass.getpass = getpass_orig
+            try:
+                os.chdir(cwd_orig)
+            except OSError:
+                pass
+            if aggiunto and cartella in sys.path:
+                sys.path.remove(cartella)
+            for nome in set(sys.modules) - moduli_prima:     # scarica i moduli del progetto
+                file_mod = getattr(sys.modules.get(nome), "__file__", None) or ""
+                if os.path.abspath(file_mod).startswith(radice_moduli + os.sep):
+                    sys.modules.pop(nome, None)
+            self.in_corso = False
+            self.eventi.put(("fine", esito))
+
+    @staticmethod
+    def _traccia(errore, percorso):
+        """Traceback ripulito: mostra solo le righe che riguardano lo script utente."""
+        tb = errore.__traceback__
+        while tb is not None and os.path.abspath(tb.tb_frame.f_code.co_filename) != percorso:
+            tb = tb.tb_next
+        righe = traceback.format_exception(type(errore), errore, tb if tb is not None else errore.__traceback__)
+        return "".join(righe)
+
+
+# =====================================================================
+# Interfaccia Kivy (importata solo quando l'app parte davvero)
+# =====================================================================
+def avvia_app():
+    from kivy.app import App
+    from kivy.clock import Clock
+    from kivy.core.window import Window
+    from kivy.core.clipboard import Clipboard
+    from kivy.metrics import dp, sp
+    from kivy.uix.boxlayout import BoxLayout
+    from kivy.uix.button import Button
+    from kivy.uix.label import Label
+    from kivy.uix.textinput import TextInput
+
+    Window.clearcolor = (0.008, 0.024, 0.09, 1)
+    Window.softinput_mode = "below_target"
+    FONT_MONO = "data/fonts/RobotoMono-Regular.ttf"
+    BLU = (0.055, 0.647, 0.914, 1)
+    GRIGIO = (0.2, 0.255, 0.333, 1)
+    ROSSO = (0.86, 0.25, 0.25, 1)
+
+    def pulsante(testo, colore, azione, larghezza=None):
+        b = Button(text=testo, background_normal="", background_color=colore,
+                   font_size=sp(15), bold=True)
+        if larghezza:
+            b.size_hint_x = None
+            b.width = dp(larghezza)
+        b.bind(on_release=lambda *_: azione())
+        return b
+
+    class Console(BoxLayout):
+        def __init__(self, **kw):
+            super().__init__(orientation="vertical", padding=dp(8), spacing=dp(6), **kw)
+            self.motore = Motore()
+            self.cartella = os.path.dirname(os.path.abspath(__file__))
+
+            testa = BoxLayout(size_hint_y=None, height=dp(40))
+            testa.add_widget(Label(text=TITOLO, bold=True, font_size=sp(17),
+                                   halign="left", valign="middle", text_size=(None, None)))
+            self.stato = Label(text="pronto", font_size=sp(13), color=(0.58, 0.64, 0.72, 1),
+                               size_hint_x=None, width=dp(120))
+            testa.add_widget(self.stato)
+            self.add_widget(testa)
+
+            self.uscita = TextInput(readonly=True, font_name=FONT_MONO, font_size=sp(13),
+                                    background_color=(0.06, 0.09, 0.16, 1),
+                                    foreground_color=(0.89, 0.91, 0.94, 1),
+                                    cursor_color=(0, 0, 0, 0), padding=[dp(8)] * 4)
+            self.add_widget(self.uscita)
+
+            riga = BoxLayout(size_hint_y=None, height=dp(48), spacing=dp(6))
+            self.campo = TextInput(multiline=False, disabled=True, font_size=sp(15),
+                                   hint_text="lo script non sta chiedendo nulla",
+                                   background_color=(0.12, 0.16, 0.23, 1),
+                                   foreground_color=(1, 1, 1, 1),
+                                   cursor_color=BLU, padding=[dp(8), dp(12)],
+                                   write_tab=False, text_validate_unfocus=False)
+            self.campo.bind(on_text_validate=lambda *_: self.invia())
+            riga.add_widget(self.campo)
+            self.btn_invio = pulsante("Invio", BLU, self.invia, 84)
+            self.btn_invio.disabled = True
+            riga.add_widget(self.btn_invio)
+            self.add_widget(riga)
+
+            comandi = BoxLayout(size_hint_y=None, height=dp(48), spacing=dp(6))
+            self.btn_esegui = pulsante("Esegui", BLU, self.esegui)
+            self.btn_ferma = pulsante("Ferma", ROSSO, self.motore.ferma, 96)
+            self.btn_ferma.disabled = True
+            comandi.add_widget(self.btn_esegui)
+            comandi.add_widget(self.btn_ferma)
+            comandi.add_widget(pulsante("Copia", GRIGIO, self.copia, 80))
+            comandi.add_widget(pulsante("Pulisci", GRIGIO, self.pulisci, 84))
+            self.add_widget(comandi)
+
+            self.add_widget(Label(text=MARCHIO, font_size=sp(11), color=(0.4, 0.45, 0.55, 1),
+                                  size_hint_y=None, height=dp(18)))
+
+            Clock.schedule_interval(self.aggiorna, 0.05)
+            if AVVIO_AUTOMATICO:
+                Clock.schedule_once(lambda *_: self.esegui(), 0.3)
+
+        # -- azioni --
+        def esegui(self):
+            if self.motore.in_corso:
+                return
+            percorso = os.path.join(self.cartella, SCRIPT)
+            if not (os.path.exists(percorso) or os.path.exists(percorso + "c")):
+                self.aggiungi("ERRORE: %s non trovato nell'APK.\n" % SCRIPT)
+                return
+            self.pulisci()
+            progetto = os.path.join(self.cartella, CARTELLA_PROGETTO)
+            dati = cartella_dati(progetto)
+            try:
+                sincronizza_dati(progetto, dati)
+            except Exception as e:
+                self.aggiungi("Attenzione: copia dei file di dati non riuscita (%s)\n" % e)
+            os.environ["CREA_APK_DATI"] = dati
+            lavoro = os.path.join(dati, os.path.relpath(os.path.dirname(percorso), progetto))
+            if self.motore.avvia(percorso, os.path.normpath(lavoro), progetto):
+                self.btn_esegui.disabled = True
+                self.btn_ferma.disabled = False
+                self.stato.text = "in esecuzione"
+
+        def invia(self):
+            testo = self.campo.text
+            if self.motore.consegna(testo):
+                self.campo.text = ""
+                self.campo.disabled = True
+                self.btn_invio.disabled = True
+                self.campo.hint_text = "lo script non sta chiedendo nulla"
+                self.stato.text = "in esecuzione"
+
+        def copia(self):
+            Clipboard.copy(self.uscita.text)
+            self.stato.text = "copiato"
+
+        def pulisci(self):
+            self.uscita.text = ""
+
+        def aggiungi(self, testo):
+            nuovo = self.uscita.text + testo
+            if len(nuovo) > MAX_CARATTERI:
+                nuovo = nuovo[-MAX_CARATTERI:]
+                nuovo = nuovo[nuovo.find("\n") + 1:]
+            self.uscita.text = nuovo
+            self.uscita.cursor = self.uscita.get_cursor_from_index(len(nuovo))
+
+        # -- ciclo di aggiornamento: legge gli eventi del motore --
+        def aggiorna(self, *_):
+            blocco = []
+            try:
+                while True:
+                    ev = self.motore.eventi.get_nowait()
+                    if ev[0] == "testo":
+                        blocco.append(ev[1])
+                        continue
+                    if blocco:
+                        self.aggiungi("".join(blocco))
+                        blocco = []
+                    if ev[0] == "pulisci":
+                        self.pulisci()
+                    elif ev[0] == "input":
+                        self.campo.disabled = False
+                        self.btn_invio.disabled = False
+                        self.campo.hint_text = ev[1].strip() or "scrivi e premi Invio"
+                        self.campo.focus = True
+                        self.stato.text = "attende input"
+                    elif ev[0] == "fine":
+                        self.campo.disabled = True
+                        self.btn_invio.disabled = True
+                        self.btn_esegui.disabled = False
+                        self.btn_ferma.disabled = True
+                        self.stato.text = {"ok": "terminato", "fermato": "fermato",
+                                           "errore": "errore"}.get(ev[1], ev[1])
+                        self.aggiungi("\n— %s —\n" % self.stato.text)
+            except queue.Empty:
+                pass
+            if blocco:
+                self.aggiungi("".join(blocco))
+
+    class ConsoleApp(App):
+        def build(self):
+            self.title = TITOLO
+            return Console()
+
+    ConsoleApp().run()
+
+
+if __name__ == "__main__":
+    avvia_app()
+</script>
+<script>
+/* ===== Crea APK (integrato in Pubblica) ===== */
+(() => {
+"use strict";
+const VERSIONE = "3.0";
+const $ = id => document.getElementById(id);
+$("versione").textContent = "v" + VERSIONE;
+
+/* ------------------------------------------------------------------
+   Dati di riferimento
+------------------------------------------------------------------ */
+const STDLIB = new Set(("abc antigravity argparse array ast asyncio atexit base64 bdb binascii bisect builtins bz2 cProfile calendar cmath cmd code codecs codeop collections colorsys compileall concurrent configparser contextlib contextvars copy copyreg csv ctypes curses dataclasses datetime dbm decimal difflib dis doctest email encodings ensurepip enum errno faulthandler fcntl filecmp fileinput fnmatch fractions ftplib functools gc genericpath getopt getpass gettext glob graphlib grp gzip hashlib heapq hmac html http idlelib imaplib importlib inspect io ipaddress itertools json keyword linecache locale logging lzma mailbox marshal math mimetypes mmap modulefinder msvcrt multiprocessing netrc nt ntpath nturl2path numbers opcode operator optparse os pathlib pdb pickle pickletools pkgutil platform plistlib poplib posix posixpath pprint profile pstats pty pwd py_compile pyclbr pydoc pydoc_data pyexpat queue quopri random re readline reprlib resource rlcompleter runpy sched secrets select selectors shelve shlex shutil signal site smtplib socket socketserver sqlite3 sre_compile sre_constants sre_parse ssl stat statistics string stringprep struct subprocess symtable sys sysconfig syslog tabnanny tarfile tempfile termios textwrap this threading time timeit tkinter token tokenize tomllib trace traceback tracemalloc tty turtle turtledemo types typing unicodedata unittest urllib uuid venv warnings wave weakref webbrowser winreg winsound wsgiref xml xmlrpc zipapp zipfile zipimport zlib zoneinfo distutils imp asynchat asyncore smtpd cgi cgitb crypt imghdr mailcap " +
+  "nntplib pipes sndhdr spwd sunau telnetlib uu xdrlib audioop chunk msilib nis ossaudiodev").split(/\s+/));
+
+// modulo importato -> come scriverlo nei requirements di buildozer (dipendenze incluse)
+const LIBRERIE = {
+  requests: "requests,urllib3,charset-normalizer,idna,certifi",
+  urllib3: "urllib3", certifi: "certifi", idna: "idna",
+  bs4: "beautifulsoup4,soupsieve", lxml: "lxml",
+  PIL: "pillow", numpy: "numpy", pandas: "pandas,numpy,python-dateutil,pytz,six",
+  matplotlib: "matplotlib,numpy", cv2: "opencv",
+  yaml: "pyyaml", dateutil: "python-dateutil,six", pytz: "pytz", six: "six",
+  rich: "rich,pygments,markdown-it-py,mdurl", colorama: "colorama",
+  tabulate: "tabulate", pygments: "pygments", emoji: "emoji",
+  plyer: "plyer", jnius: "pyjnius", android: "android",
+  cryptography: "cryptography", nacl: "pynacl", sqlalchemy: "sqlalchemy",
+  mutagen: "mutagen", qrcode: "qrcode", unidecode: "unidecode",
+  feedparser: "feedparser,sgmllib3k", geopy: "geopy,geographiclib",
+  gpxpy: "gpxpy", websocket: "websocket-client", paho: "paho-mqtt",
+  googletrans: null, selenium: null, flask: null, django: null
+};
+const RETE_PIP = new Set(["requests","urllib3","bs4","feedparser","geopy","websocket","paho","googletrans"]);
+const RETE_STD = new Set(["urllib","http","socket","ssl","ftplib","smtplib","imaplib","poplib","xmlrpc","socketserver"]);
+const NON_ANDROID = {
+  tkinter: "interfacce grafiche desktop: su Android non esiste. L'app mostra già una sua interfaccia: rimuovi tkinter.",
+  turtle: "dipende da tkinter, non disponibile su Android.",
+  curses: "gestisce il terminale a schermo intero, non disponibile su Android.",
+  readline: "non presente nel Python per Android (se è in un try/except puoi ignorare l'avviso).",
+  msvcrt: "modulo solo Windows.", winreg: "modulo solo Windows.", winsound: "modulo solo Windows.",
+  PyQt5: "framework grafico desktop, non compilabile con Buildozer.", PyQt6: "framework grafico desktop.",
+  PySide2: "framework grafico desktop.", PySide6: "framework grafico desktop.", wx: "framework grafico desktop.",
+  pygame: "ha già una sua finestra: andrebbe impacchettato diversamente.",
+  flask: "server web: su Android non ha senso in questa console.", django: "server web.",
+  selenium: "pilota un browser desktop, non disponibile su Android.",
+  googletrans: "libreria non mantenuta, spesso non installabile."
+};
+const PRECAUZIONE = {
+  termios: "controlla il terminale: con stdin sostituito di solito fallisce.",
+  tty: "controlla il terminale: con stdin sostituito di solito fallisce.",
+  pty: "terminali virtuali, non utilizzabili nell'app.",
+  multiprocessing: "su Android i processi figli sono molto limitati: preferisci threading.",
+  subprocess: "su Android non ci sono i comandi di Termux: i programmi esterni non saranno disponibili.",
+  kivy: "lo script è già un'app Kivy: compila direttamente quello con Buildozer, senza questa console."
+};
+
+const ESEMPIO = `print("Ciao! Come ti chiami?")
+nome = input("Nome: ")
+print(f"Piacere, {nome}!")
+
+eta = int(input("Quanti anni hai? "))
+if eta >= 18:
+    print("Sei maggiorenne!")
+else:
+    print(f"Tra {18 - eta} anni sarai maggiorenne")
+
+for i in range(3):
+    print(f"Conto: {i + 1}")
+`;
+
+/* ------------------------------------------------------------------
+   Stato
+------------------------------------------------------------------ */
+const stato = {
+  modo: "singolo",        // "singolo" = un file .py · "progetto" = ZIP con più file
+  nomeFile: "script_utente.py",
+  progetto: null,         // {nome, file:[{percorso, dati:Uint8Array}], scartati:[], avvio}
+  extra: [],              // {nome, dati:Uint8Array}
+  icona: null,            // Uint8Array
+  pacchettoToccato: false,
+  librerieToccate: false,
+  permessiToccati: false,
+  analisi: null,
+  file: [],               // file del progetto generato: [{percorso, testo|dati}]
+  scheda: 0
+};
+const ENC = new TextEncoder(), DEC = new TextDecoder("utf-8");
+
+/* ------------------------------------------------------------------
+   Utilità
+------------------------------------------------------------------ */
+function toast(msg) {
+  const t = $("toast"); t.textContent = msg; t.style.display = "block";
+  clearTimeout(toast._t); toast._t = setTimeout(() => t.style.display = "none", 3200);
+}
+function esc(s) { return String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c])); }
+function salva(chiave, valore) { try { localStorage.setItem("creaapk." + chiave, valore); } catch (e) {} }
+function leggi(chiave) { try { return localStorage.getItem("creaapk." + chiave); } catch (e) { return null; } }
+function kb(n) { if (n < 1024) return n + " B"; return n < 1024 * 1024 ? (n / 1024).toFixed(1) + " KB" : (n / 1048576).toFixed(1) + " MB"; }
+
+async function copiaTesto(testo) {
+  try { await navigator.clipboard.writeText(testo); return true; } catch (e) {}
+  const ta = document.createElement("textarea");           // ripiego per file:// e browser vecchi
+  ta.value = testo; ta.style.position = "fixed"; ta.style.opacity = "0";
+  document.body.appendChild(ta); ta.select();
+  let ok = false; try { ok = document.execCommand("copy"); } catch (e) {}
+  ta.remove(); return ok;
+}
+
+function nomePacchetto(s) {
+  let p = s.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/[^a-z0-9]/g, "");
+  if (!/^[a-z]/.test(p)) p = "app" + p;
+  return p.slice(0, 30) || "app";
+}
+function titoloDaFile(nome) {
+  return nome.replace(/\.[^.]+$/, "").replace(/[_\-]+/g, " ").trim()
+    .replace(/\b\w/g, c => c.toUpperCase()) || "La mia app";
+}
+function listaPulita(s) {
+  return [...new Set(s.split(",").map(x => x.trim()).filter(Boolean))];
+}
+function cartellaDi(percorso) { const i = percorso.lastIndexOf("/"); return i < 0 ? "" : percorso.slice(0, i); }
+
+/* ------------------------------------------------------------------
+   I file dell'utente, uguali per i due modi
+   -> [{percorso, dati:Uint8Array}] relativi alla cartella progetto/
+------------------------------------------------------------------ */
+function fileUtente() {
+  let lista;
+  if (stato.modo === "progetto") {
+    lista = stato.progetto.file.map(f => ({percorso: f.percorso, dati: f.dati}));
+  } else {
+    lista = [{percorso: stato.nomeFile, dati: ENC.encode($("codice").value)}];
+  }
+  for (const f of stato.extra) {
+    lista = lista.filter(x => x.percorso !== f.nome);
+    lista.push({percorso: f.nome, dati: f.dati});
+  }
+  return lista;
+}
+function fileAvvio() { return stato.modo === "progetto" ? stato.progetto.avvio : stato.nomeFile; }
+
+/* ------------------------------------------------------------------
+   Lettura di uno ZIP (metodi "store" e "deflate", nessuna libreria esterna)
+------------------------------------------------------------------ */
+async function trasforma(dati, flusso) {
+  const lettore = new Blob([dati]).stream().pipeThrough(flusso).getReader();
+  const parti = []; let totale = 0;
+  for (;;) { const {done, value} = await lettore.read(); if (done) break; parti.push(value); totale += value.length; }
+  const out = new Uint8Array(totale); let o = 0;
+  for (const p of parti) { out.set(p, o); o += p.length; }
+  return out;
+}
+
+async function leggiZip(buffer) {
+  const u8 = new Uint8Array(buffer), dv = new DataView(buffer);
+  let fine = -1;
+  for (let i = u8.length - 22; i >= Math.max(0, u8.length - 65557); i--)
+    if (dv.getUint32(i, true) === 0x06054b50) { fine = i; break; }
+  if (fine < 0) throw new Error("il file non è uno ZIP valido");
+  const quanti = dv.getUint16(fine + 10, true);
+  let p = dv.getUint32(fine + 16, true);
+  if (quanti === 0xFFFF || p === 0xFFFFFFFF) throw new Error("ZIP64 (archivi oltre 4 GB) non supportato");
+  const voci = [];
+  for (let k = 0; k < quanti; k++) {
+    if (dv.getUint32(p, true) !== 0x02014b50) throw new Error("indice dello ZIP danneggiato");
+    const flag = dv.getUint16(p + 8, true), metodo = dv.getUint16(p + 10, true);
+    const compressi = dv.getUint32(p + 20, true);
+    const ln = dv.getUint16(p + 28, true), le = dv.getUint16(p + 30, true), lc = dv.getUint16(p + 32, true);
+    const offset = dv.getUint32(p + 42, true);
+    const nome = DEC.decode(u8.subarray(p + 46, p + 46 + ln));
+    p += 46 + ln + le + lc;
+    if (nome.endsWith("/") || nome.endsWith("\\")) continue;           // cartella
+    if (flag & 1) throw new Error("ZIP protetto da password: crealo senza password");
+    const inizio = offset + 30 + dv.getUint16(offset + 26, true) + dv.getUint16(offset + 28, true);
+    const grezzi = u8.subarray(inizio, inizio + compressi);
+    let dati;
+    if (metodo === 0) dati = grezzi.slice();
+    else if (metodo === 8) {
+      if (typeof DecompressionStream === "undefined") throw new Error("questo browser non sa decomprimere gli ZIP: aggiorna Chrome");
+      dati = await trasforma(grezzi, new DecompressionStream("deflate-raw"));
+    } else throw new Error(`compressione di tipo ${metodo} non supportata (file ${nome}): ricrea lo ZIP con le impostazioni normali`);
+    voci.push({percorso: nome, dati});
+  }
+  return voci;
+}
+
+// cartelle e file da non portare nell'APK
+const SCARTA_CARTELLE = new Set([".git", "__pycache__", "__MACOSX", ".buildozer", "venv", ".venv",
+  "node_modules", ".idea", ".vscode", ".github", ".pytest_cache", ".mypy_cache"]);
+const SCARTA_FILE = /(^|\/)(\.DS_Store|Thumbs\.db)$|\.(pyc|pyo|apk|aab)$/i;
+
+function pulisciVoci(voci) {
+  const tenuti = [], scartati = [];
+  for (const v of voci) {
+    let perc = v.percorso.replace(/\\/g, "/").replace(/^(\.\/|\/)+/, "");
+    const parti = perc.split("/").filter(x => x && x !== "." && x !== "..");
+    perc = parti.join("/");
+    if (!perc) continue;
+    if (parti.slice(0, -1).some(c => SCARTA_CARTELLE.has(c)) || SCARTA_FILE.test(perc)) { scartati.push(perc); continue; }
+    tenuti.push({percorso: perc, dati: v.dati});
+  }
+  // se tutto sta in un'unica cartella principale (es. mioprogetto/...), la togliamo
+  for (;;) {
+    const primi = new Set(tenuti.map(f => f.percorso.split("/")[0]));
+    if (primi.size !== 1 || tenuti.some(f => !f.percorso.includes("/"))) break;
+    const radice = [...primi][0] + "/";
+    tenuti.forEach(f => f.percorso = f.percorso.slice(radice.length));
+    scartati.forEach((p, i) => { if (p.startsWith(radice)) scartati[i] = p.slice(radice.length); });
+  }
+  tenuti.sort((a, b) => a.percorso.localeCompare(b.percorso));
+  return {tenuti, scartati};
+}
+
+function candidatiAvvio(file) {
+  const py = file.filter(f => f.percorso.endsWith(".py"));
+  const punti = f => {
+    const nome = f.percorso.split("/").pop(), prof = f.percorso.split("/").length - 1;
+    let v = -prof * 10;
+    if (nome === "main.py") v += 50; else if (nome === "__main__.py") v += 40;
+    else if (/^(app|run|avvia|start)\.py$/.test(nome)) v += 30;
+    if (nome === "__init__.py" || /^(test_|setup\.py$|conftest\.py$)/.test(nome)) v -= 100;
+    if (/__name__\s*==\s*["']__main__["']/.test(DEC.decode(f.dati))) v += 20;
+    return v;
+  };
+  return py.map(f => ({percorso: f.percorso, punti: punti(f)}))
+    .sort((a, b) => b.punti - a.punti || a.percorso.localeCompare(b.percorso)).map(x => x.percorso);
+}
+
+/* ------------------------------------------------------------------
+   Analisi (uno o più file .py)
+------------------------------------------------------------------ */
+function analizza() {
+  const esiti = [], librerie = new Set(), permessi = new Set();
+  const add = (livello, html) => esiti.push({livello, html});
+  const tutti = fileUtente();
+  const avvio = fileAvvio();
+  const sorgenti = tutti.filter(f => f.percorso.endsWith(".py")).map(f => ({percorso: f.percorso, testo: DEC.decode(f.dati)}));
+  const multi = sorgenti.length > 1;
+  const dove = files => multi ? ` <span class="nota">(${files.slice(0, 4).map(esc).join(", ")}${files.length > 4 ? "…" : ""})</span>` : "";
+
+  const principale = sorgenti.find(f => f.percorso === avvio);
+  if (!principale || !principale.testo.trim()) {
+    add("errore", "Il file di avvio è vuoto o mancante."); return {esiti, librerie, permessi, bloccante: true};
+  }
+
+  // moduli importabili dal progetto stesso (relativi alla cartella del file di avvio)
+  const base = cartellaDi(avvio), prefisso = base ? base + "/" : "";
+  const locali = new Set();
+  for (const f of tutti) {
+    if (!f.percorso.startsWith(prefisso)) continue;
+    const primo = f.percorso.slice(prefisso.length).split("/")[0];
+    locali.add(primo.replace(/\.py$/, ""));
+  }
+
+  const usatoDa = new Map();                       // modulo -> [file]
+  const regole = [                                  // [regex, livello, messaggio]
+    [/termux-|com\.termux/, "avviso", "Comandi <code>termux-…</code>: dentro l'APK Termux non c'è, quei comandi non funzioneranno."],
+    [/\/sdcard|\/storage\/emulated/, "avviso", "Percorsi in <code>/sdcard</code>: da Android 11 le app non possono scriverci liberamente. Usa percorsi relativi: finiscono nella cartella dati dell'app."],
+    [/\bsys\.argv\b/, "avviso", "<code>sys.argv</code>: l'app non riceve argomenti, conterrà solo il nome dello script."],
+    [/\bos\.popen\b/, "avviso", "<code>os.popen</code>: i comandi esterni di solito non sono disponibili su Android."],
+    [/__file__/, "info", "<code>__file__</code>: punta alla cartella dell'app, che si azzera a ogni aggiornamento. Per salvare dati usa percorsi relativi (cartella dati persistente)."],
+    [/\bos\.system\s*\(\s*["'](clear|cls)["']\s*\)|\\033\[2J|\\x1b\[2J/, "ok", "Pulizia schermo (<code>clear</code> / <code>\\033[2J</code>) gestita dalla console."],
+    [/\\033\[|\\x1b\[|\\u001b\[/, "ok", "Codici colore ANSI: verranno rimossi automaticamente dall'output."],
+    [/^\s*while\s+True\s*:/m, "info", "Ciclo <code>while True</code>: nell'app potrai fermarlo con il pulsante <b>Ferma</b>."],
+    [/\bgetpass\b/, "ok", "<code>getpass</code> gestito: chiede il valore nel campo di testo."],
+    [/\binput\s*\(|sys\.stdin/, "ok", "<code>input()</code> / <code>sys.stdin</code>: diventano campo di testo + tasto Invio."]
+  ];
+  const colpiti = regole.map(() => []);
+  const tabMisti = [];
+
+  for (const {percorso, testo} of sorgenti) {
+    const righe = testo.split(/\r?\n/);
+    const pulito = righe.map(r => r.replace(/(^|\s)#.*$/, "")).join("\n");
+    let conTab = 0, conSpazi = 0;
+    for (const r of righe) { const m = r.match(/^[ \t]+(?=\S)/); if (!m) continue;
+      if (m[0].includes("\t")) conTab++; if (m[0].includes(" ")) conSpazi++; }
+    if (conTab && conSpazi) tabMisti.push(percorso);
+    for (const r of pulito.split("\n")) {
+      const nomi = [];
+      let m = r.match(/^\s*import\s+(.+)$/);
+      if (m) m[1].split(",").forEach(x => { const n = x.trim().split(/\s+/)[0].split(".")[0]; if (/^[A-Za-z_]\w*$/.test(n)) nomi.push(n); });
+      m = r.match(/^\s*from\s+([A-Za-z_][\w.]*)\s+import\b/);
+      if (m) nomi.push(m[1].split(".")[0]);
+      for (const n of nomi) { if (!usatoDa.has(n)) usatoDa.set(n, []); if (!usatoDa.get(n).includes(percorso)) usatoDa.get(n).push(percorso); }
+    }
+    regole.forEach(([re], i) => { if (re.test(pulito)) colpiti[i].push(percorso); });
+  }
+
+  if (tabMisti.length) add("avviso", `Indentazione mista tab/spazi: Python potrebbe dare <code>TabError</code>. Usa solo spazi.${dove(tabMisti)}`);
+
+  const daAggiungere = [], sconosciuti = [];
+  for (const mod of [...usatoDa.keys()].sort()) {
+    if (locali.has(mod)) continue;
+    const chi = usatoDa.get(mod);
+    if (NON_ANDROID[mod]) { add("errore", `<code>${esc(mod)}</code>: ${NON_ANDROID[mod]}${dove(chi)}`); continue; }
+    if (PRECAUZIONE[mod]) add("avviso", `<code>${esc(mod)}</code>: ${PRECAUZIONE[mod]}${dove(chi)}`);
+    if (RETE_STD.has(mod) || RETE_PIP.has(mod)) permessi.add("INTERNET");
+    if (mod === "ssl" || mod === "urllib" || mod === "http" || RETE_PIP.has(mod)) librerie.add("openssl");
+    if (STDLIB.has(mod)) continue;
+    if (mod in LIBRERIE) { listaPulita(LIBRERIE[mod] || "").forEach(x => librerie.add(x)); daAggiungere.push(mod); }
+    else sconosciuti.push(mod);
+  }
+
+  // requirements.txt del progetto
+  const req = tutti.find(f => /(^|\/)requirements\.txt$/i.test(f.percorso));
+  if (req) {
+    const letti = [];
+    for (let r of DEC.decode(req.dati).split(/\r?\n/)) {
+      r = r.replace(/#.*$/, "").trim();
+      if (!r || r.startsWith("-") || /:\/\//.test(r)) continue;
+      const m = r.match(/^([A-Za-z0-9][A-Za-z0-9._\-]*)(\[[^\]]*\])?\s*(==\s*[\w.]+)?/);
+      if (!m) continue;
+      const voce = (m[1] + (m[3] ? m[3].replace(/\s/g, "") : "")).toLowerCase();
+      const nomePip = m[1].toLowerCase();
+      if (/^(kivy|python3?)$/.test(nomePip)) continue;
+      librerie.add(voce); letti.push(voce);
+      // stessa libreria nota anche come import: porta con sé dipendenze e permessi
+      for (const [mod, lista] of Object.entries(LIBRERIE)) {
+        const pip = listaPulita(lista || "");
+        if (pip[0] !== nomePip) continue;
+        pip.slice(1).forEach(x => librerie.add(x));
+        if (RETE_PIP.has(mod)) { permessi.add("INTERNET"); librerie.add("openssl"); }
+      }
+    }
+    if (letti.length) add("ok", `<code>${esc(req.percorso)}</code> letto: ${letti.map(x => `<code>${esc(x)}</code>`).join(" ")}`);
+  }
+
+  if (daAggiungere.length) add("ok", `Librerie esterne riconosciute e aggiunte ai requisiti: ${daAggiungere.map(m => `<code>${esc(m)}</code>`).join(" ")}`);
+  for (const mod of sconosciuti)
+    add("avviso", `Modulo <code>${esc(mod)}</code> non riconosciuto${dove(usatoDa.get(mod))}. Se è un tuo file, deve stare nel progetto accanto al file di avvio; se è una libreria PyPI scritta solo in Python, scrivi il suo nome pip in <i>Librerie extra</i>.`);
+  if (permessi.has("INTERNET")) add("info", "Il codice usa la rete: aggiunto il permesso <code>INTERNET</code>.");
+  regole.forEach(([, livello, msg], i) => { if (colpiti[i].length) add(livello, msg + dove(colpiti[i])); });
+
+  // controlli sui file del progetto
+  const nascosti = tutti.filter(f => f.percorso.split("/").some(c => c.startsWith("."))).map(f => f.percorso);
+  if (nascosti.length) add("avviso", `File con nome che inizia per punto: Buildozer non li mette nell'APK${dove(nascosti) || ` <span class="nota">(${nascosti.map(esc).join(", ")})</span>`}. Rinominali se lo script ne ha bisogno.`);
+  const enormi = tutti.filter(f => f.dati.length > 50 * 1048576).map(f => f.percorso);
+  if (enormi.length) add("errore", `File oltre 50 MB: GitHub rifiuta i file sopra i 100 MB e l'APK diventa enorme <span class="nota">(${enormi.map(esc).join(", ")})</span>.`);
+  if (/(^|\/)buildozer\.spec$/.test(tutti.map(f => f.percorso).join("\n"))) add("info", "Il progetto ha già un suo <code>buildozer.spec</code>: resta nella cartella <code>progetto/</code> ma non viene usato; vale quello generato qui.");
+
+  if (!esiti.some(e => e.livello === "errore" || e.livello === "avviso"))
+    add("ok", multi ? `Nessun problema rilevato nei ${sorgenti.length} file Python.` : "Nessun problema rilevato: lo script è compatibile.");
+  const ordine = {errore: 0, avviso: 1, info: 2, ok: 3};
+  esiti.sort((a, b) => ordine[a.livello] - ordine[b.livello]);
+  return {esiti, librerie, permessi, bloccante: false, sorgenti};
+}
+
+function mostraAnalisi() {
+  const a = analizza();
+  stato.analisi = a;
+  const icone = {ok: "✓", info: "i", avviso: "!", errore: "✕"};
+  $("esiti").innerHTML = a.esiti.map(e => `<li class="${e.livello}"><i>${icone[e.livello]}</i><span>${e.html}</span></li>`).join("");
+  const src = (a.sorgenti || []).map(f => f.testo).join("\n");
+  $("sRighe").textContent = src ? src.split(/\r?\n/).length : 0;
+  $("sPrint").textContent = (src.match(/\bprint\s*\(/g) || []).length;
+  $("sInput").textContent = (src.match(/\binput\s*\(/g) || []).length;
+  if (!stato.librerieToccate) $("librerie").value = [...a.librerie].join(",");
+  if (!stato.permessiToccati) $("permessi").value = [...a.permessi].join(",");
+  $("btnZip").disabled = a.bloccante;
+}
+
+/* ------------------------------------------------------------------
+   Generazione dei file del progetto
+------------------------------------------------------------------ */
+function impostazioni() {
+  const titolo = $("titolo").value.trim() || "La mia app";
+  let dominio = $("dominio").value.trim().toLowerCase().replace(/[^a-z0-9.]/g, "").replace(/^\.+|\.+$/g, "");
+  if (!/^[a-z][a-z0-9]*(\.[a-z][a-z0-9]*)+$/.test(dominio)) dominio = "org.lollo";
+  return {
+    titolo,
+    pacchetto: nomePacchetto($("pacchetto").value || titolo),
+    dominio,
+    versione: ($("versioneApp").value.trim().replace(/[^0-9.]/g, "") || "1.0"),
+    orientamento: $("orientamento").value,
+    arch: $("arch").value,
+    librerie: listaPulita($("librerie").value).filter(x => !/^(python3|kivy)$/i.test(x)),
+    permessi: listaPulita($("permessi").value).map(p => p.toUpperCase().replace(/^ANDROID\.PERMISSION\./, "")),
+    autoAvvio: $("autoAvvio").checked
+  };
+}
+
+function genMain(s) {
+  return $("tplMain").textContent.replace(/^\n/, "")
+    .replace('"__TITOLO__"', JSON.stringify(s.titolo))
+    .replace("__AVVIO_AUTOMATICO__", s.autoAvvio ? "True" : "False")
+    .replace('"__SCRIPT__"', JSON.stringify("progetto/" + fileAvvio()));
+}
+
+function genSpec(s) {
+  const estensioni = new Set(["py", "png", "jpg", "jpeg", "kv", "atlas", "json", "txt", "csv", "ttf", "db", "ini", "xml", "gpx", "yaml", "yml"]);
+  fileUtente().forEach(f => { const m = f.percorso.match(/\.([A-Za-z0-9]+)$/); if (m) estensioni.add(m[1].toLowerCase()); });
+  const req = ["python3", "kivy", ...s.librerie].join(",");
+  return `[app]
+# --- Identità dell'app ---
+title = ${s.titolo}
+package.name = ${s.pacchetto}
+package.domain = ${s.dominio}
+version = ${s.versione}
+
+# --- Sorgenti ---
+# Il tuo codice è in progetto/ ; main.py è la console che lo esegue
+source.dir = .
+source.include_exts = ${[...estensioni].sort().join(",")}
+source.exclude_dirs = .github, bin, firma, .buildozer, venv
+
+# --- Librerie (python3 e kivy sono obbligatorie) ---
+requirements = ${req}
+
+# --- Aspetto ---
+orientation = ${s.orientamento}
+fullscreen = 0
+${stato.icona ? "icon.filename = %(source.dir)s/icon.png\n" : ""}
+# --- Android ---
+${s.permessi.length ? "android.permissions = " + s.permessi.join(", ") : "# android.permissions = INTERNET"}
+android.archs = ${s.arch}
+android.accept_sdk_license = True
+android.allow_backup = True
+# Tiene i sorgenti .py nell'APK (di default diventerebbero .pyc ottimizzati con -OO,
+# che tolgono anche gli assert): il codice gira esattamente come con "python file.py"
+android.no-byte-compile-python = True
+
+[buildozer]
+log_level = 2
+warn_on_root = 1
+`;
+}
+
+function genWorkflow() {
+  return `# Compila l'APK ad ogni push (o a mano: Actions -> Build APK -> Run workflow)
+# e lo pubblica nelle Releases del repository.  Generato da Crea APK · by Lollo ®2026
+name: Build APK
+
+on:
+  push:
+    paths-ignore:
+      - "firma/**"
+      - "README.md"
+      - "LEGGIMI.md"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+# Una nuova pubblicazione annulla la compilazione precedente ancora in corso
+concurrency:
+  group: build-apk-\${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  PYTHONFORANDROID_PREREQUISITES_INSTALL_INTERACTIVE: 0
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - name: Scarica il codice
+        uses: actions/checkout@v4
+
+      - name: Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Strumenti di sistema
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y git zip unzip autoconf automake libtool pkg-config \\
+            zlib1g-dev libncurses-dev libffi-dev libssl-dev cmake build-essential ccache
+          sudo apt-get install -y libtinfo5 || true
+
+      - name: Buildozer e Cython
+        run: |
+          python -m pip install --upgrade pip
+          pip install --upgrade buildozer "cython==0.29.33" setuptools virtualenv
+
+      - name: Chiave della cache
+        # Dipende solo da librerie e processori: cambiare versione o titolo non la invalida
+        id: chiave
+        run: echo "k=$(grep -E '^(requirements|android\\.archs) *=' buildozer.spec | sha1sum | cut -c1-16)" >> "$GITHUB_OUTPUT"
+
+      - name: Cache strumenti Android (SDK/NDK)
+        uses: actions/cache@v4
+        with:
+          path: ~/.buildozer
+          key: buildozer-\${{ runner.os }}-\${{ steps.chiave.outputs.k }}
+          restore-keys: buildozer-\${{ runner.os }}-
+
+      - name: Chiave di firma stabile
+        # Senza una chiave fissa ogni APK avrebbe una firma diversa e Android
+        # rifiuterebbe di installarlo sopra la versione precedente.
+        run: |
+          mkdir -p ~/.android
+          if [ -f firma/debug.keystore ]; then
+            cp firma/debug.keystore ~/.android/debug.keystore
+            echo "Chiave di firma esistente riutilizzata"
+          else
+            keytool -genkeypair -keystore ~/.android/debug.keystore -storepass android \\
+              -alias androiddebugkey -keypass android -keyalg RSA -keysize 2048 \\
+              -validity 10000 -dname "CN=Android Debug,O=Android,C=US"
+            mkdir -p firma
+            cp ~/.android/debug.keystore firma/debug.keystore
+            git config user.name "github-actions[bot]"
+            git config user.email "41898283+github-actions[bot]@users.noreply.github.com"
+            git add firma/debug.keystore
+            git commit -m "Chiave di firma per gli aggiornamenti [skip ci]"
+            git push || echo "ATTENZIONE: chiave non salvata nel repository, il prossimo APK avrà una firma diversa"
+          fi
+
+      - name: Compila APK
+        run: buildozer android debug
+
+      - name: Salva APK tra gli artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: apk
+          path: bin/*.apk
+          if-no-files-found: error
+
+      - name: Pubblica APK nelle Releases
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: apk-\${{ github.run_number }}
+          name: APK build \${{ github.run_number }}
+          body: Compilato automaticamente dal commit \${{ github.sha }}
+          files: bin/*.apk
+`;
+}
+
+function genLeggimi(s) {
+  const descr = stato.modo === "progetto"
+    ? `dal progetto \`${stato.progetto.nome}\` (${stato.progetto.file.length} file), avviato da \`${fileAvvio()}\``
+    : `dallo script \`${stato.nomeFile}\``;
+  return `# ${s.titolo}
+
+App Android generata con **Crea APK** (by Lollo ®2026) ${descr}.
+
+## Struttura
+- \`progetto/\` — il tuo codice, intatto (file di avvio: \`progetto/${fileAvvio()}\`)
+- \`main.py\` — console Android: print → testo, input → campo + Invio, pulsanti Esegui/Ferma/Copia/Pulisci
+- \`buildozer.spec\` — configurazione della compilazione
+- \`.github/workflows/build-apk.yml\` — compila l'APK su GitHub a ogni push
+- \`firma/\` — creata al primo giro: chiave che permette gli aggiornamenti. Non cancellarla.
+
+## Come ottenere l'APK
+1. Carica tutti questi file in un repository GitHub (anche la cartella \`.github\`).
+2. Scheda **Actions** → attendi il pallino verde (prima volta 20–40 min).
+3. Sezione **Releases** → "APK build N" → scarica il file \`.apk\` e installalo.
+
+## Dati salvati dallo script
+Sul telefono lo script lavora in una cartella dati che sopravvive agli aggiornamenti dell'APK
+(percorso in \`os.environ["CREA_APK_DATI"]\`). I file di dati di \`progetto/\` vi vengono copiati
+al primo avvio; quelli modificati dallo script non vengono mai sovrascritti.
+
+## Provarlo prima sul PC o in Termux
+\`cd progetto && python ${fileAvvio().split("/").pop()}\` funziona come sempre. Per provare anche la console:
+\`pip install kivy\` e poi, nella cartella principale, \`python main.py\`.
+
+Pacchetto: \`${s.dominio}.${s.pacchetto}\` · versione ${s.versione}
+`;
+}
+
+function generaFile() {
+  const s = impostazioni();
+  const file = [
+    {percorso: "main.py", testo: genMain(s)},
+    {percorso: "buildozer.spec", testo: genSpec(s)},
+    {percorso: ".github/workflows/build-apk.yml", testo: genWorkflow()},
+    {percorso: "LEGGIMI.md", testo: genLeggimi(s)}
+  ];
+  for (const f of fileUtente()) file.push({percorso: "progetto/" + f.percorso, dati: f.dati});
+  if (stato.icona) file.push({percorso: "icon.png", dati: stato.icona});
+  stato.file = file;
+  document.querySelectorAll(".pk").forEach(el => el.textContent = s.pacchetto);
+  return s;
+}
+
+function mostraAnteprima() {
+  generaFile();
+  const testuali = stato.file.filter(f => f.testo !== undefined);
+  if (stato.scheda >= testuali.length) stato.scheda = 0;
+  $("schede").innerHTML = testuali.map((f, i) =>
+    `<button data-i="${i}" class="${i === stato.scheda ? "attiva" : ""}">${esc(f.percorso.split("/").pop())}</button>`).join("");
+  const f = testuali[stato.scheda];
+  $("anteprima").textContent = f.testo;
+  const pesoUtente = stato.file.filter(x => x.dati).reduce((a, x) => a + x.dati.length, 0);
+  $("infoFile").textContent = `${f.percorso} · ${f.testo.split("\n").length} righe · ZIP: ${stato.file.length} file, codice tuo ${kb(pesoUtente)}`;
+}
+
+/* ------------------------------------------------------------------
+   Scrittura dello ZIP (compressione deflate quando il browser la offre)
+------------------------------------------------------------------ */
+const CRC_TAB = (() => { const t = new Uint32Array(256);
+  for (let n = 0; n < 256; n++) { let c = n; for (let k = 0; k < 8; k++) c = c & 1 ? 0xEDB88320 ^ (c >>> 1) : c >>> 1; t[n] = c >>> 0; }
+  return t; })();
+function crc32(d) { let c = 0xFFFFFFFF; for (let i = 0; i < d.length; i++) c = CRC_TAB[(c ^ d[i]) & 0xFF] ^ (c >>> 8); return (c ^ 0xFFFFFFFF) >>> 0; }
+
+async function creaZip(voci) {
+  const parti = [], centrale = [];
+  const ora = new Date();
+  const dosTime = (ora.getHours() << 11) | (ora.getMinutes() << 5) | (ora.getSeconds() >> 1);
+  const dosDate = ((ora.getFullYear() - 1980) << 9) | ((ora.getMonth() + 1) << 5) | ora.getDate();
+  const comprimi = typeof CompressionStream !== "undefined";
+  let offset = 0;
+  for (const v of voci) {
+    const nome = ENC.encode(v.percorso);
+    const dati = v.dati || ENC.encode(v.testo);
+    const crc = crc32(dati);
+    let metodo = 0, contenuto = dati;
+    if (comprimi && dati.length > 64) {
+      try {
+        const z = await trasforma(dati, new CompressionStream("deflate-raw"));
+        if (z.length < dati.length) { metodo = 8; contenuto = z; }
+      } catch (e) { /* resta non compresso */ }
+    }
+    const loc = new DataView(new ArrayBuffer(30));
+    loc.setUint32(0, 0x04034b50, true); loc.setUint16(4, 20, true); loc.setUint16(6, 0x0800, true);
+    loc.setUint16(8, metodo, true); loc.setUint16(10, dosTime, true); loc.setUint16(12, dosDate, true);
+    loc.setUint32(14, crc, true); loc.setUint32(18, contenuto.length, true); loc.setUint32(22, dati.length, true);
+    loc.setUint16(26, nome.length, true); loc.setUint16(28, 0, true);
+    parti.push(new Uint8Array(loc.buffer), nome, contenuto);
+    const cen = new DataView(new ArrayBuffer(46));
+    cen.setUint32(0, 0x02014b50, true); cen.setUint16(4, 0x031E, true); cen.setUint16(6, 20, true);
+    cen.setUint16(8, 0x0800, true); cen.setUint16(10, metodo, true); cen.setUint16(12, dosTime, true);
+    cen.setUint16(14, dosDate, true); cen.setUint32(16, crc, true); cen.setUint32(20, contenuto.length, true);
+    cen.setUint32(24, dati.length, true); cen.setUint16(28, nome.length, true);
+    cen.setUint32(38, (0o100644 << 16) >>> 0, true); cen.setUint32(42, offset, true);
+    centrale.push(new Uint8Array(cen.buffer), nome);
+    offset += 30 + nome.length + contenuto.length;
+  }
+  const dimCentrale = centrale.reduce((a, b) => a + b.length, 0);
+  const fine = new DataView(new ArrayBuffer(22));
+  fine.setUint32(0, 0x06054b50, true); fine.setUint16(8, voci.length, true); fine.setUint16(10, voci.length, true);
+  fine.setUint32(12, dimCentrale, true); fine.setUint32(16, offset, true);
+  return new Blob([...parti, ...centrale, new Uint8Array(fine.buffer)], {type: "application/zip"});
+}
+
+function scarica(blob, nome) {
+  const url = URL.createObjectURL(blob), a = document.createElement("a");
+  a.href = url; a.download = nome; document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 4000);
+}
+
+/* ------------------------------------------------------------------
+   Modo progetto: pannello, albero dei file, scelta del file di avvio
+------------------------------------------------------------------ */
+function salvaEditor() {            // il testo dell'editor torna nel file di avvio del progetto
+  if (stato.modo !== "progetto") return;
+  const f = stato.progetto.file.find(x => x.percorso === stato.progetto.avvio);
+  if (f) f.dati = ENC.encode($("codice").value);
+}
+
+function disegnaProgetto() {
+  const pr = stato.progetto, attivo = stato.modo === "progetto";
+  $("pannelloProgetto").hidden = !attivo;
+  $("btnCarica").textContent = attivo ? "Torna a file .py singolo" : "Carica file .py";
+  if (!attivo) { $("nomeFile").textContent = stato.nomeFile; return; }
+  const peso = pr.file.reduce((a, f) => a + f.dati.length, 0);
+  $("nomeProgetto").textContent = pr.nome;
+  $("infoProgetto").textContent = `${pr.file.length} file · ${kb(peso)}`;
+  const candidati = candidatiAvvio(pr.file);
+  $("avvio").innerHTML = candidati.map(p => `<option ${p === pr.avvio ? "selected" : ""}>${esc(p)}</option>`).join("");
+  $("titoloAlbero").textContent = `File del progetto (${pr.file.length}${pr.scartati.length ? `, ${pr.scartati.length} esclusi` : ""})`;
+  $("albero").innerHTML = pr.file.map(f =>
+      `<div class="${f.percorso === pr.avvio ? "avvio" : ""}">${f.percorso === pr.avvio ? "▶ " : "  "}${esc(f.percorso)} · ${kb(f.dati.length)}</div>`).join("")
+    + pr.scartati.map(p => `<div class="esc" title="escluso">  ${esc(p)}</div>`).join("");
+  $("nomeFile").textContent = pr.avvio;
+}
+
+async function caricaProgetto(file) {
+  let voci;
+  try { voci = await leggiZip(await file.arrayBuffer()); }
+  catch (e) { toast("ZIP non letto: " + e.message); return; }
+  const {tenuti, scartati} = pulisciVoci(voci);
+  const candidati = candidatiAvvio(tenuti);
+  if (!candidati.length) { toast("Nello ZIP non c'è nessun file .py"); return; }
+  salvaEditor();
+  stato.modo = "progetto";
+  stato.progetto = {nome: file.name, file: tenuti, scartati, avvio: candidati[0]};
+  const avvioFile = tenuti.find(f => f.percorso === candidati[0]);
+  $("codice").value = DEC.decode(avvioFile.dati);
+  $("titolo").value = titoloDaFile(file.name);
+  if (!stato.pacchettoToccato) $("pacchetto").value = nomePacchetto($("titolo").value);
+  stato.librerieToccate = stato.permessiToccati = false;
+  disegnaProgetto(); aggiornaTutto();
+  toast(`Progetto caricato: ${tenuti.length} file, avvio ${candidati[0]}`);
+}
+
+/* ------------------------------------------------------------------
+   Eventi
+------------------------------------------------------------------ */
+let timer = null;
+function aggiornaTutto() {
+  clearTimeout(timer);
+  timer = setTimeout(() => {
+    salvaEditor();
+    mostraAnalisi(); mostraAnteprima();
+    if (stato.modo === "singolo") {
+      salva("codice", $("codice").value.length < 300000 ? $("codice").value : "");
+      salva("nomeFile", stato.nomeFile);
+    }
+    ["titolo", "pacchetto", "dominio", "versioneApp", "orientamento", "arch"].forEach(id => salva(id, $(id).value));
+    salva("autoAvvio", $("autoAvvio").checked ? "1" : "0");
+    ghProponiRepo();
+  }, 200);
+}
+
+function impostaScript(testo, nome) {
+  stato.modo = "singolo"; stato.progetto = null;
+  $("codice").value = testo;
+  stato.nomeFile = /\.py$/i.test(nome) ? nome.replace(/[\\/:*?"<>|]/g, "_") : "script_utente.py";
+  $("titolo").value = titoloDaFile(nome);
+  if (!stato.pacchettoToccato) $("pacchetto").value = nomePacchetto($("titolo").value);
+  stato.librerieToccate = stato.permessiToccati = false;
+  disegnaProgetto(); aggiornaTutto();
+}
+
+$("btnCarica").onclick = () => {
+  if (stato.modo === "progetto") {                  // torna al file singolo: tiene il file di avvio
+    const testo = $("codice").value, nome = stato.progetto.avvio.split("/").pop();
+    impostaScript(testo, nome); toast("Modo file singolo"); return;
+  }
+  $("fileScript").click();
+};
+$("fileScript").onchange = e => {
+  const f = e.target.files[0]; if (!f) return;
+  const r = new FileReader();
+  r.onload = () => { impostaScript(r.result, f.name); toast("Caricato " + f.name); };
+  r.readAsText(f, "UTF-8"); e.target.value = "";
+};
+$("btnZipIn").onclick = () => $("fileZip").click();
+$("fileZip").onchange = e => { const f = e.target.files[0]; e.target.value = ""; if (f) caricaProgetto(f); };
+$("avvio").onchange = () => {
+  salvaEditor();
+  stato.progetto.avvio = $("avvio").value;
+  $("codice").value = DEC.decode(stato.progetto.file.find(f => f.percorso === stato.progetto.avvio).dati);
+  disegnaProgetto(); aggiornaTutto();
+};
+$("btnEsempio").onclick = () => impostaScript(ESEMPIO, "script_esempio.py");
+
+$("btnExtra").onclick = () => $("fileExtra").click();
+$("fileExtra").onchange = async e => {
+  for (const f of e.target.files) {
+    const dati = new Uint8Array(await f.arrayBuffer());
+    const nome = f.name.replace(/[\\/:*?"<>|]/g, "_");
+    stato.extra = stato.extra.filter(x => x.nome !== nome).concat({nome, dati});
+  }
+  e.target.value = ""; disegnaExtra(); aggiornaTutto();
+};
+function disegnaExtra() {
+  $("elencoExtra").innerHTML = stato.extra.map((f, i) =>
+    `<div><span>${esc(f.nome)} · ${kb(f.dati.length)}</span><button data-i="${i}">togli</button></div>`).join("");
+}
+$("elencoExtra").onclick = e => {
+  const i = e.target.dataset.i; if (i === undefined) return;
+  stato.extra.splice(+i, 1); disegnaExtra(); aggiornaTutto();
+};
+
+$("btnIcona").onclick = () => $("fileIcona").click();
+$("fileIcona").onchange = async e => {
+  const f = e.target.files[0]; if (!f) return;
+  const dati = new Uint8Array(await f.arrayBuffer());
+  if (dati[0] !== 0x89 || dati[1] !== 0x50) { toast("L'icona deve essere un file PNG"); return; }
+  stato.icona = dati; $("nomeIcona").textContent = f.name + " (consigliato 512×512)";
+  e.target.value = ""; aggiornaTutto();
+};
+
+$("pacchetto").oninput = () => { stato.pacchettoToccato = true; aggiornaTutto(); };
+$("titolo").oninput = () => { if (!stato.pacchettoToccato) $("pacchetto").value = nomePacchetto($("titolo").value); aggiornaTutto(); };
+$("librerie").oninput = () => { stato.librerieToccate = true; aggiornaTutto(); };
+$("permessi").oninput = () => { stato.permessiToccati = true; aggiornaTutto(); };
+["codice", "dominio", "versioneApp"].forEach(id => $(id).addEventListener("input", aggiornaTutto));
+["orientamento", "arch", "autoAvvio"].forEach(id => $(id).addEventListener("change", aggiornaTutto));
+$("pacchetto").onblur = () => { $("pacchetto").value = nomePacchetto($("pacchetto").value || $("titolo").value); aggiornaTutto(); };
+
+$("codice").addEventListener("keydown", e => {        // il tasto Tab inserisce 4 spazi, non un tab
+  if (e.key !== "Tab") return;
+  e.preventDefault();
+  const t = e.target, a = t.selectionStart;
+  t.setRangeText("    ", a, t.selectionEnd, "end"); aggiornaTutto();
+});
+
+$("schede").onclick = e => {
+  const i = e.target.dataset.i; if (i === undefined) return;
+  stato.scheda = +i; mostraAnteprima();
+};
+$("btnCopia").onclick = async () => {
+  const ok = await copiaTesto($("anteprima").textContent);
+  toast(ok ? "Copiato negli appunti" : "Copia non riuscita: seleziona il testo a mano");
+};
+$("btnZip").onclick = async () => {
+  clearTimeout(timer); salvaEditor(); mostraAnalisi();
+  if (stato.analisi.bloccante) { toast("Manca il codice da compilare"); return; }
+  const s = generaFile();
+  $("btnZip").disabled = true; $("btnZip").textContent = "Preparo lo ZIP…";
+  try {
+    scarica(await creaZip(stato.file), `${s.pacchetto}_progetto.zip`);
+    toast(`Scaricato ${s.pacchetto}_progetto.zip (${stato.file.length} file)`);
+  } catch (e) { toast("Errore nella creazione dello ZIP: " + e.message); }
+  finally { $("btnZip").disabled = false; $("btnZip").textContent = "Scarica progetto ZIP"; }
+};
+
+/* ==================================================================
+   GitHub: pubblica il progetto, segue la compilazione, scarica l'APK.
+   Un solo commit con le API Git (blob → albero → commit → ramo), come Pubblica.
+================================================================== */
+const API = "https://api.github.com";
+const WF_PERCORSO = ".github/workflows/build-apk.yml";
+// Dentro l'app Pubblica: token, impostazioni ed elenco dei repository sono quelli di Pubblica
+const INTEGRATO = typeof TOKEN !== "undefined" && typeof CFG !== "undefined" && typeof vai === "function";
+const DOVE_TOKEN = INTEGRATO ? "Impostazioni → 1 · Accesso a GitHub" : "punto 5 → Accesso → Come creare il token";
+const mem = {
+  get(area, k) { try { return window[area].getItem(k) || ""; } catch (e) { return ""; } },
+  set(area, k, v) { try { window[area].setItem(k, v); return true; } catch (e) { return false; } },
+  del(area, k) { try { window[area].removeItem(k); } catch (e) { /* niente */ } }
+};
+const GH = { token: "", origine: "", login: "", ambiti: null, occupato: false, repoToccato: false };
+const MON = { gen: 0, repo: "", runId: 0, privato: false, inizio: 0, stima: 0, orologio: null };
+const attendi = ms => new Promise(r => setTimeout(r, ms));
+const mmss = ms => { const s = Math.max(0, Math.round(ms / 1000)); return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`; };
+
+function caricaToken() {
+  if (INTEGRATO) { GH.token = TOKEN; GH.origine = "integrato"; return; }
+  GH.token = mem.get("localStorage", "creaapk.gh.token") || mem.get("sessionStorage", "creaapk.gh.token");
+  GH.origine = GH.token ? "crea" : "";
+  if (!GH.token) {                     // token già salvato dalla tua app Pubblica nello stesso browser
+    GH.token = mem.get("localStorage", "pubblica-token") || mem.get("sessionStorage", "pubblica-token");
+    if (GH.token) GH.origine = "pubblica";
+  }
+}
+function memorizzaToken(ricorda) {
+  const [si, no] = ricorda ? ["localStorage", "sessionStorage"] : ["sessionStorage", "localStorage"];
+  mem.del(no, "creaapk.gh.token");
+  return mem.set(si, "creaapk.gh.token", GH.token);
+}
+
+function spiegaGH(status, dati, permesso) {
+  const m = (dati && dati.message) || "";
+  const dett = dati && Array.isArray(dati.errors) ? dati.errors.map(x => x.message || x.code || "").filter(Boolean).join("; ") : "";
+  const serve = permesso ? ` Al token serve: ${permesso}.` : "";
+  if (/workflow/i.test(m + dett) && /scope|permission|refus|allow/i.test(m + dett))
+    return "GitHub non accetta il file della compilazione (.github/workflows/build-apk.yml): al token manca il permesso per i workflow. Token classico: spunta «workflow». Token fine-grained: «Workflows: Read and write».";
+  if (status === 401) return `GitHub non riconosce il token: è scaduto, revocato o copiato male. Creane uno nuovo (${DOVE_TOKEN}).`;
+  if (status === 403 && /rate limit/i.test(m)) return "Troppe richieste a GitHub in poco tempo: aspetta qualche minuto e riprova.";
+  if (status === 403) return "GitHub rifiuta l'operazione: al token manca un permesso." + serve + (m ? ` (GitHub: ${m})` : "");
+  if (status === 404) return "Non trovato: il repository non esiste oppure il token non può vederlo." + serve;
+  if (status === 409) return "Il repository è vuoto o in conflitto. " + m;
+  if (status === 422) return "GitHub non accetta la richiesta: " + m + (dett ? " — " + dett : "");
+  if (status >= 500) return `GitHub ha un problema temporaneo (errore ${status}): riprova tra poco.`;
+  return m || "Errore GitHub " + status;
+}
+
+async function gh(percorso, { metodo = "GET", corpo, permesso = "" } = {}) {
+  const ctrl = new AbortController(), t = setTimeout(() => ctrl.abort(), 90000);
+  let r;
+  try {
+    r = await fetch(percorso.startsWith("http") ? percorso : API + percorso, {
+      method: metodo, signal: ctrl.signal, cache: "no-store",
+      headers: Object.assign({ Accept: "application/vnd.github+json", "X-GitHub-Api-Version": "2022-11-28" },
+        GH.token ? { Authorization: "Bearer " + GH.token } : {}, corpo ? { "Content-Type": "application/json" } : {}),
+      body: corpo ? JSON.stringify(corpo) : undefined
+    });
+  } catch (e) {
+    throw new Error(e.name === "AbortError" ? "GitHub non risponde (tempo scaduto): controlla la connessione e riprova."
+      : "Rete non raggiungibile: controlla la connessione a internet.");
+  } finally { clearTimeout(t); }
+  if (r.status === 204 || r.status === 202 && metodo !== "GET") return { dati: null, r };
+  let dati = null; try { dati = await r.json(); } catch (e) { /* corpo vuoto */ }
+  if (!r.ok) { const e = new Error(spiegaGH(r.status, dati, permesso)); e.status = r.status; e.dati = dati; throw e; }
+  return { dati, r };
+}
+
+function normRepo(v) {
+  v = String(v || "").trim().replace(/\/+$/, "").replace(/\.git$/, "").replace(/^https?:\/\/github\.com\//, "");
+  if (!/^[A-Za-z0-9][A-Za-z0-9-]*\/[A-Za-z0-9_.-]+$/.test(v)) return null;
+  return [".", ".."].includes(v.split("/")[1]) ? null : v;
+}
+function base64(u8) {
+  let s = ""; const N = 0x8000;
+  for (let i = 0; i < u8.length; i += N) s += String.fromCharCode.apply(null, u8.subarray(i, i + N));
+  return btoa(s);
+}
+const daBase64 = b64 => Uint8Array.from(atob(String(b64).replace(/\s/g, "")), c => c.charCodeAt(0));
+async function shaGit(u8) {                 // stesso hash che usa git: evita di reinviare file uguali
+  try {
+    const testa = ENC.encode(`blob ${u8.length}\0`), tutto = new Uint8Array(testa.length + u8.length);
+    tutto.set(testa); tutto.set(u8, testa.length);
+    return [...new Uint8Array(await crypto.subtle.digest("SHA-1", tutto))].map(b => b.toString(16).padStart(2, "0")).join("");
+  } catch (e) { return null; }
+}
+async function inParallelo(compiti, n, perOgni) {
+  let i = 0, fatti = 0;
+  const lavora = async () => { while (i < compiti.length) { const k = i++; await compiti[k](); perOgni(++fatti); } };
+  await Promise.all(Array.from({ length: Math.min(n, compiti.length) }, lavora));
+}
+function confrontaVer(a, b) {
+  const x = String(a).split(".").map(n => +n || 0), y = String(b).split(".").map(n => +n || 0);
+  for (let i = 0; i < Math.max(x.length, y.length); i++) { const d = (x[i] || 0) - (y[i] || 0); if (d) return d; }
+  return 0;
+}
+function incrementaVer(v) {                 // buildozer accetta parti fino a 99: 1.99 → 2.0
+  const p = String(v || "1.0").split(".").map(n => +n || 0); if (p.length < 2) p.push(0);
+  let i = p.length - 1; p[i]++;
+  while (i > 0 && p[i] > 99) { p[i] = 0; p[--i]++; }
+  return p.join(".");
+}
+
+/* ---------- interfaccia ---------- */
+const ICONE = { ok: "✓", info: "i", avviso: "!", errore: "✗", corso: "●" };
+function aggiornaPasso(li, tipo, testo, link) {
+  li.className = tipo; li.innerHTML = `<i>${ICONE[tipo]}</i><span></span>`;
+  const sp = li.querySelector("span"); sp.textContent = testo;
+  if (link) { const a = document.createElement("a"); a.href = link.url; a.target = "_blank"; a.rel = "noopener";
+    a.textContent = link.testo; sp.append(" ", a); }
+  return li;
+}
+function passo(testo, tipo = "corso", link) {
+  const li = document.createElement("li"); $("ghPassi").appendChild(li);
+  return aggiornaPasso(li, tipo, testo, link);
+}
+function esitoToken(tipo, testo) {
+  const li = document.createElement("li"); $("ghEsitoToken").appendChild(li); aggiornaPasso(li, tipo, testo);
+}
+function chip(testo, cls) {
+  const c = $("ghStato"); c.textContent = testo; c.className = "chip " + (cls || "");
+  const m = document.getElementById("apk-menu-stato");      // voce del menu di Pubblica
+  if (m) {
+    m.textContent = cls === "lavoro" ? "⏳ Compilazione in corso…"
+      : testo === "APK pronto" ? "✓ APK pronto: tocca per scaricarlo"
+      : testo === "compilazione fallita" ? "✗ Ultima compilazione non riuscita: tocca per i dettagli"
+      : "Script .py o progetto ZIP → app Android";
+  }
+}
+function ghOccupato(si) {
+  GH.occupato = si;
+  $("ghVai").disabled = $("ghRicompila").disabled = si;
+  $("ghVai").textContent = si ? "Pubblico…" : "Pubblica su GitHub e compila";
+}
+function disegnaAccesso() {
+  if (INTEGRATO) {
+    $("ghAccesso").hidden = true; $("ghAccessoInt").hidden = false;
+    $("ghAccessoIntTesto").textContent = GH.login ? `Collegato come ${GH.login} (token di Impostazioni).`
+      : GH.token ? "Token presente ma non verificato." : "Manca il token GitHub: inseriscilo in Impostazioni (una volta sola).";
+  }
+  $("ghAccessoTit").textContent = GH.login ? `Accesso a GitHub: collegato come ${GH.login}` : "Accesso a GitHub (si fa una volta sola)";
+  if (!MON.runId) chip(GH.login ? GH.login : (GH.token ? "token da verificare" : "non collegato"), GH.login ? "on" : "");
+  $("ghRicorda").checked = !mem.get("sessionStorage", "creaapk.gh.token");
+}
+function ghProponiRepo() {
+  if (GH.repoToccato || !GH.login) return;
+  $("ghRepo").value = `${GH.login}/${impostazioni().pacchetto}`;
+  aggiornaLinkRepo();
+}
+function aggiornaLinkRepo() {
+  const r = normRepo($("ghRepo").value);
+  $("ghApri").hidden = !r; if (r) $("ghApri").href = `https://github.com/${r}`;
+}
+
+async function verificaToken(conMessaggi) {
+  if (conMessaggi) $("ghEsitoToken").innerHTML = "";
+  if (!GH.token) { GH.login = ""; disegnaAccesso(); return false; }
+  try {
+    const { dati, r } = await gh("/user");
+    GH.login = dati.login;
+    const sc = r.headers.get("x-oauth-scopes");
+    GH.ambiti = sc == null ? null : sc.split(",").map(x => x.trim()).filter(Boolean);
+    if (conMessaggi) {
+      esitoToken("ok", `Collegato come ${dati.login}.`);
+      if (GH.origine === "pubblica") esitoToken("info", "Sto usando il token salvato dall'app Pubblica in questo browser.");
+      if (GH.ambiti) {
+        const manca = [];
+        if (!GH.ambiti.includes("repo") && !GH.ambiti.includes("public_repo")) manca.push("repo");
+        if (!GH.ambiti.includes("workflow")) manca.push("workflow");
+        if (manca.length) esitoToken("avviso", `Token classico senza ${manca.join(" e ")}: crea un nuovo token con quelle caselle spuntate (vedi «Come creare il token»).`);
+        else esitoToken("ok", "Permessi giusti: repo e workflow.");
+      } else {
+        esitoToken("info", "Token fine-grained: deve avere Actions, Contents e Workflows in «Read and write» (più Administration per creare i repository). Se manca qualcosa, te lo dico quando serve.");
+      }
+    }
+    disegnaAccesso(); ghProponiRepo();
+    return true;
+  } catch (e) {
+    GH.login = ""; disegnaAccesso();
+    if (conMessaggi) esitoToken("errore", e.message);
+    if (e.status === 401) chip("token non valido", "male");
+    throw e;
+  }
+}
+
+/* ---------- repository ---------- */
+async function preparaRepo(repo, li, puoiCreare) {
+  try {
+    const { dati } = await gh(`/repos/${repo}`);
+    if (dati.archived) throw new Error(`Il repository ${repo} è archiviato (sola lettura): riattivalo su GitHub o usane un altro.`);
+    if (dati.permissions && !dati.permissions.push) throw new Error(`Il token può leggere ${repo} ma non scriverci: serve «Contents: Read and write» (token classico: «repo»).`);
+    aggiornaPasso(li, "ok", `Repository ${dati.full_name} (${dati.private ? "privato" : "pubblico"})`, { url: dati.html_url, testo: "apri" });
+    return dati;
+  } catch (e) { if (e.status !== 404 || !puoiCreare) throw e; }
+  const [proprietario, nome] = repo.split("/");
+  const privato = $("ghVisibilita").value === "privato";
+  aggiornaPasso(li, "corso", `Creo il repository ${repo} (${privato ? "privato" : "pubblico"})…`);
+  const corpo = { name: nome, private: privato, auto_init: true, has_wiki: false,
+    description: `${impostazioni().titolo} · app Android creata con Crea APK` };
+  const percorso = proprietario.toLowerCase() === GH.login.toLowerCase() ? "/user/repos" : `/orgs/${proprietario}/repos`;
+  try {
+    const { dati } = await gh(percorso, { metodo: "POST", corpo, permesso: "«Administration: Read and write» (token classico: «repo»)" });
+    aggiornaPasso(li, "ok", `Repository creato: ${dati.full_name}`, { url: dati.html_url, testo: "apri" });
+    dati.appenaCreato = true;
+    return dati;
+  } catch (e) {
+    if (e.status === 422) throw new Error(`Esiste già un repository «${nome}», ma il token non può accedervi. Se il token è fine-grained, aggiungi quel repository in «Repository access» (o scegli «All repositories»). Altrimenti cambia nome qui sopra.`);
+    if (e.status === 403 || e.status === 404) throw new Error(`Il repository ${repo} non esiste e il token non può crearlo. ${e.message} In alternativa crealo tu da github.com → + → New repository, poi riprova.`);
+    throw e;
+  }
+}
+
+async function leggiRepo(repo, info) {
+  const ramo = info.default_branch || "main";
+  let head = null, inizializzato = false;
+  for (let tent = 0; tent < 8 && !head; tent++) {
+    try { head = (await gh(`/repos/${repo}/git/ref/heads/${encodeURIComponent(ramo)}`)).dati.object.sha; }
+    catch (e) {
+      if (e.status !== 404 && e.status !== 409) throw e;
+      if (!info.appenaCreato && !inizializzato) {      // repository vuoto: serve un primo commit
+        await gh(`/repos/${repo}/contents/README.md`, { metodo: "PUT", permesso: "«Contents: Read and write»",
+          corpo: { message: "Primo commit", content: base64(ENC.encode(`# ${impostazioni().titolo}\n`)) } });
+        inizializzato = true;
+      } else await attendi(1500);                       // GitHub sta ancora preparando il repository
+    }
+  }
+  if (!head) throw new Error("GitHub non ha ancora preparato il repository: riprova tra un minuto.");
+  const { dati: commit } = await gh(`/repos/${repo}/git/commits/${head}`);
+  const { dati: albero } = await gh(`/repos/${repo}/git/trees/${commit.tree.sha}?recursive=1`);
+  if (albero.truncated) throw new Error("Il repository contiene troppi file per essere aggiornato da qui: usane uno dedicato all'app.");
+  const mappa = new Map(albero.tree.filter(t => t.type === "blob").map(t => [t.path, t]));
+  return { repo, ramo, head, treeSha: commit.tree.sha, mappa, privato: !!info.private, html: info.html_url };
+}
+
+async function versioneRemota(ctx) {
+  const v = ctx.mappa.get("buildozer.spec"); if (!v) return null;
+  try {
+    const { dati } = await gh(`/repos/${ctx.repo}/git/blobs/${v.sha}`);
+    const m = DEC.decode(daBase64(dati.content)).match(/^version\s*=\s*([0-9.]+)\s*$/m);
+    return m ? m[1] : null;
+  } catch (e) { return null; }
+}
+
+async function differenze(ctx) {
+  const nuovi = stato.file.map(f => ({ path: f.percorso, u8: f.dati || ENC.encode(f.testo) }));
+  for (const f of nuovi) f.sha = await shaGit(f.u8);
+  const cambiati = nuovi.filter(f => { const e = ctx.mappa.get(f.path); return !e || !f.sha || e.sha !== f.sha; });
+  const percorsi = new Set(nuovi.map(f => f.path));
+  // si tolgono solo i file del tuo codice che non ci sono più; firma/, README e il resto restano
+  const tolti = [...ctx.mappa.keys()].filter(p => p.startsWith("progetto/") && !percorsi.has(p));
+  return { cambiati, tolti };
+}
+
+async function invia(ctx, d, messaggio) {
+  const barra = $("ghBarra"), sha = new Map();
+  const compiti = d.cambiati.map(f => async () => {
+    const { dati } = await gh(`/repos/${ctx.repo}/git/blobs`, { metodo: "POST", permesso: "«Contents: Read and write»",
+      corpo: { content: base64(f.u8), encoding: "base64" } });
+    sha.set(f.path, dati.sha);
+  });
+  barra.max = compiti.length + 3; barra.value = 0; barra.hidden = false;
+  try {
+    await inParallelo(compiti, 4, n => { barra.value = n; });
+    const modo = p => (ctx.mappa.get(p) && ctx.mappa.get(p).mode) || "100644";
+    const voci = d.cambiati.map(f => ({ path: f.path, mode: modo(f.path), type: "blob", sha: sha.get(f.path) }))
+      .concat(d.tolti.map(p => ({ path: p, mode: modo(p), type: "blob", sha: null })));
+    const { dati: albero } = await gh(`/repos/${ctx.repo}/git/trees`, { metodo: "POST", corpo: { base_tree: ctx.treeSha, tree: voci } });
+    barra.value++;
+    const { dati: commit } = await gh(`/repos/${ctx.repo}/git/commits`, { metodo: "POST",
+      corpo: { message: messaggio, tree: albero.sha, parents: [ctx.head] } });
+    barra.value++;
+    const conWf = d.cambiati.some(f => f.path === WF_PERCORSO);
+    try {
+      await gh(`/repos/${ctx.repo}/git/refs/heads/${encodeURIComponent(ctx.ramo)}`, { metodo: "PATCH", corpo: { sha: commit.sha, force: false } });
+    } catch (e) {
+      if (conWf && (e.status === 403 || e.status === 404))
+        e.message = spiegaGH(403, { message: "refusing to update workflow without workflow permission" });
+      throw e;
+    }
+    barra.value = barra.max;
+    return commit.sha;
+  } finally { barra.hidden = true; }
+}
+
+/* ---------- pulsante principale ---------- */
+async function pubblicaECompila(soloRicompila) {
+  if (GH.occupato) return;
+  clearTimeout(timer); salvaEditor(); mostraAnalisi();
+  if (!soloRicompila && stato.analisi.bloccante) { toast("Manca il codice da compilare"); return; }
+  if (INTEGRATO) caricaToken();
+  if (!GH.token) {
+    if (INTEGRATO) { toast("Prima inserisci il token GitHub in Impostazioni"); vai("config"); return; }
+    $("ghAccesso").open = true; $("ghToken").focus(); toast("Prima inserisci il token GitHub (punto 5 → Accesso)"); return;
+  }
+  const repo = normRepo($("ghRepo").value);
+  if (!repo) { toast("Scrivi il repository come proprietario/nome"); $("ghRepo").focus(); return; }
+  fermaMonitor(); mem.del("localStorage", "creaapk.gh.build");
+  $("ghPassi").innerHTML = ""; $("ghRisultato").innerHTML = ""; $("ghBuild").hidden = true;
+  document.title = "Crea APK";
+  ghOccupato(true); chip("pubblico…", "lavoro");
+  let li = passo("Collegamento a GitHub…");
+  try {
+    if (!GH.login) await verificaToken(false);
+    aggiornaPasso(li, "ok", `Collegato come ${GH.login}`);
+    li = passo(`Repository ${repo}…`);
+    const info = await preparaRepo(repo, li, !soloRicompila);
+    MON.privato = !!info.private;
+    const t0 = Date.now();
+
+    for (let tentativo = 1; ; tentativo++) {
+      li = passo("Leggo cosa c'è già su GitHub…");
+      const ctx = await leggiRepo(info.full_name, info);
+
+      if (soloRicompila) {
+        if (!ctx.mappa.has(WF_PERCORSO)) throw new Error("Nel repository non c'è ancora il progetto: usa «Pubblica su GitHub e compila».");
+        aggiornaPasso(li, "ok", "Progetto presente su GitHub");
+        await avviaManuale(ctx, t0); return;
+      }
+
+      // un repository con altro dentro non va sovrascritto senza chiedere
+      const LIBERI = new Set(["README.md", "README", "LICENSE", "LICENSE.md", ".gitignore", ".gitattributes", "LEGGIMI.md"]);
+      const nostro = ctx.mappa.has(WF_PERCORSO) && ctx.mappa.has("buildozer.spec");
+      const estranei = [...ctx.mappa.keys()].filter(p => !LIBERI.has(p) && !p.startsWith("firma/"));
+      if (!nostro && estranei.length && tentativo === 1) {
+        const sost = stato.file.map(f => f.percorso).filter(p => ctx.mappa.has(p));
+        const ok = confirm(`Il repository ${ctx.repo} contiene già ${estranei.length} file che non vengono da Crea APK `
+          + `(per esempio: ${estranei.slice(0, 3).join(", ")}).\n\n`
+          + (sost.length ? `Verrebbero sostituiti: ${sost.slice(0, 5).join(", ")}.\n\n` : "")
+          + "Conviene un repository dedicato solo a questa app. Continuare comunque?");
+        if (!ok) throw new Error(`Annullato. Scrivi un repository dedicato, per esempio ${GH.login}/${impostazioni().pacchetto}: viene creato da solo.`);
+      }
+
+      // versione: confronto il progetto con quello su GitHub a parità di versione
+      // (se hai scritto tu una versione più alta di quella su GitHub, vale la tua)
+      let nota = "";
+      const mia = impostazioni().versione;
+      let remota = $("ghAutoVer").checked ? await versioneRemota(ctx) : null;
+      if (remota && confrontaVer(mia, remota) > 0) remota = null;
+      if (remota) $("versioneApp").value = remota;
+      generaFile();
+      let d = await differenze(ctx);
+      if (remota && (d.cambiati.length || d.tolti.length)) {
+        const nuova = incrementaVer(remota);
+        $("versioneApp").value = nuova;
+        generaFile(); d = await differenze(ctx);
+        nota = ` · versione ${remota} → ${nuova}`;
+      }
+      salva("versioneApp", $("versioneApp").value);
+      mostraAnteprima();
+
+      if (!d.cambiati.length && !d.tolti.length) {
+        aggiornaPasso(li, "ok", "Su GitHub c'è già esattamente questo progetto: niente da inviare");
+        await avviaManuale(ctx, t0); return;
+      }
+      if (GH.ambiti && !GH.ambiti.includes("workflow") && d.cambiati.some(f => f.path === WF_PERCORSO))
+        throw new Error(spiegaGH(403, { message: "workflow scope missing" }));
+      aggiornaPasso(li, "ok", `Da inviare: ${d.cambiati.length} file${d.tolti.length ? `, da togliere: ${d.tolti.length}` : ""}${nota}`);
+
+      li = passo(`Invio ${d.cambiati.length} file in un unico commit…`);
+      const s = impostazioni();
+      try {
+        const sha = await invia(ctx, d, `Crea APK: ${s.titolo} ${s.versione}`);
+        aggiornaPasso(li, "ok", `Inviato (commit ${sha.slice(0, 7)})`, { url: `${ctx.html}/commit/${sha}`, testo: "vedi" });
+        registraInPubblica(ctx.repo);
+        ghOccupato(false);
+        seguiCompilazione(ctx.repo, { sha, dopo: t0 }).catch(e => passo(e.message, "errore"));
+        return;
+      } catch (e) {
+        // qualcuno (di solito il workflow che salva la chiave di firma) ha scritto nel frattempo: rileggo e riprovo
+        if (e.status === 422 && tentativo < 3) { aggiornaPasso(li, "info", "GitHub è cambiato nel frattempo: ricalcolo e riprovo"); continue; }
+        throw e;
+      }
+    }
+  } catch (e) {
+    aggiornaPasso(li, "errore", e.message);
+    chip(GH.login || "errore", GH.login ? "on" : "male");
+    if (e.status === 401) { $("ghAccesso").open = true; }
+  } finally { ghOccupato(false); }
+}
+
+function registraInPubblica(repo) {         // il repository dell'app compare anche nell'elenco di Pubblica
+  if (!INTEGRATO) return;
+  try {
+    if (!CFG.repo.some(r => r.id.toLowerCase() === repo.toLowerCase())) {
+      CFG.repo.push({ id: repo, nome: impostazioni().titolo.slice(0, 60) });
+      salvaCfg(); window.aggiornaTutto();
+    }
+  } catch (e) { /* facoltativo */ }
+}
+
+async function avviaManuale(ctx, t0) {
+  const li = passo("Avvio una nuova compilazione…");
+  await gh(`/repos/${ctx.repo}/actions/workflows/build-apk.yml/dispatches`, { metodo: "POST",
+    permesso: "«Actions: Read and write» (token classico: «repo» e «workflow»)", corpo: { ref: ctx.ramo } });
+  aggiornaPasso(li, "ok", "Compilazione richiesta");
+  ghOccupato(false);
+  seguiCompilazione(ctx.repo, { sha: ctx.head, dopo: t0, evento: "workflow_dispatch" }).catch(e => passo(e.message, "errore"));
+}
+
+/* ---------- monitoraggio della compilazione ---------- */
+function fermaMonitor() {
+  MON.gen++; MON.runId = 0; clearInterval(MON.orologio); MON.orologio = null; $("ghFerma").hidden = true;
+}
+function attendiOVisibile(ms) {         // si sveglia prima se torni sulla pagina
+  return new Promise(res => {
+    const fine = () => { clearTimeout(t); document.removeEventListener("visibilitychange", vis); res(); };
+    const vis = () => { if (!document.hidden) fine(); };
+    const t = setTimeout(fine, ms);
+    document.addEventListener("visibilitychange", vis);
+  });
+}
+
+async function seguiCompilazione(repo, filtro) {
+  fermaMonitor();
+  const gen = MON.gen;
+  chip("compilazione", "lavoro");
+  const li = passo("Aspetto che GitHub avvii la compilazione…");
+  const linkActions = { url: `https://github.com/${repo}/actions`, testo: "Actions" };
+  let run = null; const limite = Date.now() + 150000;
+  while (!run && Date.now() < limite) {
+    if (gen !== MON.gen) return;
+    try {
+      const q = filtro.sha ? `head_sha=${filtro.sha}&` : "";
+      const { dati } = await gh(`/repos/${repo}/actions/runs?${q}per_page=20`, { permesso: "«Actions: Read»" });
+      run = (dati.workflow_runs || [])
+        .filter(r => /build-apk\.yml$/.test(r.path || "") || r.name === "Build APK")
+        .filter(r => !filtro.dopo || Date.parse(r.created_at) >= filtro.dopo - 60000)
+        .filter(r => !filtro.evento || r.event === filtro.evento)
+        .sort((a, b) => b.id - a.id)[0] || null;
+    } catch (e) {
+      if (e.status === 403 || e.status === 404) {
+        aggiornaPasso(li, "avviso", "Il token non può leggere le Actions, quindi non posso seguire la compilazione da qui (serve «Actions: Read»). È comunque partita: seguila su GitHub →", linkActions);
+        chip(GH.login, "on"); return;
+      }
+    }
+    if (!run) await attendi(5000);
+  }
+  if (gen !== MON.gen) return;
+  if (!run) {
+    aggiornaPasso(li, "avviso", "GitHub non ha avviato la compilazione entro 2 minuti. Nel repository apri Settings → Actions → General, scegli «Allow all actions», salva e premi «Ricompila senza modifiche».", linkActions);
+    chip(GH.login, "on"); return;
+  }
+  aggiornaPasso(li, "ok", `Compilazione n. ${run.run_number} avviata`, { url: run.html_url, testo: "apri su GitHub" });
+  mem.set("localStorage", "creaapk.gh.build", JSON.stringify({ repo, runId: run.id }));
+  await seguiRun(repo, run.id, gen);
+}
+
+async function stimaDurata(repo) {
+  try {
+    const { dati } = await gh(`/repos/${repo}/actions/workflows/build-apk.yml/runs?status=success&per_page=5`);
+    const d = (dati.workflow_runs || []).map(r => Date.parse(r.updated_at) - Date.parse(r.run_started_at || r.created_at))
+      .filter(x => x > 60000).sort((a, b) => a - b);
+    return d.length ? d[Math.floor(d.length / 2)] : 0;
+  } catch (e) { return 0; }
+}
+
+async function seguiRun(repo, runId, gen) {
+  MON.repo = repo; MON.runId = runId; MON.stima = 0; MON.inizio = 0;
+  $("ghFerma").hidden = false; $("ghBuild").hidden = false;
+  stimaDurata(repo).then(x => { MON.stima = x; });
+  clearInterval(MON.orologio);
+  MON.orologio = setInterval(aggiornaOrologio, 1000);
+  let errori = 0;
+  while (gen === MON.gen) {
+    let run, job;
+    try {
+      run = (await gh(`/repos/${repo}/actions/runs/${runId}`)).dati;
+      job = ((await gh(`/repos/${repo}/actions/runs/${runId}/jobs`)).dati.jobs || [])[0];
+      errori = 0;
+    } catch (e) {
+      if (gen !== MON.gen) return;
+      if (e.status === 404 || e.status === 401) { passo(e.message, "errore"); fermaMonitor(); return; }
+      if (++errori === 3) passo("Connessione instabile: continuo a riprovare…", "avviso");
+      await attendiOVisibile(20000); continue;
+    }
+    if (gen !== MON.gen) return;
+    disegnaBuild(run, job);
+    if (run.status === "completed") { await concludi(repo, run, job, gen); return; }
+    await attendiOVisibile(run.status === "in_progress" ? 15000 : 8000);
+  }
+}
+
+const PASSI_NASCOSTI = /^(Set up job|Complete job|Post )/;
+function disegnaBuild(run, job) {
+  MON.inizio = Date.parse(run.run_started_at || run.created_at);
+  MON.fine = run.status === "completed" ? Date.parse(run.updated_at) : 0;
+  const passi = ((job && job.steps) || []).filter(s => !PASSI_NASCOSTI.test(s.name));
+  const statoTesto = { queued: "in coda", waiting: "in attesa", pending: "in attesa", requested: "in coda", in_progress: "in corso" }[run.status]
+    || ({ success: "riuscita", failure: "fallita", cancelled: "fermata" }[run.conclusion] || run.conclusion || run.status);
+  const righe = passi.map(s => {
+    const tipo = s.status === "completed" ? (s.conclusion === "success" ? "ok" : s.conclusion === "skipped" ? "" : "errore")
+      : s.status === "in_progress" ? "corso" : "";
+    const icona = { ok: "✓", errore: "✗", corso: "●" }[tipo] || "○";
+    const dur = s.started_at ? mmss((s.completed_at ? Date.parse(s.completed_at) : Date.now()) - Date.parse(s.started_at)) : "";
+    return `<div class="${tipo}"><i>${icona}</i><span>${esc(s.name)}</span><span>${dur}</span></div>`;
+  }).join("");
+  $("ghBuild").innerHTML = `<div class="build">
+    <div class="testa"><b>Compilazione n. ${run.run_number}</b><span class="chip">${esc(statoTesto)}</span>
+      <span class="tempo" id="ghTempo"></span></div>
+    <progress id="ghProg" max="1" value="0"></progress>
+    <div class="passiBuild">${righe || '<div><i>○</i><span>GitHub sta preparando la macchina…</span></div>'}</div></div>`;
+  MON.passi = passi;
+  aggiornaOrologio();
+}
+function aggiornaOrologio() {
+  const t = $("ghTempo"), p = $("ghProg"); if (!t || !MON.inizio) return;
+  const trascorso = (MON.fine || Date.now()) - MON.inizio;
+  const stima = MON.stima || 30 * 60000;
+  t.textContent = mmss(trascorso) + (MON.fine ? "" : MON.stima ? ` · di solito ~${Math.round(MON.stima / 60000)} min`
+    : " · la prima volta 20–40 min");
+  if (MON.fine) p.value = 1;
+  else {
+    const fatti = (MON.passi || []).filter(s => s.status === "completed").length, tot = (MON.passi || []).length || 1;
+    p.value = Math.max(Math.min(trascorso / stima, 0.97), (fatti / tot) * 0.5);
+  }
+  if (!MON.fine) document.title = `⏳ ${mmss(trascorso)} · Crea APK`;
+}
+
+async function concludi(repo, run, job, gen) {
+  clearInterval(MON.orologio); MON.orologio = null; $("ghFerma").hidden = true;
+  if (run.conclusion === "success") {
+    document.title = "✓ APK pronto · Crea APK";
+    chip("APK pronto", "on");
+    const vista = document.getElementById("v-apk");
+    if (vista && vista.hidden) toast("✓ APK pronto: apri «Crea APK da Python» per scaricarlo");
+    try { navigator.vibrate && navigator.vibrate([120, 80, 120]); } catch (e) { /* niente */ }
+    let rel = null;
+    for (let i = 0; i < 5 && !rel; i++) {
+      try { rel = (await gh(`/repos/${repo}/releases/tags/apk-${run.run_number}`)).dati; }
+      catch (e) { if (gen !== MON.gen) return; await attendi(3000); }
+    }
+    mostraApk(repo, rel, run);
+    caricaStorico(repo);
+  } else if (run.conclusion === "cancelled") {
+    document.title = "Crea APK"; chip(GH.login, "on");
+    passo("Compilazione fermata. Puoi rilanciarla con «Ricompila senza modifiche».", "avviso");
+  } else {
+    document.title = "✗ Compilazione fallita · Crea APK"; chip("compilazione fallita", "male");
+    await mostraErrore(repo, run, job);
+  }
+}
+
+function mostraApk(repo, rel, run) {
+  const box = document.createElement("div"); box.className = "apk";
+  const apk = rel ? (rel.assets || []).filter(a => /\.apk$/i.test(a.name)) : [];
+  if (!apk.length) {
+    box.innerHTML = `<b>Compilazione riuscita</b><span class="nota">Non trovo l'APK nelle Releases: è comunque tra gli
+      <i>Artifacts</i> della compilazione (file «apk», uno ZIP che contiene l'APK).</span>`;
+    const a = Object.assign(document.createElement("a"), { className: "btn", href: run.html_url, target: "_blank", rel: "noopener", textContent: "Apri la compilazione su GitHub" });
+    box.append(a); $("ghRisultato").prepend(box); return;
+  }
+  box.innerHTML = `<b>✓ APK pronto</b>`;
+  for (const a of apk) {
+    const b = document.createElement("button"); b.className = "verde";
+    b.textContent = `Scarica APK · ${kb(a.size)}`;
+    b.onclick = () => scaricaApk(repo, a, b);
+    const n = document.createElement("span"); n.className = "nota"; n.textContent = a.name;
+    box.append(b, n);
+  }
+  const istr = document.createElement("span"); istr.className = "nota";
+  istr.innerHTML = `Poi apri il file scaricato (notifica del browser o cartella Download) → <b>Installa</b>.
+    La prima volta Android chiede di consentire «Installa app sconosciute» al browser: consentilo.
+    Se avevi già l'app, si aggiorna e i dati restano.`;
+  const pag = Object.assign(document.createElement("a"), { href: rel.html_url, target: "_blank", rel: "noopener", textContent: "Pagina della release su GitHub" });
+  box.append(istr, pag);
+  $("ghRisultato").prepend(box);
+}
+
+async function scaricaApk(repo, asset, btn) {
+  const testo = btn.textContent;
+  if (!MON.privato) { window.open(asset.browser_download_url, "_blank"); return; }   // pubblico: link diretto
+  btn.disabled = true; btn.textContent = "Scarico…";
+  try {          // privato: il link diretto chiederebbe l'accesso, quindi passo dalle API con il token
+    const r = await fetch(`${API}/repos/${repo}/releases/assets/${asset.id}`, { cache: "no-store",
+      headers: { Accept: "application/octet-stream", Authorization: "Bearer " + GH.token } });
+    if (!r.ok) throw new Error(r.status);
+    scarica(new Blob([await r.blob()], { type: "application/vnd.android.package-archive" }), asset.name);
+    toast("APK scaricato: aprilo per installarlo");
+  } catch (e) {
+    toast("Download diretto non riuscito: lo apro su GitHub (serve l'accesso al tuo account)");
+    window.open(asset.browser_download_url, "_blank");
+  } finally { btn.disabled = false; btn.textContent = testo; }
+}
+
+const SUGGERIMENTI = [
+  [/No matching distribution found for ([\w.-]+)|Could not find a version that satisfies the requirement ([\w.-]+)/i,
+    m => `La libreria «${m[1] || m[2]}» non è installabile per Android: toglila dal campo «Librerie extra» (punto 3) o correggi il nome.`],
+  [/No space left on device/i, () => "Spazio esaurito sulla macchina di GitHub: riprova; se si ripete, togli dal progetto file grandi non necessari."],
+  [/Aidl not found|accept.*licen[cs]e/i, () => "Problema con gli strumenti Android (SDK): premi «Ricompila senza modifiche», spesso al secondo giro passa."],
+  [/(error: |Error compiling Cython|cython)/i, () => "Errore nella compilazione di una libreria con parti in C: prova a togliere le librerie extra una alla volta per capire quale."],
+  [/Unable to (download|fetch)|Connection (timed out|reset)|HTTP Error 5\d\d|Temporary failure in name resolution/i,
+    () => "Errore di rete durante lo scaricamento degli strumenti: premi «Ricompila senza modifiche»."],
+  [/BUILD FAILED|gradlew/i, () => "Errore nella fase finale (Gradle): spesso dipende dal nome pacchetto o dall'icona. Controlla che l'icona sia un PNG valido e che il nome pacchetto contenga solo lettere minuscole e cifre."]
+];
+
+async function mostraErrore(repo, run, job) {
+  const fallito = ((job && job.steps) || []).find(s => s.conclusion === "failure");
+  const box = document.createElement("div"); box.className = "errbox";
+  box.innerHTML = `<b style="color:var(--rosso)">✗ Compilazione non riuscita${fallito ? ` al passaggio «${esc(fallito.name)}»` : ""}</b>`;
+  $("ghRisultato").prepend(box);
+  let log = "";
+  if (job) {
+    try {        // GitHub rimanda il log a un altro server: se il browser lo blocca uso il link
+      const r = await fetch(`${API}/repos/${repo}/actions/jobs/${job.id}/logs`, { cache: "no-store",
+        headers: { Authorization: "Bearer " + GH.token } });
+      if (r.ok) log = await r.text();
+    } catch (e) { /* bloccato: resta il link */ }
+  }
+  if (log) {
+    const righe = log.split(/\r?\n/).map(x => x.replace(/^\d{4}-\d\d-\d\dT[\d:.]+Z ?/, "")).filter(x => x.trim());
+    const fine = righe.slice(-60).join("\n");
+    for (const [re, f] of SUGGERIMENTI) {
+      const m = log.match(re);
+      if (m) { const p = document.createElement("span"); p.className = "nota"; p.style.color = "var(--giallo)";
+        p.textContent = "Suggerimento: " + f(m); box.append(p); break; }
+    }
+    const pre = document.createElement("pre"); pre.className = "log"; pre.textContent = fine;
+    const b = document.createElement("button"); b.textContent = "Copia il log (ultime 60 righe)";
+    b.onclick = async () => toast(await copiaTesto(fine) ? "Log copiato: incollalo a Claude" : "Copia non riuscita: seleziona il testo a mano");
+    box.append(pre, b);
+    pre.scrollTop = pre.scrollHeight;
+  } else {
+    const n = document.createElement("span"); n.className = "nota";
+    n.innerHTML = `Apri il log su GitHub → passaggio${fallito ? ` <b>${esc(fallito.name)}</b>` : " con la ✗"} →
+      scorri fino in fondo, copia le ultime 50 righe e incollale a Claude.`;
+    box.append(n);
+  }
+  const a = Object.assign(document.createElement("a"), { className: "btn", target: "_blank", rel: "noopener",
+    href: (job && job.html_url) || run.html_url, textContent: "Apri il log su GitHub" });
+  box.append(a);
+}
+
+async function caricaStorico(repo) {
+  try {
+    const { dati } = await gh(`/repos/${repo}/releases?per_page=8`);
+    const voci = (dati || []).map(r => ({ r, a: (r.assets || []).find(x => /\.apk$/i.test(x.name)) })).filter(x => x.a);
+    $("ghStorico").hidden = !voci.length;
+    $("ghStoricoLista").innerHTML = "";
+    for (const { r, a } of voci) {
+      const riga = document.createElement("div");
+      const data = new Date(r.published_at || r.created_at).toLocaleString("it-IT", { dateStyle: "short", timeStyle: "short" });
+      riga.innerHTML = `<span>${esc(r.name || r.tag_name)} · ${data} · ${kb(a.size)}</span>`;
+      const b = document.createElement("button"); b.textContent = "scarica";
+      b.onclick = () => scaricaApk(repo, a, b);
+      riga.append(b); $("ghStoricoLista").append(riga);
+    }
+  } catch (e) { /* facoltativo */ }
+}
+
+async function fermaCompilazione() {
+  if (!MON.runId) return;
+  if (!confirm("Fermare la compilazione in corso?")) return;
+  try {
+    await gh(`/repos/${MON.repo}/actions/runs/${MON.runId}/cancel`, { metodo: "POST", permesso: "«Actions: Read and write»" });
+    toast("Richiesta inviata: GitHub la ferma entro qualche secondo");
+  } catch (e) { passo(e.message, "errore"); }
+}
+
+/* riapertura della pagina: riprende la compilazione rimasta in sospeso */
+async function riprendiMonitor() {
+  let b; try { b = JSON.parse(mem.get("localStorage", "creaapk.gh.build") || "null"); } catch (e) { b = null; }
+  if (!GH.login) return;
+  if (!b || !b.repo || !b.runId) {
+    // nessun ricordo nel browser (altro dispositivo, memoria cancellata): chiedo a GitHub l'ultima compilazione
+    const repo = normRepo($("ghRepo").value); if (!repo) return;
+    try {
+      const { dati } = await gh(`/repos/${repo}/actions/workflows/build-apk.yml/runs?per_page=1`);
+      const r = (dati.workflow_runs || [])[0];
+      if (!r || (r.status === "completed" && Date.now() - Date.parse(r.updated_at) > 6 * 3600000)) return;
+      b = { repo, runId: r.id };
+    } catch (e) { return; }      // repository non ancora creato o senza compilazioni
+  }
+  if (!GH.repoToccato || !$("ghRepo").value) { $("ghRepo").value = b.repo; GH.repoToccato = true; mem.set("localStorage", "creaapk.gh.repo", b.repo); aggiornaLinkRepo(); }
+  try { MON.privato = !!(await gh(`/repos/${b.repo}`)).dati.private; } catch (e) { return; }
+  fermaMonitor();
+  const gen = MON.gen;
+  passo(`Ultima compilazione su ${b.repo}`, "info", { url: `https://github.com/${b.repo}/actions/runs/${b.runId}`, testo: "apri" });
+  seguiRun(b.repo, b.runId, gen).catch(e => passo(e.message, "errore"));
+}
+
+/* ---------- eventi ---------- */
+$("ghSalva").onclick = async () => {
+  const nuovo = $("ghToken").value.trim();
+  $("ghEsitoToken").innerHTML = "";
+  if (!nuovo && !GH.token) { esitoToken("errore", "Incolla prima il token nel campo."); return; }
+  if (nuovo) { GH.token = nuovo; GH.origine = "crea"; }
+  $("ghToken").value = "";
+  if (!memorizzaToken($("ghRicorda").checked)) esitoToken("avviso", "Questo browser non permette di ricordare il token: dovrai reinserirlo alla prossima apertura.");
+  try { await verificaToken(true); } catch (e) { /* messaggio già mostrato */ }
+};
+$("ghDimentica").onclick = () => {
+  GH.token = ""; GH.login = ""; GH.ambiti = null; GH.origine = "";
+  mem.del("localStorage", "creaapk.gh.token"); mem.del("sessionStorage", "creaapk.gh.token");
+  $("ghEsitoToken").innerHTML = "";
+  esitoToken("info", "Token dimenticato da Crea APK." + (mem.get("localStorage", "pubblica-token") ? " Quello dell'app Pubblica resta dov'è: si toglie da Pubblica." : ""));
+  disegnaAccesso();
+};
+$("ghRicorda").onchange = () => { if (GH.token && GH.origine === "crea") memorizzaToken($("ghRicorda").checked); };
+$("ghRepo").oninput = () => { GH.repoToccato = !!$("ghRepo").value.trim(); mem.set("localStorage", "creaapk.gh.repo", $("ghRepo").value.trim()); aggiornaLinkRepo(); };
+$("ghRepo").onblur = () => { if (!$("ghRepo").value.trim()) { GH.repoToccato = false; mem.del("localStorage", "creaapk.gh.repo"); ghProponiRepo(); } };
+$("ghVisibilita").onchange = () => salva("gh.visibilita", $("ghVisibilita").value);
+$("ghAutoVer").onchange = () => salva("gh.autover", $("ghAutoVer").checked ? "1" : "0");
+$("ghVai").onclick = () => pubblicaECompila(false);
+$("ghRicompila").onclick = () => pubblicaECompila(true);
+$("ghFerma").onclick = fermaCompilazione;
+
+/* ------------------------------------------------------------------
+   Avvio: ripristina l'ultima sessione (solo il modo file singolo)
+------------------------------------------------------------------ */
+(function avvio() {
+  const codice = leggi("codice");
+  ["titolo", "pacchetto", "dominio", "versioneApp", "orientamento", "arch"].forEach(id => {
+    const v = leggi(id); if (v) $(id).value = v; });
+  if (leggi("autoAvvio") === "0") $("autoAvvio").checked = false;
+  if (codice) {
+    $("codice").value = codice;
+    stato.nomeFile = leggi("nomeFile") || "script_utente.py";
+    if (leggi("pacchetto")) stato.pacchettoToccato = true;
+    disegnaProgetto(); aggiornaTutto();
+  } else {
+    impostaScript(ESEMPIO, "script_esempio.py");
+  }
+  // GitHub
+  caricaToken();
+  const repoSalvato = mem.get("localStorage", "creaapk.gh.repo");
+  if (repoSalvato) { $("ghRepo").value = repoSalvato; GH.repoToccato = true; }
+  if (leggi("gh.visibilita")) $("ghVisibilita").value = leggi("gh.visibilita");
+  if (leggi("gh.autover") === "0") $("ghAutoVer").checked = false;
+  if (INTEGRATO) {
+    window.creaApk = {
+      tokenCambiato() {
+        caricaToken(); GH.login = ""; GH.ambiti = null; disegnaAccesso();
+        if (GH.token) verificaToken(false).then(() => { if (!MON.runId) riprendiMonitor(); }).catch(() => {});
+      },
+      mostrata() { caricaToken(); disegnaAccesso(); if (GH.token && !GH.login) window.creaApk.tokenCambiato(); }
+    };
+    $("ghVaiImpostazioni").onclick = () => vai("config");
+    if (!leggi("gh.visibilita")) $("ghVisibilita").value = CFG.nuoviVis === "privata" ? "privato" : "pubblico";
+  }
+  aggiornaLinkRepo(); disegnaAccesso();
+  if (!GH.token) $("ghAccesso").open = true;
+  else verificaToken(false).then(riprendiMonitor).catch(() => { $("ghAccesso").open = true; });
+})();
+})();
 </script>
 </body>
 </html>
