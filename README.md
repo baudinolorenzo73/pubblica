@@ -12,6 +12,13 @@ Pubblica i tuoi progetti su GitHub dal telefono, senza Termux. App installabile 
 | `manifest.webmanifest` | Nome, colori e icone per l'installazione |
 | `icone/` | Icone dell'app |
 
+## Novità della 3.2
+
+- **Librerie Python cercate in automatico**: se lo script importa una libreria che Crea APK non conosce, la cerca su PyPI,
+  aggiunge da sola il nome giusto e le dipendenze, e avvisa *prima* di compilare se ha parti in C senza ricetta per Android.
+- **App HTML: i download funzionano nell'APK**: esportazioni e file scaricati dalla pagina aprono «Salva o condividi»
+  (plugin Filesystem e Share di Capacitor, aggiunti da soli). I tuoi file HTML restano intatti.
+
 ## Novità della 3.1 (e della 3.0)
 
 - **📱 Crea APK (Python o HTML)**: trasforma uno script Python normale (print/input), un progetto ZIP o un'**app HTML**

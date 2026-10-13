@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#1c3270">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; connect-src https://api.github.com https://*.githubusercontent.com https://*.blob.core.windows.net; script-src 'self' 'unsafe-inline'; style-src 'unsafe-inline'; img-src 'self' data: blob:; manifest-src 'self'; worker-src 'self'; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; connect-src https://api.github.com https://*.githubusercontent.com https://*.blob.core.windows.net https://pypi.org; script-src 'self' 'unsafe-inline'; style-src 'unsafe-inline'; img-src 'self' data: blob:; manifest-src 'self'; worker-src 'self'; base-uri 'none'; form-action 'none'">
 <title>Pubblica</title>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" type="image/png" href="icone/icona-192.png">
@@ -2367,7 +2367,7 @@ if __name__ == "__main__":
 /* ===== Crea APK (integrato in Pubblica) ===== */
 (() => {
 "use strict";
-const VERSIONE = "3.1";
+const VERSIONE = "3.2";
 const $ = id => document.getElementById(id);
 $("versione").textContent = "v" + VERSIONE;
 
@@ -2394,6 +2394,123 @@ const LIBRERIE = {
   gpxpy: "gpxpy", websocket: "websocket-client", paho: "paho-mqtt",
   googletrans: null, selenium: null, flask: null, django: null
 };
+// nome dell'import → nome da cercare su PyPI, quando sono diversi
+const ALIAS_PIP = {
+  sklearn: "scikit-learn", skimage: "scikit-image", serial: "pyserial", usb: "pyusb", telegram: "python-telegram-bot",
+  dotenv: "python-dotenv", docx: "python-docx", pptx: "python-pptx", magic: "python-magic", Crypto: "pycryptodome",
+  Cryptodome: "pycryptodomex", jwt: "PyJWT", attr: "attrs", OpenSSL: "pyopenssl", fitz: "PyMuPDF", bluetooth: "pybluez",
+  Levenshtein: "python-Levenshtein", slugify: "python-slugify", dns: "dnspython", git: "GitPython", github: "PyGithub",
+  googleapiclient: "google-api-python-client", kivymd: "kivymd", pydub: "pydub", bidi: "python-bidi", arabic_reshaper: "arabic-reshaper",
+  zmq: "pyzmq", Bio: "biopython", osgeo: "GDAL", shapefile: "pyshp", gi: "PyGObject", wx: "wxPython", PyQt5: "PyQt5",
+  speech_recognition: "SpeechRecognition", pyttsx3: "pyttsx3", gtts: "gTTS", openpyxl: "openpyxl", xlrd: "xlrd", fpdf: "fpdf2",
+  reportlab: "reportlab", markdown: "Markdown", jinja2: "Jinja2", simplejson: "simplejson", toml: "toml", tomli: "tomli"
+};
+// pacchetti PyPI la cui ricetta python-for-android ha un altro nome
+const RICETTA_DA_PIP = { "opencv-python": "opencv", "opencv-contrib-python": "opencv", "opencv-python-headless": "opencv",
+  "pillow": "Pillow", "pyyaml": "pyaml", "pycryptodomex": "pycryptodome", "psycopg2-binary": "psycopg2", "ruamel-yaml": "ruamel.yaml",
+  "msgpack": "msgpack-python", "protobuf": "protobuf_cpp" };
+// librerie che python-for-android sa compilare per Android (cartella «recipes», ramo master); aggiornate online quando si può
+let RICETTE = new Set("Pillow aiohttp android apsw argon2-cffi atom aubio audiostream av av_codecs bcrypt bitarray boost cffi coincurve coverage cryptography cymunk cython decorator enaml ethash evdev feedparser ffmpeg ffpyplayer ffpyplayer_codecs flask fontconfig fortran freetype freetype-py genericndkbuild gevent greenlet groestlcoin_hash grpcio harfbuzz hostpython3 httpx icu ifaddr ifaddrs jedi jpeg kivy kivy3 kiwisolver leveldb libbz2 libcairo libcurl libexpat libffi libgeos libglob libiconv liblzma libogg libopenblas libpcre libpq libpthread librt libsecp256k1 libshine libsodium libtorrent libtribler libvorbis libvpx libwebp libx264 libxml2 libxslt libzbar libzmq lxml m2crypto materialyoucolor matplotlib moderngl msgpack-python msgspec ndghttpsclient netifaces numpy omemo omemo-backend-signal openal opencv opencv_extras openssl pandas pil png preppy primp protobuf_cpp psycopg2 py3dns pyaml pybind11 pycairo pycparser pycrypto pycryptodome pydantic-core pygame pyicu pyjnius pyleveldb pymunk pynacl pyogg pyopenal pyopenssl pyproj pyrxp pysdl2 pysha3 python3 pyusb pyzbar pyzmq regex reportlab ruamel.yaml scipy scrypt sdl2 sdl2_image sdl2_mixer sdl2_ttf sdl3 sdl3_image sdl3_mixer sdl3_ttf secp256k1 setuptools shapely snappy spine sqlalchemy sqlite3 storm tflite-runtime tiktoken twisted ujson uvloop videonative vispy vlc vosk wsaccel x3dh xeddsa zbar zbarlight zeroconf zope zope_interface".split(" ").map(r => normPip(r)));
+function normPip(n) { return String(n).toLowerCase().replace(/[-_.]+/g, "-"); }
+
+/* Cerca su PyPI i moduli che l'analisi non conosce: esistenza, dipendenze, solo Python o parti in C (serve una ricetta). */
+const ONLINE = new Map();          // modulo → {stato:"cerco"|"ok"|"nontrovata"|"errore", ...}
+const PYPI_GIORNI = 7;
+(function caricaOnline() {
+  try {
+    const d = JSON.parse(localStorage.getItem("creaapk.pypi") || "{}");
+    for (const [k, v] of Object.entries(d)) if (Date.now() - v.quando < PYPI_GIORNI * 864e5 && v.stato !== "errore") ONLINE.set(k, v);
+    const r = JSON.parse(localStorage.getItem("creaapk.ricette") || "null");
+    if (r && Date.now() - r.quando < PYPI_GIORNI * 864e5 && r.nomi.length > 50) RICETTE = new Set(r.nomi);
+  } catch (e) {}
+})();
+function salvaOnline() {
+  const d = {}; for (const [k, v] of ONLINE) if (v.stato !== "cerco") d[k] = v;
+  try { localStorage.setItem("creaapk.pypi", JSON.stringify(d)); } catch (e) {}
+}
+let ricetteAggiornate = null;
+function aggiornaRicette() {
+  if (!ricetteAggiornate) ricetteAggiornate = (async () => {
+    try {
+      const intest = { Accept: "application/vnd.github+json" };
+      if (typeof GH !== "undefined" && GH.token) intest.Authorization = "Bearer " + GH.token;
+      const r = await fetch("https://api.github.com/repos/kivy/python-for-android/contents/pythonforandroid/recipes?ref=master", { headers: intest });
+      if (!r.ok) return;
+      const nomi = (await r.json()).filter(x => x.type === "dir").map(x => normPip(x.name));
+      if (nomi.length > 50) { RICETTE = new Set(nomi); localStorage.setItem("creaapk.ricette", JSON.stringify({ quando: Date.now(), nomi })); }
+    } catch (e) { /* resta l'elenco incorporato */ }
+  })();
+  return ricetteAggiornate;
+}
+const PYPI_CACHE = new Map();
+async function leggiPypi(nome) {
+  const k = normPip(nome);
+  if (!PYPI_CACHE.has(k)) PYPI_CACHE.set(k, (async () => {
+    const r = await fetch(`https://pypi.org/pypi/${encodeURIComponent(nome)}/json`);
+    if (r.status === 404) return null;
+    if (!r.ok) throw new Error("PyPI risponde " + r.status);
+    return r.json();
+  })());
+  return PYPI_CACHE.get(k);
+}
+function dipendenzeUtili(info) {
+  const out = [];
+  for (const d of info.info.requires_dist || []) {
+    const [nome, marcatore = ""] = d.split(";");
+    if (/extra\s*==|win32|windows|darwin|cygwin|pypy|python_version\s*<|python_full_version\s*</i.test(marcatore)) continue;
+    const m = nome.trim().match(/^[A-Za-z0-9][A-Za-z0-9._-]*/);
+    if (m) out.push(m[0]);
+  }
+  return out;
+}
+function tipoPacchetto(info) {
+  const nome = normPip(info.info.name), file = info.urls || [];
+  const ricetta = RICETTA_DA_PIP[nome] || (RICETTE.has(nome) ? nome : "");
+  if (ricetta) return { tipo: "ricetta", req: ricetta };
+  if (file.some(x => /-none-any\.whl$/i.test(x.filename))) return { tipo: "puro", req: nome };
+  if (file.some(x => x.packagetype === "bdist_wheel")) return { tipo: "c", req: nome };
+  return { tipo: "sorgente", req: nome };             // solo sorgenti: di solito solo Python, non è certo
+}
+async function risolviModulo(mod) {
+  await aggiornaRicette();
+  const cercato = ALIAS_PIP[mod] || mod;
+  const info = await leggiPypi(cercato);
+  if (!info) return { stato: "nontrovata", pip: cercato };
+  const radice = tipoPacchetto(info);
+  const req = [radice.req], problemi = radice.tipo === "c" ? [info.info.name] : [], visti = new Set([normPip(info.info.name)]);
+  let coda = radice.tipo === "ricetta" ? [] : dipendenzeUtili(info).map(n => [n, 1]);
+  while (coda.length && visti.size < 15) {                // dipendenze fino a 2 livelli
+    const [n, liv] = coda.shift(); const k = normPip(n);
+    if (visti.has(k) || /^(setuptools|wheel|pip|kivy)$/.test(k)) continue;
+    visti.add(k);
+    let di; try { di = await leggiPypi(n); } catch (e) { req.push(k); continue; }
+    if (!di) continue;
+    const tp = tipoPacchetto(di);
+    req.push(tp.req);
+    if (tp.tipo === "c") problemi.push(di.info.name);
+    if (liv < 2 && tp.tipo !== "ricetta") coda.push(...dipendenzeUtili(di).map(x => [x, liv + 1]));
+  }
+  return { stato: "ok", pip: info.info.name, tipo: radice.tipo, req: [...new Set(req)], problemi };
+}
+function cercaOnline(moduli) {
+  for (const mod of moduli) {
+    if (ONLINE.has(mod)) continue;
+    const voce = { stato: "cerco" }; ONLINE.set(mod, voce);
+    voce.promessa = risolviModulo(mod)
+      .then(r => ONLINE.set(mod, Object.assign(r, { quando: Date.now() })))
+      .catch(e => ONLINE.set(mod, { stato: "errore", msg: e.message, quando: Date.now() }))
+      .finally(() => { salvaOnline(); aggiornaTutto(); });
+  }
+}
+async function attendiRicerche() {
+  for (let giro = 0; giro < 3; giro++) {
+    const attese = [...ONLINE.values()].filter(v => v.stato === "cerco").map(v => v.promessa);
+    if (!attese.length) return;
+    toast("Cerco le librerie su PyPI…");
+    await Promise.all(attese);
+    clearTimeout(timer); salvaEditor(); mostraAnalisi();
+  }
+}
 const RETE_PIP = new Set(["requests","urllib3","bs4","feedparser","geopy","websocket","paho","googletrans"]);
 const RETE_STD = new Set(["urllib","http","socket","ssl","ftplib","smtplib","imaplib","poplib","xmlrpc","socketserver"]);
 const NON_ANDROID = {
@@ -2695,8 +2812,25 @@ function analizza() {
   }
 
   if (daAggiungere.length) add("ok", `Librerie esterne riconosciute e aggiunte ai requisiti: ${daAggiungere.map(m => `<code>${esc(m)}</code>`).join(" ")}`);
-  for (const mod of sconosciuti)
-    add("avviso", `Modulo <code>${esc(mod)}</code> non riconosciuto${dove(usatoDa.get(mod))}. Se è un tuo file, deve stare nel progetto accanto al file di avvio; se è una libreria PyPI scritta solo in Python, scrivi il suo nome pip in <i>Librerie extra</i>.`);
+  const daCercare = [];
+  for (const mod of sconosciuti) {
+    const r = ONLINE.get(mod), qui = dove(usatoDa.get(mod)), m = `<code>${esc(mod)}</code>`;
+    if (!r) { daCercare.push(mod); add("info", `${m}: lo cerco su PyPI…${qui}`); continue; }
+    if (r.stato === "cerco") { add("info", `${m}: lo cerco su PyPI…${qui}`); continue; }
+    if (r.stato === "ok") {
+      r.req.forEach(x => librerie.add(x));
+      const come = { puro: "scritta solo in Python", ricetta: "con ricetta Android (python-for-android la sa compilare)",
+        sorgente: "pubblicata solo come sorgente (di solito è solo Python)", c: "con parti in C" }[r.tipo];
+      const dip = r.req.length > 1 ? ` · dipendenze aggiunte: ${r.req.slice(1).map(x => `<code>${esc(x)}</code>`).join(" ")}` : "";
+      add(r.problemi.length ? "errore" : "ok", `${m} trovato su PyPI come <code>${esc(r.pip)}</code>: libreria ${come}${dip}${qui}`
+        + (r.problemi.length ? `. <b>Probabilmente non si compila</b>: ${r.problemi.map(esc).join(", ")} ha parti in C senza ricetta per Android. Cerca un'alternativa scritta solo in Python.` : "."));
+      continue;
+    }
+    if (r.stato === "nontrovata")
+      add("avviso", `Modulo ${m} non trovato né tra i tuoi file né su PyPI (cercato come <code>${esc(r.pip)}</code>)${qui}. Se è un tuo file, mettilo nel progetto accanto al file di avvio; se è una libreria con un altro nome, scrivi il nome pip in <i>Librerie extra</i>.`);
+    else
+      add("avviso", `Modulo ${m} non riconosciuto e ricerca online non riuscita (${esc(r.msg || "rete")})${qui}. Se è una libreria PyPI scritta solo in Python, scrivi il suo nome pip in <i>Librerie extra</i>.`);
+  }
   if (permessi.has("INTERNET")) add("info", "Il codice usa la rete: aggiunto il permesso <code>INTERNET</code>.");
   regole.forEach(([, livello, msg], i) => { if (colpiti[i].length) add(livello, msg + dove(colpiti[i])); });
 
@@ -2711,7 +2845,7 @@ function analizza() {
     add("ok", multi ? `Nessun problema rilevato nei ${sorgenti.length} file Python.` : "Nessun problema rilevato: lo script è compatibile.");
   const ordine = {errore: 0, avviso: 1, info: 2, ok: 3};
   esiti.sort((a, b) => ordine[a.livello] - ordine[b.livello]);
-  return {esiti, librerie, permessi, bloccante: false, sorgenti};
+  return {esiti, librerie, permessi, bloccante: false, sorgenti, daCercare};
 }
 
 function mostraAnalisi() {
@@ -2726,12 +2860,14 @@ function mostraAnalisi() {
   if (!stato.librerieToccate) $("librerie").value = [...a.librerie].join(",");
   if (!stato.permessiToccati) $("permessi").value = [...a.permessi].join(",");
   $("btnZip").disabled = a.bloccante;
+  if (a.daCercare && a.daCercare.length) cercaOnline(a.daCercare);
 }
 
 /* ------------------------------------------------------------------
    App HTML → APK (Capacitor): analisi, caricamento, file generati
 ------------------------------------------------------------------ */
 const CAP_VERSIONE = "6.2.1";     // Capacitor 6: Node 18+, Java 17, Android Gradle Plugin 8.2
+const CAP_PLUGIN = { "@capacitor/filesystem": "6.0.4", "@capacitor/share": "6.0.4" };   // per salvare i file scaricati
 const RE_HTML = /\.html?$/i;
 
 function entrataHtml(file) {
@@ -2764,8 +2900,8 @@ function analizzaHtml() {
     if (audio || !video) permessi.add("RECORD_AUDIO");
     add("info", "Usa fotocamera o microfono: aggiunti i relativi permessi.");
   }
-  if (/\bdownload\s*=|createObjectURL|saveAs\s*\(/.test(testo))
-    add("avviso", "L'app sembra salvare file (download, esportazioni). Nella WebView Android il download di file generati dalla pagina può non funzionare come in Chrome: provalo, e se serve si aggiunge un plugin di salvataggio.");
+  if (/\bdownload\s*=|\.download\b|createObjectURL|saveAs\s*\(/.test(testo))
+    add("info", "L'app salva file (download, esportazioni): nell'APK ogni download apre «Salva o condividi», da cui scegli dove metterlo (File, Drive, WhatsApp…). Lo fa un piccolo script aggiunto solo dentro l'APK: i tuoi file restano intatti.");
   if (/serviceWorker\s*\.\s*register/.test(testo))
     add("info", "Registra un service worker: nell'APK non serve (i file sono già dentro), ma non dà fastidio.");
   if (/\bfile:\/\//i.test(testo))
@@ -2802,6 +2938,28 @@ function capPrepara() {
   if (app.orientamento === "portrait" || app.orientamento === "landscape")
     m = m.replace('android:name=".MainActivity"', 'android:name=".MainActivity"\n            android:screenOrientation="' + app.orientamento + '"');
   fs.writeFileSync(man, m);
+  // download → «Salva o condividi»: lo script va solo nelle copie dentro l'APK, non nei tuoi file
+  const pub = "android/app/src/main/assets/public";
+  if (fs.existsSync("cap-download.js") && fs.existsSync(pub)) {
+    fs.copyFileSync("cap-download.js", pub + "/crea-apk-download.js");
+    const pagine = [];
+    const giro = (dir, rel) => {
+      for (const n of fs.readdirSync(dir)) {
+        const p = dir + "/" + n;
+        if (fs.statSync(p).isDirectory()) giro(p, rel + n + "/");
+        else if (/\.html?$/i.test(n)) pagine.push([p, rel]);
+      }
+    };
+    giro(pub, "");
+    for (const [p, rel] of pagine) {
+      let h = fs.readFileSync(p, "utf8");
+      if (h.includes("crea-apk-download.js")) continue;
+      const tag = '<script src="' + "../".repeat(rel.split("/").length - 1) + 'crea-apk-download.js"><' + '/script>';
+      h = /<head[^>]*>/i.test(h) ? h.replace(/<head[^>]*>/i, m => m + tag) : tag + h;
+      fs.writeFileSync(p, h);
+    }
+    console.log("Salvataggio dei download attivo in " + pagine.length + " pagine");
+  }
   // icona: sostituisce quella standard di Capacitor
   if (fs.existsSync("icon.png")) {
     const res = "android/app/src/main/res";
@@ -2814,6 +2972,55 @@ function capPrepara() {
   console.log("Progetto Android preparato: versione " + app.versione + " (build " + run + ")");
 }
 
+// Gira dentro l'APK (WebView): i download della pagina (<a download>, blob:, data:) diventano «Salva o condividi».
+// Usa i plugin Filesystem e Share attraverso il ponte nativo di Capacitor, senza bisogno di bundler.
+function capDownload() {
+  if (window.__creaApkDownload) return;
+  window.__creaApkDownload = true;
+  const nativo = () => window.Capacitor && typeof window.Capacitor.nativePromise === "function";
+  const nomeFile = a => {
+    let n = a.getAttribute("download");
+    if (!n) { try { n = decodeURIComponent(new URL(a.href, location.href).pathname.split("/").pop()); } catch (e) { n = ""; } }
+    return (n || "file").replace(/[\\/:*?"<>|]/g, "_");
+  };
+  const base64 = blob => new Promise((ok, ko) => {
+    const r = new FileReader(); r.onload = () => ok(String(r.result).split(",")[1] || ""); r.onerror = () => ko(r.error); r.readAsDataURL(blob);
+  });
+  function salva(a) {
+    const nome = nomeFile(a);
+    const dati = fetch(a.href).then(r => r.blob());       // subito: molte pagine revocano il blob appena dopo il clic
+    (async () => {
+      try {
+        const scritto = await window.Capacitor.nativePromise("Filesystem", "writeFile",
+          { path: "download/" + nome, data: await base64(await dati), directory: "CACHE", recursive: true });
+        await window.Capacitor.nativePromise("Share", "share", { title: nome, files: [scritto.uri], dialogTitle: "Salva o condividi " + nome });
+      } catch (e) {
+        const msg = String((e && e.message) || e);
+        if (!/cancel|annull/i.test(msg)) alert("Non riesco a salvare " + nome + ": " + msg);
+      }
+    })();
+  }
+  const daGestire = a => nativo() && a && a.hasAttribute && a.hasAttribute("download") && a.href && !/^javascript:/i.test(a.href);
+  window.addEventListener("click", e => {                     // dopo i gestori della pagina (fase di risalita)
+    const a = e.target && e.target.closest && e.target.closest("a[download]");
+    if (e.defaultPrevented || !daGestire(a)) return;
+    e.preventDefault(); salva(a);
+  });
+  const clic = HTMLAnchorElement.prototype.click;               // link creati al volo e mai aggiunti alla pagina
+  HTMLAnchorElement.prototype.click = function () {
+    if (!this.isConnected && daGestire(this)) { salva(this); return; }
+    return clic.call(this);
+  };
+  const invia = HTMLAnchorElement.prototype.dispatchEvent;      // FileSaver.js e simili
+  HTMLAnchorElement.prototype.dispatchEvent = function (ev) {
+    if (ev && ev.type === "click" && !this.isConnected && daGestire(this)) { salva(this); return false; }
+    return invia.call(this, ev);
+  };
+}
+function genCapDownload() {
+  return "// Download → «Salva o condividi» dentro l'APK. Generato da Crea APK · by Lollo ®2026\n(" + capDownload.toString() + ")();\n";
+}
+
 function genCapPrepara() {
   return "// Rifinisce il progetto Android generato da Capacitor (nome, versione, permessi, orientamento, icona).\n"
     + "// Generato da Crea APK · by Lollo ®2026\n(" + capPrepara.toString() + ")();\n";
@@ -2821,7 +3028,7 @@ function genCapPrepara() {
 
 function genPackageJson(s) {
   return JSON.stringify({name: s.pacchetto, version: "1.0.0", private: true, description: s.titolo,
-    dependencies: {"@capacitor/android": CAP_VERSIONE, "@capacitor/cli": CAP_VERSIONE, "@capacitor/core": CAP_VERSIONE}}, null, 2) + "\n";
+    dependencies: Object.assign({"@capacitor/android": CAP_VERSIONE, "@capacitor/cli": CAP_VERSIONE, "@capacitor/core": CAP_VERSIONE}, CAP_PLUGIN)}, null, 2) + "\n";
 }
 function genCapConfig(s) {
   return JSON.stringify({appId: s.dominio + "." + s.pacchetto, appName: s.titolo, webDir: "www"}, null, 2) + "\n";
@@ -2909,13 +3116,13 @@ jobs:
 ${PASSO_FIRMA}      - name: Crea il progetto Android
         run: npx cap add android
 
-      - name: Prepara nome, versione, permessi e icona
+      - name: Copia le pagine e i plugin nell'app
+        run: npx cap sync android
+
+      - name: Prepara nome, versione, permessi, icona e download
         env:
           RUN_NUMBER: \${{ github.run_number }}
         run: node cap-prepara.js
-
-      - name: Copia le pagine nell'app
-        run: npx cap sync android
 
       - name: Compila APK
         run: |
@@ -2955,6 +3162,7 @@ App Android generata con **Crea APK** (by Lollo ®2026) dall'app HTML \`${stato.
 - \`package.json\`, \`capacitor.config.json\` — configurazione di Capacitor (la WebView che mostra le pagine)
 - \`app.json\` — versione, permessi e orientamento
 - \`cap-prepara.js\` — applica nome, versione, permessi e icona al progetto Android
+- \`cap-download.js\` — dentro l'APK trasforma i download della pagina in «Salva o condividi»
 - \`.github/workflows/build-apk.yml\` — compila l'APK su GitHub a ogni push
 - \`firma/\` — creata al primo giro: chiave che permette gli aggiornamenti. Non cancellarla.
 
@@ -2977,6 +3185,7 @@ function generaFileHtml(s) {
     {percorso: "capacitor.config.json", testo: genCapConfig(s)},
     {percorso: "app.json", testo: genAppJson(s)},
     {percorso: "cap-prepara.js", testo: genCapPrepara()},
+    {percorso: "cap-download.js", testo: genCapDownload()},
     {percorso: ".github/workflows/build-apk.yml", testo: genWorkflowHtml(s)},
     {percorso: "LEGGIMI.md", testo: genLeggimiHtml(s)}
   ];
@@ -3464,7 +3673,7 @@ $("btnCopia").onclick = async () => {
   toast(ok ? "Copiato negli appunti" : "Copia non riuscita: seleziona il testo a mano");
 };
 $("btnZip").onclick = async () => {
-  clearTimeout(timer); salvaEditor(); mostraAnalisi();
+  clearTimeout(timer); salvaEditor(); mostraAnalisi(); await attendiRicerche();
   if (stato.analisi.bloccante) { toast("Manca il codice da compilare"); return; }
   const s = generaFile();
   $("btnZip").disabled = true; $("btnZip").textContent = "Preparo lo ZIP…";
@@ -3730,7 +3939,7 @@ async function differenze(ctx) {
   // si tolgono solo i file del tuo codice che non ci sono più; firma/, README e il resto restano
   // (se il repository era già di Crea APK, spariscono anche i file dell'altro tipo di app: Python ↔ HTML)
   const eraNostro = ctx.mappa.has(WF_PERCORSO) && (ctx.mappa.has("buildozer.spec") || ctx.mappa.has("app.json"));
-  const GENERATI = ["main.py", "buildozer.spec", "package.json", "capacitor.config.json", "app.json", "cap-prepara.js", "icon.png"];
+  const GENERATI = ["main.py", "buildozer.spec", "package.json", "capacitor.config.json", "app.json", "cap-prepara.js", "cap-download.js", "icon.png"];
   const tolti = [...ctx.mappa.keys()].filter(p => !percorsi.has(p)
     && (p.startsWith("progetto/") || p.startsWith("www/") || (eraNostro && GENERATI.includes(p))));
   return { cambiati, tolti };
@@ -3771,6 +3980,7 @@ async function invia(ctx, d, messaggio) {
 async function pubblicaECompila(soloRicompila) {
   if (GH.occupato) return;
   clearTimeout(timer); salvaEditor(); mostraAnalisi();
+  if (!soloRicompila) await attendiRicerche();
   if (!soloRicompila && stato.analisi.bloccante) { toast("Manca il codice da compilare"); return; }
   if (INTEGRATO) caricaToken();
   if (!GH.token) {
