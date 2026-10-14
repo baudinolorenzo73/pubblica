@@ -12,6 +12,17 @@ Pubblica i tuoi progetti su GitHub dal telefono, senza Termux. App installabile 
 | `manifest.webmanifest` | Nome, colori e icone per l'installazione |
 | `icone/` | Icone dell'app |
 
+## Novità della 3.6
+
+- **L'APK prende il nome dell'app** (quello del punto 3): «Simulatore GEA PWA V5.13» → `Simulatore_GEA_PWA_V5.13-1.1.apk`.
+- **Un nuovo progetto parte pulito**: caricando un altro script, ZIP o app HTML sparisce il risultato della compilazione
+  precedente e il repository passa da solo a quello del nuovo progetto (se era quello del precedente).
+- Il punto 4 (anteprima dei file) è ora facoltativo e chiuso: per compilare non serve.
+
+## Novità della 3.5
+
+- Controllo automatico dell'APK a fine compilazione (firma, pacchetto, Android minimo) e riquadro «Non si installa?» con le cause più comuni.
+
 ## Novità della 3.4
 
 - **Nome dell'APK come il repository**: `nomerepository-versione.apk` (con più processori, anche il tipo: `…-arm64-v8a.apk`).

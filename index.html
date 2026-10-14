@@ -414,15 +414,19 @@ footer{text-align:center;color:var(--tenue);font-size:12.5px;padding:10px}
 
   <!-- 4. GENERA -->
   <section class="card">
-    <h2><span class="n">4</span>Progetto pronto per la compilazione</h2>
+    <h2><span class="n">4</span>Progetto pronto (facoltativo)</h2>
     <div class="corpo">
+      <p class="nota" style="margin:0">Non serve per compilare su GitHub: il punto 5 invia tutto da solo.
+        Qui puoi solo <b>guardare</b> i file che verranno inviati o <b>scaricarli</b> in uno ZIP, per usarli a mano
+        o conservarli. Contengono il tuo codice intatto, la configurazione (Python: <code>main.py</code> e
+        <code>buildozer.spec</code>; HTML: Capacitor) e il workflow GitHub.</p>
       <button class="primario grande" id="btnZip">Scarica progetto ZIP</button>
-      <p class="nota" style="margin:0">Contiene tutto il necessario: il tuo codice intatto, la configurazione (Python: <code>main.py</code> e
-        <code>buildozer.spec</code>; HTML: Capacitor) e il workflow GitHub che compila l'APK da solo.</p>
-      <div class="schede" id="schede"></div>
-      <pre class="anteprima" id="anteprima"></pre>
-      <div class="riga"><button id="btnCopia">Copia questo file</button>
-        <span class="nota" id="infoFile"></span></div>
+      <details><summary>Mostra i file che verranno inviati</summary>
+        <div class="schede" id="schede"></div>
+        <pre class="anteprima" id="anteprima"></pre>
+        <div class="riga"><button id="btnCopia">Copia questo file</button>
+          <span class="nota" id="infoFile"></span></div>
+      </details>
     </div>
   </section>
 
@@ -3198,13 +3202,29 @@ ${PASSO_FIRMA}      - name: Crea il progetto Android
           chmod +x gradlew
           ./gradlew assembleDebug --no-daemon --stacktrace
 
-      - name: Raccogli APK (nome come il repository)
+      - name: Raccogli APK (nome come l'app)
         run: |
           mkdir -p bin
-          REPO="\${GITHUB_REPOSITORY#*/}"
+          TITOLO=$(node -p "require('./app.json').titolo")
+          REPO=$(printf '%s' "$TITOLO" | iconv -f UTF-8 -t ASCII//TRANSLIT 2>/dev/null | tr -c 'A-Za-z0-9._\\n-' '_' | sed -E 's/_+/_/g; s/^_+//; s/_+$//')
+          [ -n "$REPO" ] || REPO="\${GITHUB_REPOSITORY#*/}"
           VER=$(node -p "require('./app.json').versione")
           cp android/app/build/outputs/apk/debug/app-debug.apk "bin/\${REPO}-\${VER}.apk"
           ls -l bin
+
+      - name: Controllo del pacchetto APK
+        # Verifica firma e contenuto: se l'APK fosse difettoso la compilazione si ferma qui e il motivo resta nel registro
+        run: |
+          APKSIGNER=$(find "$ANDROID_HOME" ~/.buildozer -name apksigner -type f 2>/dev/null | sort -V | tail -1)
+          AAPT=$(find "$ANDROID_HOME" ~/.buildozer -name aapt -type f 2>/dev/null | sort -V | tail -1)
+          for f in bin/*.apk; do
+            echo "=== $f"
+            ls -l "$f"
+            unzip -tq "$f"
+            if [ -n "$APKSIGNER" ]; then "$APKSIGNER" verify --verbose --print-certs "$f" | head -8; else echo "apksigner non trovato: firma non verificata"; fi
+            if [ -n "$AAPT" ]; then "$AAPT" dump badging "$f" | grep -E "^(package|sdkVersion|targetSdkVersion|application-label:)" || true; fi
+            sha256sum "$f"
+          done
 
       - name: Salva APK tra gli artifact
         uses: actions/upload-artifact@v4
@@ -3282,12 +3302,13 @@ async function caricaHtml(lista) {
   const avvio = entrataHtml(tenuti);
   if (!avvio) { toast("Non c'è nessun file .html"); return; }
   salvaEditor();
+  altroFile(lista[0].name);
   stato.tipo = "html";
   stato.html = {nome: lista.length > 1 && !lista.some(f => /\.zip$/i.test(f.name)) ? nome : lista[0].name, file: tenuti, scartati, avvio};
   $("titolo").value = titoloDaFile(stato.html.nome);
   if (!stato.pacchettoToccato) $("pacchetto").value = nomePacchetto($("titolo").value);
   stato.permessiToccati = false;
-  disegnaProgetto(); aggiornaTutto();
+  disegnaProgetto(); nuovoProgetto(); aggiornaTutto();
   toast(`App HTML caricata: ${tenuti.length} file, si apre ${avvio}`);
 }
 
@@ -3427,9 +3448,11 @@ jobs:
 ${PASSO_FIRMA}      - name: Compila APK
         run: buildozer android debug
 
-      - name: Nome del file APK (come il repository)
+      - name: Nome del file APK (come l'app)
         run: |
-          REPO="\${GITHUB_REPOSITORY#*/}"
+          TITOLO=$(grep -E '^title *=' buildozer.spec | head -1 | sed -E 's/^title *= *//')
+          REPO=$(printf '%s' "$TITOLO" | iconv -f UTF-8 -t ASCII//TRANSLIT 2>/dev/null | tr -c 'A-Za-z0-9._\\n-' '_' | sed -E 's/_+/_/g; s/^_+//; s/_+$//')
+          [ -n "$REPO" ] || REPO="\${GITHUB_REPOSITORY#*/}"
           VER=$(grep -E '^version *=' buildozer.spec | head -1 | sed -E 's/^version *= *//' | tr -d '[:space:]')
           N=$(ls bin/*.apk | wc -l)
           for f in bin/*.apk; do
@@ -3438,6 +3461,20 @@ ${PASSO_FIRMA}      - name: Compila APK
             mv "$f" "$NEW"
           done
           ls -l bin
+
+      - name: Controllo del pacchetto APK
+        # Verifica firma e contenuto: se l'APK fosse difettoso la compilazione si ferma qui e il motivo resta nel registro
+        run: |
+          APKSIGNER=$(find "$ANDROID_HOME" ~/.buildozer -name apksigner -type f 2>/dev/null | sort -V | tail -1)
+          AAPT=$(find "$ANDROID_HOME" ~/.buildozer -name aapt -type f 2>/dev/null | sort -V | tail -1)
+          for f in bin/*.apk; do
+            echo "=== $f"
+            ls -l "$f"
+            unzip -tq "$f"
+            if [ -n "$APKSIGNER" ]; then "$APKSIGNER" verify --verbose --print-certs "$f" | head -8; else echo "apksigner non trovato: firma non verificata"; fi
+            if [ -n "$AAPT" ]; then "$AAPT" dump badging "$f" | grep -E "^(package|sdkVersion|targetSdkVersion|application-label:)" || true; fi
+            sha256sum "$f"
+          done
 
       - name: Salva APK tra gli artifact
         uses: actions/upload-artifact@v4
@@ -3632,6 +3669,7 @@ async function caricaProgetto(file) {
   const candidati = candidatiAvvio(tenuti);
   if (!candidati.length) { toast("Nello ZIP non c'è nessun file .py"); return; }
   salvaEditor();
+  altroFile(file.name);
   stato.tipo = "python"; stato.html = null;
   stato.modo = "progetto";
   stato.progetto = {nome: file.name, file: tenuti, scartati, avvio: candidati[0]};
@@ -3640,7 +3678,7 @@ async function caricaProgetto(file) {
   $("titolo").value = titoloDaFile(file.name);
   if (!stato.pacchettoToccato) $("pacchetto").value = nomePacchetto($("titolo").value);
   stato.librerieToccate = stato.permessiToccati = false;
-  disegnaProgetto(); aggiornaTutto();
+  disegnaProgetto(); nuovoProgetto(); aggiornaTutto();
   toast(`Progetto caricato: ${tenuti.length} file, avvio ${candidati[0]}`);
 }
 
@@ -3664,6 +3702,7 @@ function aggiornaTutto() {
 }
 
 function impostaScript(testo, nome) {
+  altroFile(nome);
   stato.tipo = "python"; stato.html = null;
   stato.modo = "singolo"; stato.progetto = null;
   $("codice").value = testo;
@@ -3671,7 +3710,7 @@ function impostaScript(testo, nome) {
   $("titolo").value = titoloDaFile(nome);
   if (!stato.pacchettoToccato) $("pacchetto").value = nomePacchetto($("titolo").value);
   stato.librerieToccate = stato.permessiToccati = false;
-  disegnaProgetto(); aggiornaTutto();
+  disegnaProgetto(); nuovoProgetto(); aggiornaTutto();
 }
 
 $("btnCarica").onclick = () => {
@@ -3912,6 +3951,30 @@ function disegnaAccesso() {
   $("ghAccessoTit").textContent = GH.login ? `Accesso a GitHub: collegato come ${GH.login}` : "Accesso a GitHub (si fa una volta sola)";
   if (!MON.runId) chip(GH.login ? GH.login : (GH.token ? "token da verificare" : "non collegato"), GH.login ? "on" : "");
   $("ghRicorda").checked = !mem.get("sessionStorage", "creaapk.gh.token");
+}
+function azzeraRisultato() {                 // dimentica la compilazione di un altro progetto
+  fermaMonitor(); mem.del("localStorage", "creaapk.gh.build");
+  $("ghPassi").innerHTML = ""; $("ghRisultato").innerHTML = ""; $("ghBuild").hidden = true; $("ghBuild").innerHTML = "";
+  $("ghStorico").hidden = true; $("ghStoricoLista").innerHTML = "";
+  MON.repo = ""; document.title = "Crea APK";
+  chip(GH.login ? GH.login : (GH.token ? "token da verificare" : "non collegato"), GH.login ? "on" : "");
+}
+function altroFile(nome) {                   // true se è un file diverso dal precedente: il nome pacchetto torna automatico
+  const diverso = stato.ultimoFile !== undefined && stato.ultimoFile !== nome;
+  stato.ultimoFile = nome;
+  if (diverso) stato.pacchettoToccato = false;
+  return diverso;
+}
+function nuovoProgetto() {                   // chiamata quando carichi un altro script, ZIP o app HTML
+  const nome = impostazioni().pacchetto, prec = stato.ultimoPacchetto;
+  stato.ultimoPacchetto = nome;
+  if (GH.occupato || prec === undefined || prec === nome) return;
+  azzeraRisultato();
+  const r = normRepo($("ghRepo").value), parte = r ? r.split("/")[1] : "";
+  if (!r || !GH.repoToccato || parte === prec) {      // il repository era quello del progetto precedente: passo a quello nuovo
+    GH.repoToccato = false; mem.del("localStorage", "creaapk.gh.repo");
+    if (GH.login) { $("ghRepo").value = `${GH.login}/${nome}`; aggiornaLinkRepo(); toast(`Repository cambiato in ${GH.login}/${nome}`); }
+  }
 }
 function ghProponiRepo() {
   if (GH.repoToccato || !GH.login) return;
@@ -4340,7 +4403,16 @@ function mostraApk(repo, rel, run) {
     La prima volta Android chiede di consentire «Installa app sconosciute» al browser: consentilo.
     Se avevi già l'app, si aggiorna e i dati restano.`;
   const pag = Object.assign(document.createElement("a"), { href: rel.html_url, target: "_blank", rel: "noopener", textContent: "Pagina della release su GitHub" });
-  box.append(istr, pag);
+  const guasto = document.createElement("details");
+  guasto.innerHTML = `<summary>Non si installa? («pacchetto non valido» o simili)</summary>
+    <ol>
+      <li><b>File incompleto.</b> L'APK deve pesare esattamente <b>${esc(kb(apk[0].size))}</b> (misura che trovi sul pulsante). Nei Download tieni premuto il file → Dettagli: se pesa meno, il download si è interrotto. Cancellalo e scaricalo di nuovo con il Wi-Fi acceso.</li>
+      <li><b>Era già installata una versione.</b> Se prima l'installazione era arrivata da un'altra fonte (o da un altro repository con lo stesso nome app), Android rifiuta: disinstalla la vecchia app e riprova. I dati di quella vecchia andranno persi.</li>
+      <li><b>Installa dal file giusto.</b> Apri l'APK dalle notifiche del browser o dall'app File, non da anteprime o da app di messaggistica.</li>
+      <li><b>Prova minima.</b> Carica una pagina <code>index.html</code> con scritto solo «ciao», compila e prova a installarla: se quella si installa, il problema è nel contenuto della tua app; se non si installa, è il telefono (impostazioni sorgenti sconosciute, protezione del produttore) e non il file.</li>
+      <li><b>Controllo di GitHub.</b> Apri la compilazione su GitHub → passo «Controllo del pacchetto APK»: mostra firma, nome pacchetto e versione Android minima. Se vedi errori, mandameli.</li>
+    </ol>`;
+  box.append(istr, guasto, pag);
   $("ghRisultato").prepend(box);
 }
 
@@ -4475,6 +4547,10 @@ $("ghDimentica").onclick = () => {
   disegnaAccesso();
 };
 $("ghRicorda").onchange = () => { if (GH.token && GH.origine === "crea") memorizzaToken($("ghRicorda").checked); };
+$("ghRepo").onchange = () => {              // altro repository: il risultato mostrato non è più il suo
+  const r = normRepo($("ghRepo").value);
+  if (!GH.occupato && MON.repo && r && r.toLowerCase() !== MON.repo.toLowerCase()) azzeraRisultato();
+};
 $("ghRepo").oninput = () => { GH.repoToccato = !!$("ghRepo").value.trim(); mem.set("localStorage", "creaapk.gh.repo", $("ghRepo").value.trim()); aggiornaLinkRepo(); };
 $("ghRepo").onblur = () => { if (!$("ghRepo").value.trim()) { GH.repoToccato = false; mem.del("localStorage", "creaapk.gh.repo"); ghProponiRepo(); } };
 $("ghVisibilita").onchange = () => salva("gh.visibilita", $("ghVisibilita").value);
