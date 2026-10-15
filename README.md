@@ -12,6 +12,13 @@ Pubblica i tuoi progetti su GitHub dal telefono, senza Termux. App installabile 
 | `manifest.webmanifest` | Nome, colori e icone per l'installazione |
 | `icone/` | Icone dell'app |
 
+## Novità della 3.7
+
+- **Trekking e GPX** (dentro «API gratuite»): riepilogo a mano delle API per quota, sentieri e meteo in montagna, con il pulsante «Prova ora» che fa una richiesta vera dal tuo telefono e ricorda l'esito (funziona dalla pagina / bloccata / errore).
+- **API gratuite** (voce 🔎 del menu): elenco di oltre 2000 API pubbliche (da public-apis) con ricerca anche in italiano, filtri «senza chiave» / «CORS sì» / HTTPS, categorie, preferite e le tue API aggiunte a mano. «Aggiorna da GitHub» scarica l'elenco nuovo e dice quante API sono nuove; senza internet resta la copia inclusa.
+- **Aggiornamento dall'app (app HTML)**: dentro l'APK compare il pulsante ⟳. Controlla le Releases del repository, scarica l'APK nuovo e apre l'installazione di Android (la conferma resta tua). I dati dell'app restano. Serve il repository pubblico. Si spegne con la casella nel pannello dell'app HTML.
+- Le app Python restano come prima: si aggiornano scaricando e installando l'APK dalla pagina.
+
 ## Novità della 3.6
 
 - **L'APK prende il nome dell'app** (quello del punto 3): «Simulatore GEA PWA V5.13» → `Simulatore_GEA_PWA_V5.13-1.1.apk`.
