@@ -235,7 +235,9 @@ footer{text-align:center;color:var(--tenue);font-size:12.5px;padding:10px}
       <button type="button" class="voce" data-vai="api"><span class="ico">🔎</span><span><b>API gratuite</b><small>Elenco consultabile e aggiornabile, anche le tue</small></span></button>
       <a id="voce-apri" class="btn voce" target="_blank" rel="noopener" href="https://github.com/" data-url="https://github.com/" data-testo="Apri repository"><span class="ico">🌐</span><span><b class="etichetta">Apri repository</b><small>Su GitHub. Dopo una pubblicazione si attiva in 60 secondi; se vedi la versione vecchia, ricarica la pagina</small></span></a>
       <a id="voce-sito" class="btn voce" target="_blank" rel="noopener" data-testo="Apri il sito (HTML)"><span class="ico">🗺️</span><span><b class="etichetta">Apri il sito (HTML)</b><small id="voce-sito-nota">La pagina online del progetto: da lì «Installa app»</small></span></a>
+      <button type="button" class="voce" id="voce-pwa" hidden><span class="ico">📲</span><span><b>Rendi il sito installabile</b><small id="voce-pwa-nota">Aggiunge i file che servono a Chrome per «Installa app»</small></span></button>
       <button type="button" class="voce" data-vai="link"><span class="ico">🔗</span><span><b>Collegamenti</b><small>Apri il sito e scarica lo ZIP</small></span></button>
+      <button type="button" class="voce" data-vai="installa"><span class="ico">💻</span><span><b>Installa in Termux</b><small>Un comando per scaricare i tuoi repository nel terminale</small></span></button>
       <button type="button" class="voce" data-vai="crea"><span class="ico">➕</span><span><b>Crea un repository</b><small>Nome e conferma, il resto è automatico</small></span></button>
       <button type="button" class="voce" data-vai="svuota"><span class="ico">🧹</span><span><b>Svuota un repository</b><small>Cancella i file, tiene la cronologia</small></span></button>
       <button type="button" class="voce rosso" data-vai="elimina"><span class="ico">🗑️</span><span><b>Elimina un repository</b><small>Definitivo, serve conferma scritta</small></span></button>
@@ -294,6 +296,24 @@ footer{text-align:center;color:var(--tenue);font-size:12.5px;padding:10px}
     <div class="proj">Progetto: <b class="nome-attivo"></b></div>
     <p class="nota">Per i repository privati il browser deve aver fatto l'accesso a GitHub.</p>
     <div id="esito-link" aria-live="polite"></div>
+  </div>
+</section>
+
+<!-- ===================== INSTALLA IN TERMUX ===================== -->
+<section id="v-installa" class="vista" hidden>
+  <div class="card">
+    <h2>Installa in Termux</h2>
+    <p class="nota">Spunta i repository, copia il comando e incollalo in Termux (il terminale dove lanci pubblica.html).
+      Ogni repository va in <code>~/progetti</code>, le librerie di <code>requirements.txt</code> si installano e, se c'è uno script Python da avviare, nasce un comando con il nome del repository.</p>
+    <div class="riga"><button id="inst-tutti" type="button">Seleziona tutti</button><button id="inst-nessuno" type="button">Nessuno</button></div>
+    <div id="inst-elenco"></div>
+    <label class="chk"><input type="checkbox" id="inst-token"> <span>Repository privati: metti il token nel comando <span class="nota">(resterà nella cronologia di Termux; usalo solo se serve)</span></span></label>
+    <label for="inst-cmd">Comando da incollare in Termux</label>
+    <textarea id="inst-cmd" class="codice" readonly spellcheck="false" rows="8" style="font:12px/1.5 var(--mono);white-space:pre"></textarea>
+    <div class="riga" style="margin-top:12px"><button id="inst-copia" type="button" class="primario">📋 Copia il comando</button></div>
+    <div id="esito-inst" aria-live="polite"></div>
+    <p class="nota">La prima volta crea in Termux il comando <code>installa-repo</code>, che poi resta: da quel momento basta
+      <code>installa-repo nome-repository</code> (o <code>installa-repo utente/nome</code>) per installarne o aggiornarne altri, senza tornare qui.</p>
   </div>
 </section>
 
@@ -825,6 +845,109 @@ pip install --upgrade buildozer "cython==0.29.33" setuptools</pre></li>
 <div class="toast" id="toast"></div>
 <footer>Pubblica <span class="num-versione">…</span> con Crea APK · by Lollo ®2026</footer>
 
+<script type="text/plain" id="tplInstalla">
+#!/data/data/com.termux/files/usr/bin/bash
+# installa-repo — scarica repository GitHub in Termux e crea i comandi per avviarli.
+# Generato da Pubblica · by Lollo ®2026
+# Uso:  installa-repo nome [nome ...]      (oppure utente/nome)
+UTENTE="__UTENTE__"
+CARTELLA="${INSTALLA_DIR:-$HOME/progetti}"
+SITO="${INSTALLA_SITO:-https://github.com}"   # solo per prove: un altro indirizzo da cui scaricare
+RADICE="${PREFIX:-/data/data/com.termux/files/usr}"
+BIN="$RADICE/bin"
+if [ $# -eq 0 ]; then
+  echo "Uso: installa-repo nome [nome ...]   (oppure utente/nome)"
+  exit 1
+fi
+command -v git >/dev/null 2>&1 || pkg install -y git || exit 1
+command -v python3 >/dev/null 2>&1 || pkg install -y python || exit 1
+mkdir -p "$CARTELLA"
+# Aiuto per le app HTML: le serve su localhost (servono per geolocalizzazione, file, app installabili) e le apre nel browser.
+cat > "$BIN/apri-html" <<'FINE_APRI'
+#!/bin/bash
+# creato da installa-repo
+[ $# -ge 1 ] || { echo "Uso: apri-html cartella [file.html]"; exit 1; }
+cd "$1" || exit 1
+PAGINA="${2:-index.html}"
+PORTA="$(python3 -c 'import socket;s=socket.socket();s.bind(("127.0.0.1",0));print(s.getsockname()[1])')"
+python3 -m http.server "$PORTA" --bind 127.0.0.1 >/dev/null 2>&1 &
+SERVER=$!
+trap 'kill $SERVER 2>/dev/null' EXIT INT TERM
+sleep 1
+URL="http://localhost:$PORTA/$PAGINA"
+if command -v termux-open-url >/dev/null 2>&1; then termux-open-url "$URL"; fi
+echo "App aperta su $URL"
+echo "Premi Invio per chiudere il server."
+read -r _
+FINE_APRI
+chmod +x "$BIN/apri-html"
+OK=0; KO=0
+for ARG in "$@"; do
+  case "$ARG" in */*) R="$ARG" ;; *) R="$UTENTE/$ARG" ;; esac
+  case "$R" in
+    *[!A-Za-z0-9._/-]*|*/*/*) echo "== $ARG: nome non valido"; KO=$((KO+1)); continue ;;
+  esac
+  NOME="${R##*/}"
+  DEST="$CARTELLA/$NOME"
+  echo "== $R"
+  URL="$SITO/$R.git"; PULITO="$URL"
+  if [ -n "$GH_TOKEN" ]; then case "$SITO" in https://*) URL="https://x-access-token:$GH_TOKEN@${SITO#https://}/$R.git" ;; esac; fi
+  if [ -d "$DEST/.git" ]; then
+    echo "  già presente: aggiorno"
+    git -C "$DEST" pull --ff-only "$URL" || { echo "  ! aggiornamento non riuscito"; KO=$((KO+1)); continue; }
+  else
+    git clone --depth 1 "$URL" "$DEST" || { echo "  ! download non riuscito (repository privato? rilancia con GH_TOKEN=... davanti al comando)"; KO=$((KO+1)); continue; }
+    git -C "$DEST" remote set-url origin "$PULITO"
+  fi
+  if [ -f "$DEST/requirements.txt" ]; then
+    echo "  installo le librerie (requirements.txt)…"
+    pip install -r "$DEST/requirements.txt" || echo "  ! alcune librerie non si sono installate"
+  fi
+  ENTRY=""
+  BASE="${NOME//-/_}"
+  for C in "$NOME.py" "$BASE.py" main.py app.py; do
+    if [ -f "$DEST/$C" ]; then ENTRY="$C"; break; fi
+  done
+  if [ -z "$ENTRY" ]; then
+    PY=("$DEST"/*.py)
+    if [ -e "${PY[0]}" ] && [ "${#PY[@]}" -eq 1 ]; then ENTRY="$(basename "${PY[0]}")"; fi
+  fi
+  PAGINA=""
+  if [ -z "$ENTRY" ]; then
+    for C in index.html "$NOME.html" "$BASE.html"; do
+      if [ -f "$DEST/$C" ]; then PAGINA="$C"; break; fi
+    done
+    if [ -z "$PAGINA" ]; then
+      HT=("$DEST"/*.html)
+      if [ -e "${HT[0]}" ] && [ "${#HT[@]}" -eq 1 ]; then PAGINA="$(basename "${HT[0]}")"; fi
+    fi
+  fi
+  CMD="$(echo "$NOME" | tr 'A-Z' 'a-z')"
+  if [ -n "$PAGINA" ]; then
+    if [ -e "$BIN/$CMD" ] && ! grep -q "creato da installa-repo" "$BIN/$CMD" 2>/dev/null; then
+      echo "  ! esiste già un comando «$CMD»: non lo sovrascrivo. Apri con: apri-html $DEST $PAGINA"
+    else
+      printf '#!%s/bin/bash\n# creato da installa-repo\nexec apri-html "%s" "%s"\n' "$RADICE" "$DEST" "$PAGINA" > "$BIN/$CMD"
+      chmod +x "$BIN/$CMD"
+      echo "  ✓ app HTML: scrivi  $CMD  per aprirla nel browser"
+    fi
+  elif [ -n "$ENTRY" ]; then
+    if [ -e "$BIN/$CMD" ] && ! grep -q "creato da installa-repo" "$BIN/$CMD" 2>/dev/null; then
+      echo "  ! esiste già un comando «$CMD»: non lo sovrascrivo. Avvia con: python3 $DEST/$ENTRY"
+    else
+      printf '#!%s/bin/bash\n# creato da installa-repo\ncd "%s" && exec python3 "%s" "$@"\n' "$RADICE" "$DEST" "$ENTRY" > "$BIN/$CMD"
+      chmod +x "$BIN/$CMD"
+      echo "  ✓ installato: scrivi  $CMD  per avviarlo"
+    fi
+  else
+    echo "  ✓ scaricato in $DEST (nessuno script Python o pagina HTML da avviare)"
+  fi
+  OK=$((OK+1))
+done
+echo ""
+echo "Fatto: $OK ok, $KO con problemi. Cartella: $CARTELLA"
+[ "$KO" -eq 0 ]
+</script>
 <script>
 /*!
 
@@ -1627,6 +1750,48 @@ async function caricaMiei(aggiungi) {
   $('#elenco-repo').replaceChildren(...[...nomi].map((n) => new Option('', n)));
 }
 
+/* ---------- 💻 Installa in Termux ----------
+   Il browser non può eseguire comandi: l'app prepara un blocco da incollare in Termux.
+   Il blocco crea il comando «installa-repo» (da tplInstalla) e lo lancia sui repository spuntati. */
+const INST = { scelti: new Set(), iniziato: false };
+function idInstalla() { return CFG.repo.map((r) => r.id).filter((id) => normRepo(id)); }
+function comandoInstalla() {
+  const utente = String(CFG.utente || '').replace(/[^A-Za-z0-9-]/g, '');
+  const script = $('#tplInstalla').textContent.replace(/^\n/, '').replace('__UTENTE__', utente).replace(/\n*$/, '\n');
+  const repo = idInstalla().filter((id) => INST.scelti.has(id));
+  const conToken = $('#inst-token').checked && TOKEN && /^[A-Za-z0-9_\-]+$/.test(TOKEN);
+  return 'P="${PREFIX:-/data/data/com.termux/files/usr}/bin/installa-repo"\n'
+    + 'cat > "$P" <<\'FINE_INSTALLA\'\n' + script + 'FINE_INSTALLA\n'
+    + 'chmod +x "$P"\n'
+    + (repo.length ? (conToken ? "GH_TOKEN='" + TOKEN + "' " : '') + '"$P" ' + repo.join(' ') + '\n' : 'echo "Comando installa-repo creato. Esempio: installa-repo nome-repository"\n');
+}
+function aggiornaComandoInstalla() { $('#inst-cmd').value = comandoInstalla(); }
+function rendiInstalla() {
+  if (!INST.iniziato) { INST.iniziato = true; if (CFG.attivo) INST.scelti.add(CFG.attivo); }
+  $('#inst-elenco').replaceChildren(...idInstalla().map((id) => {
+    const r = CFG.repo.find((x) => x.id === id);
+    const l = document.createElement('label'); l.className = 'chk';
+    const c = document.createElement('input'); c.type = 'checkbox'; c.checked = INST.scelti.has(id);
+    c.addEventListener('change', () => { if (c.checked) INST.scelti.add(id); else INST.scelti.delete(id); aggiornaComandoInstalla(); });
+    const s = document.createElement('span'); s.textContent = r && r.nome ? `${r.nome} — ${id}` : id;
+    l.append(c, s); return l;
+  }));
+  pulisci('#esito-inst');
+  if (!CFG.repo.length) msg('#esito-inst', 'avv', 'Nessun repository nell\'elenco: aggiungili in Impostazioni → I tuoi repository.');
+  $('#inst-token').disabled = !TOKEN;
+  if (!TOKEN) $('#inst-token').checked = false;
+  aggiornaComandoInstalla();
+}
+$('#inst-tutti').addEventListener('click', () => { idInstalla().forEach((id) => INST.scelti.add(id)); rendiInstalla(); });
+$('#inst-nessuno').addEventListener('click', () => { INST.scelti.clear(); rendiInstalla(); });
+$('#inst-token').addEventListener('change', aggiornaComandoInstalla);
+$('#inst-copia').addEventListener('click', async () => {
+  aggiornaComandoInstalla();
+  pulisci('#esito-inst');
+  if (await copia($('#inst-cmd').value)) msg('#esito-inst', 'ok', '✓ Comando copiato: aprilo in Termux, tieni premuto e scegli «Incolla».');
+  else { $('#inst-cmd').select(); msg('#esito-inst', 'avv', 'Copia non riuscita: il testo è selezionato, copialo a mano.'); }
+});
+
 /* ---------- 🗺️ Apri il sito (HTML) dal menu principale ----------
    Legge GitHub Pages del progetto attivo e prepara il link alla pagina online,
    da cui Chrome può installare l'app (⋮ → «Installa app»). Se Pages è spento, lo attiva. */
@@ -1644,7 +1809,12 @@ async function infoSito(repo, forza) {
       const html = (Array.isArray(el) ? el : []).filter((x) => x.type === 'file' && /\.html?$/i.test(x.name)).map((x) => x.name).sort();
       if (html.length && !html.some((n) => /^index\.html?$/i.test(n))) file = html[0];
     } catch { /* elenco non leggibile: apro la radice del sito */ }
-    info = { stato: 'attivo', url: String(pg.html_url).replace(/\/?$/, '/') + encodeURI(file), file };
+    info = { stato: 'attivo', url: String(pg.html_url).replace(/\/?$/, '/') + encodeURI(file), file, workflow: pg.build_type === 'workflow', pwa: null };
+    try {   // la pagina del repository dichiara un manifest? (lo leggo da GitHub, non dal sito: vale anche con dominio proprio)
+      const ramo = (pg.source && pg.source.branch) || '', cart = pg.source && pg.source.path && pg.source.path !== '/' ? pg.source.path.replace(/^\/|\/$/g, '') + '/' : '';
+      const pag = ramo && !info.workflow ? await leggiFileRepo(repo, cart + (file || 'index.html'), ramo) : null;
+      if (pag) info.pwa = /<link[^>]+rel=["']?manifest/i.test(pag.testo);
+    } catch { /* non verificabile: nessun suggerimento */ }
   } catch (e) {
     const [prop, nome] = repo.split('/');
     info = e.status === 404 ? { stato: 'assente' }
@@ -1659,12 +1829,14 @@ function applicaSito(info) {
     // dopo una pubblicazione aggiungo ?agg=… così il browser non mostra la copia vecchia (GitHub la tiene 10 minuti)
     a.dataset.url = info.url + (prontoAlle ? `?agg=${prontoAlle}` : '');
     nota.textContent = info.stato === 'attivo'
-      ? `…${info.url.replace(/^https:\/\/[^/]+/, '')} · poi in Chrome ⋮ → «Installa app»`
+      ? `…${info.url.replace(/^https:\/\/[^/]+/, '')} · ` + (info.pwa === false ? 'non ancora installabile: usa «Rendi il sito installabile»' : 'poi in Chrome ⋮ → «Installa app»')
       : `Non riesco a verificare il sito (${info.msg}): provo l'indirizzo standard`;
     aggiornaApri();
+    $('#voce-pwa').hidden = !(info.stato === 'attivo' && info.pwa === false && !info.workflow);
   } else {
     delete a.dataset.url; a.removeAttribute('href'); a.removeAttribute('aria-disabled');
     et.textContent = a.dataset.testo;
+    $('#voce-pwa').hidden = true;
     nota.textContent = info ? 'Sito non attivo: tocca per attivarlo (GitHub Pages, gratis)' : '';
   }
 }
@@ -1703,6 +1875,111 @@ $('#voce-sito').addEventListener('click', async (e) => {
   }
 });
 
+/* ---------- 📲 Rendi il sito installabile ----------
+   Chrome offre «Installa app» (e non solo «Aggiungi a schermata Home») solo se il sito ha un manifest e un service worker.
+   Qui li aggiungo al repository: manifest.webmanifest, sw.js, due icone e due righe nella pagina. Nulla del resto viene toccato. */
+const SW_SITO = `/* Service worker aggiunto da Pubblica: apre l'app anche senza rete. Prima la rete, poi la copia salvata. */
+const CACHE = 'pwa-v1';
+self.addEventListener('install', () => self.skipWaiting());
+self.addEventListener('activate', (e) => e.waitUntil(self.clients.claim()));
+self.addEventListener('fetch', (e) => {
+  if (e.request.method !== 'GET') return;
+  e.respondWith(fetch(e.request).then((r) => {
+    if (r.ok && new URL(e.request.url).origin === self.location.origin) { const c = r.clone(); caches.open(CACHE).then((x) => x.put(e.request, c)); }
+    return r;
+  }).catch(() => caches.match(e.request, { ignoreSearch: true }).then((m) => m || caches.match('./'))));
+});
+`;
+function lettereApp(titolo) {
+  const p = String(titolo).replace(/[^\p{L}\p{N} ]/gu, ' ').trim().split(/\s+/).filter(Boolean);
+  return ((p[0] || '?')[0] + (p[1] ? p[1][0] : '')).toUpperCase();
+}
+async function iconaPng(lettere, dim, colore) {
+  const c = document.createElement('canvas'); c.width = c.height = dim;
+  const x = c.getContext('2d');
+  x.fillStyle = colore; x.fillRect(0, 0, dim, dim);
+  x.fillStyle = '#fff'; x.textAlign = 'center'; x.textBaseline = 'middle';
+  x.font = `700 ${Math.round(dim * (lettere.length > 1 ? 0.34 : 0.46))}px system-ui, sans-serif`;   // dentro la zona sicura delle icone «maskable»
+  x.fillText(lettere, dim / 2, dim / 2 + dim * 0.02);
+  const blob = await new Promise((ok) => c.toBlob(ok, 'image/png'));
+  return base64(new Uint8Array(await blob.arrayBuffer()));
+}
+/* Aggiunge alla pagina manifest, colore tema e registrazione del service worker, solo se mancano. */
+function pagina_installabile(h, tema) {
+  const tag = [];
+  if (!/<link[^>]+rel=["']?manifest/i.test(h)) tag.push('<link rel="manifest" href="manifest.webmanifest">');
+  if (!/<meta[^>]+name=["']theme-color/i.test(h)) tag.push(`<meta name="theme-color" content="${tema}">`);
+  if (!/<link[^>]+rel=["']apple-touch-icon/i.test(h)) tag.push('<link rel="apple-touch-icon" href="pwa-icona-192.png">');
+  if (tag.length) {
+    const testa = /<head[^>]*>/i.exec(h), dt = /^\s*<!doctype[^>]*>/i.exec(h);
+    const cs = testa && /<meta[^>]+charset[^>]*>/i.exec(h.slice(testa.index));   // il charset deve restare tra i primi byte
+    let dove = testa ? testa.index + testa[0].length : dt ? dt[0].length : 0;
+    if (cs && cs.index < 300) dove = testa.index + cs.index + cs[0].length;   // mai prima del doctype: la pagina passerebbe in modalità «quirks»
+    h = h.slice(0, dove) + '\n' + tag.join('\n') + '\n' + h.slice(dove);
+  }
+  if (!/serviceWorker\s*\.\s*register/.test(h)) {
+    const s = "<script>if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(function () {});<" + "/script>\n";   // la chiusura del tag script non si scrive intera: chiuderebbe questo blocco
+    const i = h.toLowerCase().lastIndexOf('</body>');
+    h = i >= 0 ? h.slice(0, i) + s + h.slice(i) : h + '\n' + s;
+  }
+  return h;
+}
+async function leggiFileRepo(repo, percorso, ramo) {   // → { sha, testo } oppure null se non esiste
+  try {
+    const { dati } = await gh(`/repos/${repo}/contents/${encodeURI(percorso)}?ref=${encodeURIComponent(ramo)}`, { ripeti: false });
+    if (Array.isArray(dati)) return null;
+    let b64 = dati.content;
+    if (!b64) b64 = (await gh(`/repos/${repo}/git/blobs/${dati.sha}`)).dati.content;   // file oltre 1 MB
+    return { sha: dati.sha, testo: testoUtf8(daBase64(b64)) };
+  } catch (e) { if (e.status === 404) return null; throw e; }
+}
+let pwaInCorso = false;
+$('#voce-pwa').addEventListener('click', async () => {
+  if (pwaInCorso || S.occupato) return;
+  const repo = CFG.attivo, nota = $('#voce-pwa-nota'), vecchia = nota.textContent;
+  if (!repo || !TOKEN) { vai('config'); return; }
+  pwaInCorso = true;
+  try {
+    nota.textContent = 'Leggo il sito…';
+    const { dati: pg } = await gh(`/repos/${repo}/pages`, { ripeti: false });
+    if (pg.build_type === 'workflow') throw new Error('Il sito è pubblicato da un workflow di GitHub Actions: non posso modificarlo da qui.');
+    const ramo = (pg.source && pg.source.branch) || (await gh(`/repos/${repo}`)).dati.default_branch;
+    const cartella = pg.source && pg.source.path && pg.source.path !== '/' ? pg.source.path.replace(/^\/|\/$/g, '') + '/' : '';
+    const info = SITI.get(repo) || await infoSito(repo, false);
+    const file = info.file || 'index.html';
+    const pagina = await leggiFileRepo(repo, cartella + file, ramo);
+    if (!pagina) throw new Error(`Non trovo ${cartella + file} nel ramo ${ramo}.`);
+    const titolo = ((/<title[^>]*>([^<]*)<\/title>/i.exec(pagina.testo) || [])[1] || '').trim().replace(/\s+/g, ' ') || repo.split('/')[1];
+    const tema = ((/<meta[^>]+name=["']theme-color["'][^>]*content=["'](#[0-9a-f]{3,8})["']/i.exec(pagina.testo) || [])[1]) || '#1c3270';
+    const esiste = {};
+    for (const f of ['manifest.webmanifest', 'sw.js', 'pwa-icona-192.png', 'pwa-icona-512.png']) esiste[f] = !!(await leggiFileRepo(repo, cartella + f, ramo));
+    const nuovi = Object.keys(esiste).filter((f) => !esiste[f]);
+    if (!confirm(`Rendo installabile «${titolo}» (${repo}).\n\nAggiungo al repository: ${nuovi.join(', ') || 'nessun file'}\nModifico ${cartella + file}: solo le righe per manifest e service worker, il resto resta uguale.\n\nContinuo?`)) { nota.textContent = vecchia; return; }
+    const msgC = 'Rende il sito installabile (Pubblica)';
+    const scrivi = (percorso, contenuto64, sha) => gh(`/repos/${repo}/contents/${encodeURI(percorso)}`, { metodo: 'PUT', ripeti: false,
+      corpo: Object.assign({ message: msgC, content: contenuto64, branch: ramo }, sha ? { sha } : {}) });
+    const utf8 = (s) => base64(new TextEncoder().encode(s));
+    if (!esiste['pwa-icona-192.png']) { nota.textContent = 'Creo le icone…'; const l = lettereApp(titolo); await scrivi(cartella + 'pwa-icona-192.png', await iconaPng(l, 192, tema)); await scrivi(cartella + 'pwa-icona-512.png', await iconaPng(l, 512, tema)); }
+    if (!esiste['sw.js']) { nota.textContent = 'Aggiungo il service worker…'; await scrivi(cartella + 'sw.js', utf8(SW_SITO)); }
+    if (!esiste['manifest.webmanifest']) {
+      nota.textContent = 'Aggiungo il manifest…';
+      const avvio = file === 'index.html' ? './' : './' + encodeURI(file);
+      await scrivi(cartella + 'manifest.webmanifest', utf8(JSON.stringify({ id: avvio, name: titolo, short_name: titolo.slice(0, 12), start_url: avvio, scope: './', display: 'standalone',
+        background_color: tema, theme_color: tema, lang: 'it',
+        icons: [{ src: 'pwa-icona-192.png', sizes: '192x192', type: 'image/png', purpose: 'any maskable' }, { src: 'pwa-icona-512.png', sizes: '512x512', type: 'image/png', purpose: 'any maskable' }] }, null, 2) + '\n'));
+    }
+    nota.textContent = 'Aggiorno la pagina…';
+    await scrivi(cartella + file, utf8(pagina_installabile(pagina.testo, tema)), pagina.sha);   // per ultima: il sito non resta mai a metà
+    SITI.delete(repo);
+    avviaContoApri();
+    await aggiornaSito(true);
+    $('#voce-pwa').hidden = false;
+    nota.textContent = '✓ Fatto. Tra 1–3 minuti GitHub aggiorna il sito: aprilo e Chrome offre «Installa app» (⋮ → Installa app).';
+  } catch (e) {
+    nota.textContent = '✗ ' + (e.status === 403 || e.status === 404 ? 'al token manca il permesso «Contents: Read and write» (token classico: «repo»).' : e.message);
+  } finally { pwaInCorso = false; }
+});
+
 /* ---------- 🔑 Chiedi il token giusto a GitHub ---------- */
 function linkToken() {
   const data = new Date().toISOString().slice(0, 10);
@@ -1737,7 +2014,7 @@ $('#tk-controlla').addEventListener('click', async () => {
 });
 
 /* ---------- viste e menu ---------- */
-const VISTE = ['menu', 'pubblica', 'link', 'crea', 'svuota', 'elimina', 'config', 'apk', 'api'];
+const VISTE = ['menu', 'pubblica', 'link', 'installa', 'crea', 'svuota', 'elimina', 'config', 'apk', 'api'];
 function vai(nome) {
   if (S.occupato) return;
   for (const v of VISTE) $('#v-' + v).hidden = v !== nome;
@@ -1746,6 +2023,7 @@ function vai(nome) {
   if (nome === 'pubblica') applicaCambi();
   if (nome === 'config') rendiConfig();
   if (nome === 'link') mostraLink();
+  if (nome === 'installa') rendiInstalla();
   if (nome === 'apk' && window.creaApk) window.creaApk.mostrata();
   if (nome === 'api' && window.apiElenco) window.apiElenco.mostrata();
   if (nome === 'crea') $('#riep-crea').textContent = `Il repository sarà ${CFG.nuoviVis === 'privata' ? 'privato' : 'pubblico'}${CFG.nuoviVis === 'pubblica' && CFG.nuoviPages ? ' con GitHub Pages attivo' : ''}, con un README iniziale. Si cambia in Impostazioni.`;
@@ -2833,9 +3111,8 @@ if __name__ == "__main__":
 /* ===== Crea APK (integrato in Pubblica) ===== */
 (() => {
 "use strict";
-const VERSIONE = "3.2";
 const $ = id => document.getElementById(id);
-$("versione").textContent = "v" + VERSIONE;
+$("versione").textContent = "v" + (self.VERSIONE || "?");   // da versione.js, come il resto dell'app
 
 /* ------------------------------------------------------------------
    Dati di riferimento

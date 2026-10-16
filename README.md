@@ -12,6 +12,12 @@ Pubblica i tuoi progetti su GitHub dal telefono, senza Termux. App installabile 
 | `manifest.webmanifest` | Nome, colori e icone per l'installazione |
 | `icone/` | Icone dell'app |
 
+## Novità della 3.8
+
+- **💻 Installa in Termux** (nel menu): spunti i tuoi repository GitHub e l'app prepara il comando da incollare in Termux. Crea il comando permanente `installa-repo`, scarica i repository in `~/progetti`, installa le librerie di `requirements.txt` e crea un comando per avviare ogni repository: lo script Python oppure, per le app HTML, un piccolo server locale che apre la pagina nel browser. Dopo la prima volta basta `installa-repo nome-repository` (rilanciato, aggiorna).
+- **📲 Rendi il sito installabile** (menu, compare quando il sito Pages del progetto attivo non è ancora installabile): aggiunge al repository `manifest.webmanifest`, `sw.js`, due icone e due righe nella pagina (solo se mancano), dopo la tua conferma. Passati 1–3 minuti, «Apri il sito (HTML)» → Chrome offre «Installa app». Serve il permesso «Contents: Read and write».
+- Corretta la versione mostrata nel pannello Crea APK (diceva sempre «v3.2»): ora segue `versione.js`.
+
 ## Novità della 3.7
 
 - **Trekking e GPX** (dentro «API gratuite»): riepilogo a mano delle API per quota, sentieri e meteo in montagna, con il pulsante «Prova ora» che fa una richiesta vera dal tuo telefono e ricorda l'esito (funziona dalla pagina / bloccata / errore).
