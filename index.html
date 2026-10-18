@@ -207,6 +207,14 @@ footer{text-align:center;color:var(--tenue);font-size:12.5px;padding:10px}
 .api-prova.ok{color:var(--ok)}.api-prova.ko{color:var(--ruggine)}.api-prova.ni{color:var(--tenue)}
 .api-voce .api-bottoni{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
 .api-voce .api-bottoni button,.api-voce .api-bottoni a.btn{min-height:38px;padding:4px 12px;font-size:14px}
+.ai-griglia{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:10px;margin-top:10px}
+.ai-scheda{border:1px solid var(--linea);border-radius:12px;padding:12px;background:var(--carta);min-width:0}
+.ai-scheda h3{margin:0;font-size:16px;overflow-wrap:anywhere}
+.ai-scheda .ai-testa{display:flex;gap:8px;align-items:flex-start;justify-content:space-between}
+.ai-scheda .ai-desc{margin:6px 0;font-size:13.5px;color:var(--tenue);overflow-wrap:anywhere}
+.ai-scheda code{font-size:11px;overflow-wrap:anywhere;word-break:break-all}
+.ai-scheda .riga{margin-top:8px}
+#ai-q,#ai-modalita{margin:6px 0}
 .riquadro-token{border:1.5px solid var(--prim);border-radius:14px;padding:12px 14px;margin:10px 0 14px;background:color-mix(in srgb,var(--prim) 6%,transparent)}.riquadro-token h3{margin:0 0 6px;font-size:16px}.riquadro-token ol{display:grid;gap:8px;padding-left:20px}.riquadro-token .btn{flex:1 1 200px}</style>
 </head>
 <body>
@@ -233,9 +241,9 @@ footer{text-align:center;color:var(--tenue);font-size:12.5px;padding:10px}
       <button type="button" class="voce princ" data-vai="pubblica"><span class="ico">🚀</span><span><b>Pubblica su GitHub</b><small>Scegli lo ZIP: il resto è nelle impostazioni</small></span></button>
       <button type="button" class="voce princ" data-vai="apk"><span class="ico">📱</span><span><b>Crea APK (Python o HTML)</b><small id="apk-menu-stato">Script .py, progetto ZIP o app HTML → app Android</small></span></button>
       <button type="button" class="voce" data-vai="api"><span class="ico">🔎</span><span><b>API gratuite</b><small>Elenco consultabile e aggiornabile, anche le tue</small></span></button>
+      <button type="button" class="voce" data-vai="ai"><span class="ico">🤖</span><span><b>API IA gratuite</b><small>Provider, limiti, modelli e configurazioni aggiornabili</small></span></button>
       <a id="voce-apri" class="btn voce" target="_blank" rel="noopener" href="https://github.com/" data-url="https://github.com/" data-testo="Apri repository"><span class="ico">🌐</span><span><b class="etichetta">Apri repository</b><small>Su GitHub. Dopo una pubblicazione si attiva in 60 secondi; se vedi la versione vecchia, ricarica la pagina</small></span></a>
       <a id="voce-sito" class="btn voce" target="_blank" rel="noopener" data-testo="Apri il sito (HTML)"><span class="ico">🗺️</span><span><b class="etichetta">Apri il sito (HTML)</b><small id="voce-sito-nota">La pagina online del progetto: da lì «Installa app»</small></span></a>
-      <button type="button" class="voce" id="voce-pwa" hidden><span class="ico">📲</span><span><b>Rendi il sito installabile</b><small id="voce-pwa-nota">Aggiunge i file che servono a Chrome per «Installa app»</small></span></button>
       <button type="button" class="voce" data-vai="link"><span class="ico">🔗</span><span><b>Collegamenti</b><small>Apri il sito e scarica lo ZIP</small></span></button>
       <button type="button" class="voce" data-vai="installa"><span class="ico">💻</span><span><b>Installa in Termux</b><small>Un comando per scaricare i tuoi repository nel terminale</small></span></button>
       <button type="button" class="voce" data-vai="crea"><span class="ico">➕</span><span><b>Crea un repository</b><small>Nome e conferma, il resto è automatico</small></span></button>
@@ -408,6 +416,42 @@ footer{text-align:center;color:var(--tenue);font-size:12.5px;padding:10px}
       <div id="api-n-esito" aria-live="polite"></div>
     </details>
     <div class="riga" style="margin-top:12px"><button type="button" id="api-copia-pref">📋 Copia le preferite</button></div>
+  </div>
+</section>
+
+<!-- ===================== API IA GRATUITE ===================== -->
+<section id="v-ai" class="vista" hidden>
+  <div class="card">
+    <h2>API IA gratuite</h2>
+    <p class="nota">Provider che offrono modelli di intelligenza artificiale con un piano gratuito. I limiti possono cambiare: controlla sempre le condizioni sul sito ufficiale prima di collegare un progetto.</p>
+    <input type="text" id="ai-q" placeholder="Cerca: Gemini, Groq, immagini, codice…" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Cerca provider IA">
+    <select id="ai-modalita" aria-label="Modalità IA">
+      <option value="">Tutte le modalità</option>
+      <option value="text">Testo</option><option value="reasoning">Ragionamento</option><option value="code">Codice</option>
+      <option value="image">Immagini</option><option value="vision">Visione</option><option value="audio">Audio</option>
+      <option value="video">Video</option><option value="embedding">Embedding</option>
+    </select>
+    <div class="api-filtri">
+      <label class="chk"><input type="checkbox" id="ai-no-carta"> Nessuna carta</label>
+      <label class="chk"><input type="checkbox" id="ai-no-telefono"> Nessun telefono</label>
+      <label class="chk"><input type="checkbox" id="ai-preferiti"> ★ Preferiti</label>
+    </div>
+    <p class="nota" id="ai-conta" aria-live="polite"></p>
+    <div id="ai-lista" class="ai-griglia"></div>
+  </div>
+  <div class="card">
+    <h2>Aggiorna la lista IA</h2>
+    <p class="nota" id="ai-stato"></p>
+    <div class="riga">
+      <button type="button" class="primario" id="ai-aggiorna">🔄 Aggiorna da GitHub</button>
+      <button type="button" id="ai-originale">Torna alla copia inclusa</button>
+      <a class="btn" href="https://github.com/open-free-llm-api/awesome-freellm-apis" target="_blank" rel="noopener noreferrer">Apri la fonte</a>
+    </div>
+    <div id="ai-esito" aria-live="polite"></div>
+    <details class="api-aggiungi">
+      <summary>Come funziona l’aggiornamento</summary>
+      <p class="nota">Pubblica scarica il README del progetto, legge le tabelle dei provider gratuiti e salva l’elenco sul dispositivo. Non scarica né conserva chiavi API. Se GitHub non è raggiungibile o la tabella cambia formato, resta disponibile l’ultima copia valida.</p>
+    </details>
   </div>
 </section>
 
@@ -1809,12 +1853,7 @@ async function infoSito(repo, forza) {
       const html = (Array.isArray(el) ? el : []).filter((x) => x.type === 'file' && /\.html?$/i.test(x.name)).map((x) => x.name).sort();
       if (html.length && !html.some((n) => /^index\.html?$/i.test(n))) file = html[0];
     } catch { /* elenco non leggibile: apro la radice del sito */ }
-    info = { stato: 'attivo', url: String(pg.html_url).replace(/\/?$/, '/') + encodeURI(file), file, workflow: pg.build_type === 'workflow', pwa: null };
-    try {   // la pagina del repository dichiara un manifest? (lo leggo da GitHub, non dal sito: vale anche con dominio proprio)
-      const ramo = (pg.source && pg.source.branch) || '', cart = pg.source && pg.source.path && pg.source.path !== '/' ? pg.source.path.replace(/^\/|\/$/g, '') + '/' : '';
-      const pag = ramo && !info.workflow ? await leggiFileRepo(repo, cart + (file || 'index.html'), ramo) : null;
-      if (pag) info.pwa = /<link[^>]+rel=["']?manifest/i.test(pag.testo);
-    } catch { /* non verificabile: nessun suggerimento */ }
+    info = { stato: 'attivo', url: String(pg.html_url).replace(/\/?$/, '/') + encodeURI(file), file };
   } catch (e) {
     const [prop, nome] = repo.split('/');
     info = e.status === 404 ? { stato: 'assente' }
@@ -1829,14 +1868,12 @@ function applicaSito(info) {
     // dopo una pubblicazione aggiungo ?agg=… così il browser non mostra la copia vecchia (GitHub la tiene 10 minuti)
     a.dataset.url = info.url + (prontoAlle ? `?agg=${prontoAlle}` : '');
     nota.textContent = info.stato === 'attivo'
-      ? `…${info.url.replace(/^https:\/\/[^/]+/, '')} · ` + (info.pwa === false ? 'non ancora installabile: usa «Rendi il sito installabile»' : 'poi in Chrome ⋮ → «Installa app»')
+      ? `…${info.url.replace(/^https:\/\/[^/]+/, '')} · poi in Chrome ⋮ → «Installa app»`
       : `Non riesco a verificare il sito (${info.msg}): provo l'indirizzo standard`;
     aggiornaApri();
-    $('#voce-pwa').hidden = !(info.stato === 'attivo' && info.pwa === false && !info.workflow);
   } else {
     delete a.dataset.url; a.removeAttribute('href'); a.removeAttribute('aria-disabled');
     et.textContent = a.dataset.testo;
-    $('#voce-pwa').hidden = true;
     nota.textContent = info ? 'Sito non attivo: tocca per attivarlo (GitHub Pages, gratis)' : '';
   }
 }
@@ -1875,111 +1912,6 @@ $('#voce-sito').addEventListener('click', async (e) => {
   }
 });
 
-/* ---------- 📲 Rendi il sito installabile ----------
-   Chrome offre «Installa app» (e non solo «Aggiungi a schermata Home») solo se il sito ha un manifest e un service worker.
-   Qui li aggiungo al repository: manifest.webmanifest, sw.js, due icone e due righe nella pagina. Nulla del resto viene toccato. */
-const SW_SITO = `/* Service worker aggiunto da Pubblica: apre l'app anche senza rete. Prima la rete, poi la copia salvata. */
-const CACHE = 'pwa-v1';
-self.addEventListener('install', () => self.skipWaiting());
-self.addEventListener('activate', (e) => e.waitUntil(self.clients.claim()));
-self.addEventListener('fetch', (e) => {
-  if (e.request.method !== 'GET') return;
-  e.respondWith(fetch(e.request).then((r) => {
-    if (r.ok && new URL(e.request.url).origin === self.location.origin) { const c = r.clone(); caches.open(CACHE).then((x) => x.put(e.request, c)); }
-    return r;
-  }).catch(() => caches.match(e.request, { ignoreSearch: true }).then((m) => m || caches.match('./'))));
-});
-`;
-function lettereApp(titolo) {
-  const p = String(titolo).replace(/[^\p{L}\p{N} ]/gu, ' ').trim().split(/\s+/).filter(Boolean);
-  return ((p[0] || '?')[0] + (p[1] ? p[1][0] : '')).toUpperCase();
-}
-async function iconaPng(lettere, dim, colore) {
-  const c = document.createElement('canvas'); c.width = c.height = dim;
-  const x = c.getContext('2d');
-  x.fillStyle = colore; x.fillRect(0, 0, dim, dim);
-  x.fillStyle = '#fff'; x.textAlign = 'center'; x.textBaseline = 'middle';
-  x.font = `700 ${Math.round(dim * (lettere.length > 1 ? 0.34 : 0.46))}px system-ui, sans-serif`;   // dentro la zona sicura delle icone «maskable»
-  x.fillText(lettere, dim / 2, dim / 2 + dim * 0.02);
-  const blob = await new Promise((ok) => c.toBlob(ok, 'image/png'));
-  return base64(new Uint8Array(await blob.arrayBuffer()));
-}
-/* Aggiunge alla pagina manifest, colore tema e registrazione del service worker, solo se mancano. */
-function pagina_installabile(h, tema) {
-  const tag = [];
-  if (!/<link[^>]+rel=["']?manifest/i.test(h)) tag.push('<link rel="manifest" href="manifest.webmanifest">');
-  if (!/<meta[^>]+name=["']theme-color/i.test(h)) tag.push(`<meta name="theme-color" content="${tema}">`);
-  if (!/<link[^>]+rel=["']apple-touch-icon/i.test(h)) tag.push('<link rel="apple-touch-icon" href="pwa-icona-192.png">');
-  if (tag.length) {
-    const testa = /<head[^>]*>/i.exec(h), dt = /^\s*<!doctype[^>]*>/i.exec(h);
-    const cs = testa && /<meta[^>]+charset[^>]*>/i.exec(h.slice(testa.index));   // il charset deve restare tra i primi byte
-    let dove = testa ? testa.index + testa[0].length : dt ? dt[0].length : 0;
-    if (cs && cs.index < 300) dove = testa.index + cs.index + cs[0].length;   // mai prima del doctype: la pagina passerebbe in modalità «quirks»
-    h = h.slice(0, dove) + '\n' + tag.join('\n') + '\n' + h.slice(dove);
-  }
-  if (!/serviceWorker\s*\.\s*register/.test(h)) {
-    const s = "<script>if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(function () {});<" + "/script>\n";   // la chiusura del tag script non si scrive intera: chiuderebbe questo blocco
-    const i = h.toLowerCase().lastIndexOf('</body>');
-    h = i >= 0 ? h.slice(0, i) + s + h.slice(i) : h + '\n' + s;
-  }
-  return h;
-}
-async function leggiFileRepo(repo, percorso, ramo) {   // → { sha, testo } oppure null se non esiste
-  try {
-    const { dati } = await gh(`/repos/${repo}/contents/${encodeURI(percorso)}?ref=${encodeURIComponent(ramo)}`, { ripeti: false });
-    if (Array.isArray(dati)) return null;
-    let b64 = dati.content;
-    if (!b64) b64 = (await gh(`/repos/${repo}/git/blobs/${dati.sha}`)).dati.content;   // file oltre 1 MB
-    return { sha: dati.sha, testo: testoUtf8(daBase64(b64)) };
-  } catch (e) { if (e.status === 404) return null; throw e; }
-}
-let pwaInCorso = false;
-$('#voce-pwa').addEventListener('click', async () => {
-  if (pwaInCorso || S.occupato) return;
-  const repo = CFG.attivo, nota = $('#voce-pwa-nota'), vecchia = nota.textContent;
-  if (!repo || !TOKEN) { vai('config'); return; }
-  pwaInCorso = true;
-  try {
-    nota.textContent = 'Leggo il sito…';
-    const { dati: pg } = await gh(`/repos/${repo}/pages`, { ripeti: false });
-    if (pg.build_type === 'workflow') throw new Error('Il sito è pubblicato da un workflow di GitHub Actions: non posso modificarlo da qui.');
-    const ramo = (pg.source && pg.source.branch) || (await gh(`/repos/${repo}`)).dati.default_branch;
-    const cartella = pg.source && pg.source.path && pg.source.path !== '/' ? pg.source.path.replace(/^\/|\/$/g, '') + '/' : '';
-    const info = SITI.get(repo) || await infoSito(repo, false);
-    const file = info.file || 'index.html';
-    const pagina = await leggiFileRepo(repo, cartella + file, ramo);
-    if (!pagina) throw new Error(`Non trovo ${cartella + file} nel ramo ${ramo}.`);
-    const titolo = ((/<title[^>]*>([^<]*)<\/title>/i.exec(pagina.testo) || [])[1] || '').trim().replace(/\s+/g, ' ') || repo.split('/')[1];
-    const tema = ((/<meta[^>]+name=["']theme-color["'][^>]*content=["'](#[0-9a-f]{3,8})["']/i.exec(pagina.testo) || [])[1]) || '#1c3270';
-    const esiste = {};
-    for (const f of ['manifest.webmanifest', 'sw.js', 'pwa-icona-192.png', 'pwa-icona-512.png']) esiste[f] = !!(await leggiFileRepo(repo, cartella + f, ramo));
-    const nuovi = Object.keys(esiste).filter((f) => !esiste[f]);
-    if (!confirm(`Rendo installabile «${titolo}» (${repo}).\n\nAggiungo al repository: ${nuovi.join(', ') || 'nessun file'}\nModifico ${cartella + file}: solo le righe per manifest e service worker, il resto resta uguale.\n\nContinuo?`)) { nota.textContent = vecchia; return; }
-    const msgC = 'Rende il sito installabile (Pubblica)';
-    const scrivi = (percorso, contenuto64, sha) => gh(`/repos/${repo}/contents/${encodeURI(percorso)}`, { metodo: 'PUT', ripeti: false,
-      corpo: Object.assign({ message: msgC, content: contenuto64, branch: ramo }, sha ? { sha } : {}) });
-    const utf8 = (s) => base64(new TextEncoder().encode(s));
-    if (!esiste['pwa-icona-192.png']) { nota.textContent = 'Creo le icone…'; const l = lettereApp(titolo); await scrivi(cartella + 'pwa-icona-192.png', await iconaPng(l, 192, tema)); await scrivi(cartella + 'pwa-icona-512.png', await iconaPng(l, 512, tema)); }
-    if (!esiste['sw.js']) { nota.textContent = 'Aggiungo il service worker…'; await scrivi(cartella + 'sw.js', utf8(SW_SITO)); }
-    if (!esiste['manifest.webmanifest']) {
-      nota.textContent = 'Aggiungo il manifest…';
-      const avvio = file === 'index.html' ? './' : './' + encodeURI(file);
-      await scrivi(cartella + 'manifest.webmanifest', utf8(JSON.stringify({ id: avvio, name: titolo, short_name: titolo.slice(0, 12), start_url: avvio, scope: './', display: 'standalone',
-        background_color: tema, theme_color: tema, lang: 'it',
-        icons: [{ src: 'pwa-icona-192.png', sizes: '192x192', type: 'image/png', purpose: 'any maskable' }, { src: 'pwa-icona-512.png', sizes: '512x512', type: 'image/png', purpose: 'any maskable' }] }, null, 2) + '\n'));
-    }
-    nota.textContent = 'Aggiorno la pagina…';
-    await scrivi(cartella + file, utf8(pagina_installabile(pagina.testo, tema)), pagina.sha);   // per ultima: il sito non resta mai a metà
-    SITI.delete(repo);
-    avviaContoApri();
-    await aggiornaSito(true);
-    $('#voce-pwa').hidden = false;
-    nota.textContent = '✓ Fatto. Tra 1–3 minuti GitHub aggiorna il sito: aprilo e Chrome offre «Installa app» (⋮ → Installa app).';
-  } catch (e) {
-    nota.textContent = '✗ ' + (e.status === 403 || e.status === 404 ? 'al token manca il permesso «Contents: Read and write» (token classico: «repo»).' : e.message);
-  } finally { pwaInCorso = false; }
-});
-
 /* ---------- 🔑 Chiedi il token giusto a GitHub ---------- */
 function linkToken() {
   const data = new Date().toISOString().slice(0, 10);
@@ -2014,7 +1946,7 @@ $('#tk-controlla').addEventListener('click', async () => {
 });
 
 /* ---------- viste e menu ---------- */
-const VISTE = ['menu', 'pubblica', 'link', 'installa', 'crea', 'svuota', 'elimina', 'config', 'apk', 'api'];
+const VISTE = ['menu', 'pubblica', 'link', 'installa', 'crea', 'svuota', 'elimina', 'config', 'apk', 'api', 'ai'];
 function vai(nome) {
   if (S.occupato) return;
   for (const v of VISTE) $('#v-' + v).hidden = v !== nome;
@@ -2026,6 +1958,7 @@ function vai(nome) {
   if (nome === 'installa') rendiInstalla();
   if (nome === 'apk' && window.creaApk) window.creaApk.mostrata();
   if (nome === 'api' && window.apiElenco) window.apiElenco.mostrata();
+  if (nome === 'ai' && window.aiElenco) window.aiElenco.mostrata();
   if (nome === 'crea') $('#riep-crea').textContent = `Il repository sarà ${CFG.nuoviVis === 'privata' ? 'privato' : 'pubblico'}${CFG.nuoviVis === 'pubblica' && CFG.nuoviPages ? ' con GitHub Pages attivo' : ''}, con un README iniziale. Si cambia in Impostazioni.`;
   window.scrollTo(0, 0);
 }
@@ -2612,6 +2545,155 @@ const API_SNAPSHOT = {"data":"2026-10-15","righe":[["Animals","Axolotl","https:/
   el('api-trek-tutte').addEventListener('click', provaTutte); disegnaTrek();
   collega(); carica(); mostrata();
   window.apiElenco = { mostrata, _analizza: analizza, _stato: () => ({ tutte: tutte.length, filtrate: filtrate().length }) };
+})();
+</script>
+<script>
+/* ---------- API IA gratuite: copia offline + aggiornamento dal README ---------- */
+(() => {
+  const FONTE = 'https://raw.githubusercontent.com/open-free-llm-api/awesome-freellm-apis/main/README.md';
+  const PAGINA_FONTE = 'https://github.com/open-free-llm-api/awesome-freellm-apis';
+  const K = { elenco: 'pubblica.ai.elenco', pref: 'pubblica.ai.preferiti', filtri: 'pubblica.ai.filtri' };
+  const SNAPSHOT = { data: '2026-10-18', provider: [
+    ['NVIDIA NIM',134,'Phone verification','1M','audio, embedding, image, pdf, reasoning, rerank, text, video, vision','https://integrate.api.nvidia.com/v1','https://build.nvidia.com'],
+    ['ModelScope',61,'Registration','1M','audio, image, reasoning, text, video, vision','https://api-inference.modelscope.cn/v1','https://modelscope.cn'],
+    ['Cloudflare Workers AI',41,'No','262K','code, image, reasoning, text, video','https://api.cloudflare.com/client/v4/accounts/{account_id}/ai/run','https://dash.cloudflare.com'],
+    ['OpenCode Zen',34,'Registration','1M','audio, reasoning, vision','https://opencode.ai/zen/v1','https://opencode.ai'],
+    ['LLM7.io',24,'No','1M','audio, code, image, pdf, reasoning, text, video, vision','https://api.llm7.io/v1','https://token.llm7.io'],
+    ['Kilo Code',23,'No','1M','audio, code, image, reasoning, text, video','https://api.kilo.ai/api/gateway','https://app.kilo.ai'],
+    ['Google Gemini',19,'No','1M','audio, image, pdf, reasoning, text, video, vision','https://generativelanguage.googleapis.com/v1beta','https://aistudio.google.com'],
+    ['Ollama Cloud',17,'Registration','1M','code, image, reasoning, text, video, vision','https://ollama.com/api','https://ollama.com'],
+    ['Mistral AI',15,'No','256K','code, image, pdf, reasoning, text','https://api.mistral.ai/v1','https://console.mistral.ai'],
+    ['OVHcloud AI Endpoints',15,'Registration','262K','audio, code, image, reasoning, text, video','https://oai.endpoints.kepler.ai.cloud.ovh.net/v1','https://www.ovhcloud.com'],
+    ['Groq',12,'No','262K','image, reasoning, text, video','https://api.groq.com/openai/v1','https://console.groq.com/keys'],
+    ['Cohere',12,'No','256K','image, text','https://api.cohere.com/v2','https://dashboard.cohere.com'],
+    ['Aion Labs',11,'Registration','131K','reasoning, text','https://api.aionlabs.ai/v1','https://www.aionlabs.ai'],
+    ['Hugging Face',9,'No','131K','code, image, text','https://router.huggingface.co/v1','https://huggingface.co'],
+    ['Z AI (Zhipu AI)',8,'No','200K','image, reasoning, text, video','https://open.bigmodel.cn/api/paas/v4','https://open.bigmodel.cn'],
+    ['Cerebras',6,'No','131K','reasoning, text','https://api.cerebras.ai/v1','https://cloud.cerebras.ai'],
+    ['Agnes AI',5,'Registration','256K','image, reasoning, text, video, vision','https://apihub.agnes-ai.com/v1','https://platform.agnes-ai.com'],
+    ['Alibaba Cloud Model Studio',5,'Registration','1M','code, image, text','https://dashscope-intl.aliyuncs.com/compatible-mode/v1','https://bailian.console.alibabacloud.com'],
+    ['SiliconFlow',4,'Registration','131K','reasoning, text','https://api.siliconflow.cn/v1','https://cloud.siliconflow.cn'],
+    ['SambaNova',4,'Registration','128K','image, reasoning, text','https://api.sambanova.ai/v1','https://cloud.sambanova.ai'],
+    ['xAI',3,'Registration','2M','text','https://api.x.ai/v1','https://console.x.ai'],
+    ['Chutes.ai',2,'Registration','131K','reasoning, text','https://api.chutes.ai/v1','https://chutes.ai'],
+    ['Glhf.chat',2,'Registration','131K','text','https://glhf.chat/api/openai/v1','https://glhf.chat'],
+    ['AI21 Labs',2,'Registration','256K','text','https://api.ai21.com/studio/v1','https://studio.ai21.com'],
+    ['DeepSeek',2,'Registration','128K','text','https://api.deepseek.com/v1','https://platform.deepseek.com'],
+    ['Nscale',2,'Registration','128K','text','https://inference.api.nscale.com/v1','https://console.nscale.com'],
+    ['Nebius',1,'Registration','128K','text','https://api.studio.nebius.com/v1','https://studio.nebius.com'],
+    ['OpenRouter',32,'Free tier; top-up per limiti maggiori','1M','audio, code, embedding, image, reasoning, rerank, speech, text, video','https://openrouter.ai/api/v1','https://openrouter.ai/keys']
+  ] };
+
+  const el = (id) => document.getElementById(id);
+  const leggi = (k, d) => { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch (e) { return d; } };
+  const scrivi = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); return true; } catch (e) { return false; } };
+  const togli = (k) => { try { localStorage.removeItem(k); } catch (e) { /* niente */ } };
+  const pulito = (v) => String(v || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
+  const providerDaRiga = (r) => ({ nome:r[0], modelli:Number(r[1]) || 0, accesso:r[2] || 'Da verificare', contesto:r[3] || '—', modalita:r[4] || '', base:r[5] || '', chiave:r[6] || PAGINA_FONTE });
+  const idProvider = (p) => pulito(p.nome).replace(/[^a-z0-9]+/g, '-');
+  let base, preferiti, filtri, aggiornata;
+
+  function carica() {
+    const salvata = leggi(K.elenco, null);
+    aggiornata = !!(salvata && Array.isArray(salvata.provider) && salvata.provider.length >= 10);
+    base = aggiornata ? salvata : SNAPSHOT;
+    preferiti = new Set(leggi(K.pref, []));
+    filtri = Object.assign({ q:'', modalita:'', carta:false, telefono:false, preferiti:false }, leggi(K.filtri, {}));
+  }
+  function senzaCarta(p) { return !/(credit card|carta|top.?up|deposit|payment)/i.test(p.accesso); }
+  function senzaTelefono(p) { return !/(phone|telefono|sms)/i.test(p.accesso); }
+  function filtrati() {
+    const q = pulito(filtri.q);
+    return base.provider.map(providerDaRiga).filter((p) =>
+      (!q || pulito([p.nome,p.modalita,p.accesso,p.base].join(' ')).includes(q)) &&
+      (!filtri.modalita || pulito(p.modalita).split(/\s*,\s*/).includes(filtri.modalita)) &&
+      (!filtri.carta || senzaCarta(p)) && (!filtri.telefono || senzaTelefono(p)) &&
+      (!filtri.preferiti || preferiti.has(idProvider(p)))
+    ).sort((a,b) => (preferiti.has(idProvider(b)) - preferiti.has(idProvider(a))) || b.modelli-a.modelli || a.nome.localeCompare(b.nome,'it'));
+  }
+  function badge(testo, tipo) { const s=document.createElement('span'); s.className='api-badge '+(tipo||''); s.textContent=testo; return s; }
+  async function copia(testo, b) {
+    let ok=false; try { await navigator.clipboard.writeText(testo); ok=true; } catch(e) {
+      try { const t=document.createElement('textarea'); t.value=testo; document.body.append(t); t.select(); ok=document.execCommand('copy'); t.remove(); } catch(e2) { ok=false; }
+    }
+    const prima=b.textContent; b.textContent=ok?'✓ Copiato':'✗ Non copiato'; setTimeout(()=>b.textContent=prima,1400);
+  }
+  function scheda(p) {
+    const d=document.createElement('article'); d.className='ai-scheda';
+    const testa=document.createElement('div'); testa.className='ai-testa';
+    const h=document.createElement('h3'); h.textContent=p.nome;
+    const st=document.createElement('button'); st.type='button'; st.textContent='★'; st.title='Preferita'; st.className=preferiti.has(idProvider(p))?'on':'';
+    st.onclick=()=>{ const id=idProvider(p); if(preferiti.has(id)) preferiti.delete(id); else preferiti.add(id); scrivi(K.pref,[...preferiti]); disegna(); };
+    testa.append(h,st);
+    const badges=document.createElement('div');
+    badges.append(badge(p.modelli+' modelli','ok'),badge('Contesto '+p.contesto),badge(p.accesso,senzaCarta(p)?'ok':'mid'));
+    if(!senzaTelefono(p)) badges.append(badge('Telefono richiesto','mid'));
+    const desc=document.createElement('div'); desc.className='ai-desc'; desc.textContent=p.modalita || 'Modalità non indicate';
+    const endpoint=document.createElement('code'); endpoint.textContent=p.base || 'Endpoint non indicato';
+    const az=document.createElement('div'); az.className='riga';
+    const a=document.createElement('a'); a.className='btn'; a.href=p.chiave||PAGINA_FONTE; a.target='_blank'; a.rel='noopener noreferrer'; a.textContent='Ottieni chiave';
+    const bc=document.createElement('button'); bc.type='button'; bc.textContent='📋 Copia endpoint'; bc.onclick=()=>copia(p.base||p.chiave,bc);
+    az.append(a,bc); d.append(testa,badges,desc,endpoint,az); return d;
+  }
+  function disegna() {
+    const dati=filtrati();
+    el('ai-conta').textContent=dati.length+' provider mostrati su '+base.provider.length+'.';
+    el('ai-lista').replaceChildren(...dati.map(scheda));
+    if(!dati.length) { const p=document.createElement('p'); p.className='nota'; p.textContent='Nessun provider corrisponde ai filtri scelti.'; el('ai-lista').append(p); }
+    el('ai-stato').textContent=(aggiornata?'Elenco aggiornato il ':'Copia offline inclusa, verificata il ')+base.data+' · '+base.provider.length+' provider. Le condizioni gratuite possono cambiare.';
+  }
+  function mostrata() {
+    el('ai-q').value=filtri.q; el('ai-modalita').value=filtri.modalita;
+    el('ai-no-carta').checked=!!filtri.carta; el('ai-no-telefono').checked=!!filtri.telefono; el('ai-preferiti').checked=!!filtri.preferiti;
+    disegna();
+  }
+  function salvaFiltri() { scrivi(K.filtri,filtri); disegna(); }
+  function celle(riga) { return riga.trim().replace(/^\|/,'').replace(/\|$/,'').split('|').map((x)=>x.trim()); }
+  function testoMd(v) { return String(v||'').replace(/\[([^\]]+)\]\([^)]+\)/g,'$1').replace(/<[^>]+>/g,'').replace(/[*_`]/g,'').trim(); }
+  function urlMd(v) { const s=String(v||''); const m=/\[[^\]]+\]\((https?:\/\/[^)]+)\)/.exec(s)||/href=["'](https?:\/\/[^"']+)["']/i.exec(s); return m?m[1]:''; }
+  function tabellaTra(md,inizio,fine) {
+    const a=md.search(inizio); if(a<0) return [];
+    const resto=md.slice(a); const z=resto.slice(1).search(fine); const blocco=z>=0?resto.slice(0,z+1):resto;
+    return blocco.split('\n').filter((r)=>/^\s*\|/.test(r)).map(celle).filter((c)=>c.length>=2 && !/^[-: ]+$/.test(c[0]) && !/^(provider|api)$/i.test(testoMd(c[0])));
+  }
+  function analizza(md) {
+    const principali=tabellaTra(md,/###\s+[^\n]*Permanent Free Tiers/i,/\n###\s+/);
+    const crediti=tabellaTra(md,/###\s+[^\n]*Renewable Credits/i,/\n##\s+/);
+    const rif=tabellaTra(md,/##\s+Quick Reference/i,/\n##\s+/);
+    const map=new Map();
+    for(const c of rif) map.set(pulito(testoMd(c[0])),{base:testoMd(c[1]),chiave:urlMd(c[2]),accesso:testoMd(c[3])});
+    const tutte=[];
+    for(const c of principali.concat(crediti)) {
+      const nome=testoMd(c[0]), extra=map.get(pulito(nome))||{};
+      if(!nome) continue;
+      tutte.push([nome,parseInt(testoMd(c[1]),10)||0,testoMd(c[2])||extra.accesso||'Da verificare',testoMd(c[3])||'—',testoMd(c[4]),extra.base||'',urlMd(c[5])||extra.chiave||PAGINA_FONTE]);
+    }
+    const uniche=[]; const visti=new Set();
+    for(const r of tutte) { const id=pulito(r[0]); if(!visti.has(id)){visti.add(id);uniche.push(r);} }
+    const dm=/Last updated:\s*(\d{4}-\d{2}-\d{2})/i.exec(md);
+    return {data:dm?dm[1]:new Date().toISOString().slice(0,10),provider:uniche};
+  }
+  function esito(tipo,testo) { const d=el('ai-esito'); d.replaceChildren(); if(!testo)return; const p=document.createElement('div');p.className='msg '+tipo;p.textContent=testo;d.append(p); }
+  async function aggiorna() {
+    const b=el('ai-aggiorna'); b.disabled=true; b.textContent='⏳ Aggiorno…'; esito('inf','');
+    try {
+      const r=await fetch(FONTE,{cache:'no-store'}); if(!r.ok) throw new Error('GitHub ha risposto '+r.status);
+      const nuovo=analizza(await r.text()); if(nuovo.provider.length<10) throw new Error('la tabella è cambiata formato: tengo la copia funzionante');
+      const vecchi=new Set(base.provider.map((x)=>pulito(x[0]))); const aggiunti=nuovo.provider.filter((x)=>!vecchi.has(pulito(x[0]))).length;
+      if(!scrivi(K.elenco,nuovo)) throw new Error('non c’è spazio per salvare la lista sul dispositivo');
+      base=nuovo; aggiornata=true; disegna(); esito('ok','Aggiornati '+nuovo.provider.length+' provider'+(aggiunti?' · '+aggiunti+' nuovi':'')+'.');
+    } catch(e) { esito('err','Aggiornamento non riuscito: '+(e&&e.message?e.message:e)+(navigator.onLine===false?' (sei offline)':'')); }
+    b.disabled=false; b.textContent='🔄 Aggiorna da GitHub';
+  }
+  el('ai-q').addEventListener('input',()=>{filtri.q=el('ai-q').value;salvaFiltri();});
+  el('ai-modalita').addEventListener('change',()=>{filtri.modalita=el('ai-modalita').value;salvaFiltri();});
+  el('ai-no-carta').addEventListener('change',()=>{filtri.carta=el('ai-no-carta').checked;salvaFiltri();});
+  el('ai-no-telefono').addEventListener('change',()=>{filtri.telefono=el('ai-no-telefono').checked;salvaFiltri();});
+  el('ai-preferiti').addEventListener('change',()=>{filtri.preferiti=el('ai-preferiti').checked;salvaFiltri();});
+  el('ai-aggiorna').addEventListener('click',aggiorna);
+  el('ai-originale').addEventListener('click',()=>{togli(K.elenco);base=SNAPSHOT;aggiornata=false;disegna();esito('inf','Ora usi la copia inclusa nell’app.');});
+  carica(); mostrata();
+  window.aiElenco={mostrata,_analizza:analizza,_stato:()=>({provider:base.provider.length,filtrati:filtrati().length,aggiornata})};
 })();
 </script>
 <script type="text/plain" id="tplMain">
