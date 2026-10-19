@@ -244,6 +244,8 @@ footer{text-align:center;color:var(--tenue);font-size:12.5px;padding:10px}
       <button type="button" class="voce" data-vai="ai"><span class="ico">🤖</span><span><b>API IA gratuite</b><small>Provider, limiti, modelli e configurazioni aggiornabili</small></span></button>
       <a id="voce-apri" class="btn voce" target="_blank" rel="noopener" href="https://github.com/" data-url="https://github.com/" data-testo="Apri repository"><span class="ico">🌐</span><span><b class="etichetta">Apri repository</b><small>Su GitHub. Dopo una pubblicazione si attiva in 60 secondi; se vedi la versione vecchia, ricarica la pagina</small></span></a>
       <a id="voce-sito" class="btn voce" target="_blank" rel="noopener" data-testo="Apri il sito (HTML)"><span class="ico">🗺️</span><span><b class="etichetta">Apri il sito (HTML)</b><small id="voce-sito-nota">La pagina online del progetto: da lì «Installa app»</small></span></a>
+      <button type="button" class="voce" id="voce-pwa" hidden><span class="ico">📲</span><span><b>Rendi il sito installabile</b><small id="voce-pwa-nota">Aggiunge i file che servono a Chrome per «Installa app»</small></span></button>
+      <button type="button" class="voce" data-vai="diagnosi"><span class="ico">🩺</span><span><b>Controlla e ripara</b><small>Analizza pubblicazione, avvio, PWA e file mancanti</small></span></button>
       <button type="button" class="voce" data-vai="link"><span class="ico">🔗</span><span><b>Collegamenti</b><small>Apri il sito e scarica lo ZIP</small></span></button>
       <button type="button" class="voce" data-vai="installa"><span class="ico">💻</span><span><b>Installa in Termux</b><small>Un comando per scaricare i tuoi repository nel terminale</small></span></button>
       <button type="button" class="voce" data-vai="crea"><span class="ico">➕</span><span><b>Crea un repository</b><small>Nome e conferma, il resto è automatico</small></span></button>
@@ -304,6 +306,31 @@ footer{text-align:center;color:var(--tenue);font-size:12.5px;padding:10px}
     <div class="proj">Progetto: <b class="nome-attivo"></b></div>
     <p class="nota">Per i repository privati il browser deve aver fatto l'accesso a GitHub.</p>
     <div id="esito-link" aria-live="polite"></div>
+  </div>
+</section>
+
+<!-- ===================== CONTROLLO REPOSITORY ===================== -->
+<section id="v-diagnosi" class="vista" hidden>
+  <div class="card">
+    <h2>Controlla e ripara repository</h2>
+    <div class="proj">Progetto: <b class="nome-attivo"></b></div>
+    <p class="nota">Controlla ramo pubblicato, GitHub Pages, pagina iniziale, riferimenti locali, manifest, service worker, icone e ultima distribuzione. Non elimina né sovrascrive file applicativi.</p>
+    <div class="riga">
+      <button type="button" class="primario" id="diag-controlla">🩺 Avvia controllo</button>
+      <button type="button" id="diag-ripara" hidden>🛠️ Applica correzioni sicure</button>
+    </div>
+    <div id="diag-esito" aria-live="polite"></div>
+    <ul id="diag-lista" class="elenco"></ul>
+  </div>
+  <div class="card">
+    <h2>Cosa può correggere</h2>
+    <ul>
+      <li>attivare GitHub Pages quando è spento;</li>
+      <li>creare <code>index.html</code> come rinvio se esiste una sola pagina HTML con un altro nome;</li>
+      <li>aggiungere <code>.nojekyll</code> per pubblicare i file senza trasformazioni;</li>
+      <li>completare una web app con manifest, service worker, icone e collegamenti mancanti.</li>
+    </ul>
+    <p class="nota">Prima di modificare il repository mostra l’elenco esatto e chiede conferma. Errori nel codice o collegamenti ambigui vengono soltanto segnalati.</p>
   </div>
 </section>
 
@@ -1853,7 +1880,12 @@ async function infoSito(repo, forza) {
       const html = (Array.isArray(el) ? el : []).filter((x) => x.type === 'file' && /\.html?$/i.test(x.name)).map((x) => x.name).sort();
       if (html.length && !html.some((n) => /^index\.html?$/i.test(n))) file = html[0];
     } catch { /* elenco non leggibile: apro la radice del sito */ }
-    info = { stato: 'attivo', url: String(pg.html_url).replace(/\/?$/, '/') + encodeURI(file), file };
+    info = { stato: 'attivo', url: String(pg.html_url).replace(/\/?$/, '/') + encodeURI(file), file, workflow: pg.build_type === 'workflow', pwa: null };
+    try {   // la pagina del repository dichiara un manifest? (lo leggo da GitHub, non dal sito: vale anche con dominio proprio)
+      const ramo = (pg.source && pg.source.branch) || '', cart = pg.source && pg.source.path && pg.source.path !== '/' ? pg.source.path.replace(/^\/|\/$/g, '') + '/' : '';
+      const pag = ramo && !info.workflow ? await leggiFileRepo(repo, cart + (file || 'index.html'), ramo) : null;
+      if (pag) info.pwa = /<link[^>]+rel=["']?manifest/i.test(pag.testo);
+    } catch { /* non verificabile: nessun suggerimento */ }
   } catch (e) {
     const [prop, nome] = repo.split('/');
     info = e.status === 404 ? { stato: 'assente' }
@@ -1868,12 +1900,14 @@ function applicaSito(info) {
     // dopo una pubblicazione aggiungo ?agg=… così il browser non mostra la copia vecchia (GitHub la tiene 10 minuti)
     a.dataset.url = info.url + (prontoAlle ? `?agg=${prontoAlle}` : '');
     nota.textContent = info.stato === 'attivo'
-      ? `…${info.url.replace(/^https:\/\/[^/]+/, '')} · poi in Chrome ⋮ → «Installa app»`
+      ? `…${info.url.replace(/^https:\/\/[^/]+/, '')} · ` + (info.pwa === false ? 'non ancora installabile: usa «Rendi il sito installabile»' : 'poi in Chrome ⋮ → «Installa app»')
       : `Non riesco a verificare il sito (${info.msg}): provo l'indirizzo standard`;
     aggiornaApri();
+    $('#voce-pwa').hidden = !(info.stato === 'attivo' && info.pwa === false && !info.workflow);
   } else {
     delete a.dataset.url; a.removeAttribute('href'); a.removeAttribute('aria-disabled');
     et.textContent = a.dataset.testo;
+    $('#voce-pwa').hidden = true;
     nota.textContent = info ? 'Sito non attivo: tocca per attivarlo (GitHub Pages, gratis)' : '';
   }
 }
@@ -1912,6 +1946,311 @@ $('#voce-sito').addEventListener('click', async (e) => {
   }
 });
 
+/* ---------- 📲 Rendi il sito installabile ----------
+   Chrome offre «Installa app» (e non solo «Aggiungi a schermata Home») solo se il sito ha un manifest e un service worker.
+   Qui li aggiungo al repository: manifest.webmanifest, sw.js, due icone e due righe nella pagina. Nulla del resto viene toccato. */
+const SW_SITO = `/* Service worker aggiunto da Pubblica: apre l'app anche senza rete. Prima la rete, poi la copia salvata. */
+const CACHE = 'pwa-v1';
+self.addEventListener('install', () => self.skipWaiting());
+self.addEventListener('activate', (e) => e.waitUntil(self.clients.claim()));
+self.addEventListener('fetch', (e) => {
+  if (e.request.method !== 'GET') return;
+  e.respondWith(fetch(e.request).then((r) => {
+    if (r.ok && new URL(e.request.url).origin === self.location.origin) { const c = r.clone(); caches.open(CACHE).then((x) => x.put(e.request, c)); }
+    return r;
+  }).catch(() => caches.match(e.request, { ignoreSearch: true }).then((m) => m || caches.match('./'))));
+});
+`;
+function lettereApp(titolo) {
+  const p = String(titolo).replace(/[^\p{L}\p{N} ]/gu, ' ').trim().split(/\s+/).filter(Boolean);
+  return ((p[0] || '?')[0] + (p[1] ? p[1][0] : '')).toUpperCase();
+}
+async function iconaPng(lettere, dim, colore) {
+  const c = document.createElement('canvas'); c.width = c.height = dim;
+  const x = c.getContext('2d');
+  x.fillStyle = colore; x.fillRect(0, 0, dim, dim);
+  x.fillStyle = '#fff'; x.textAlign = 'center'; x.textBaseline = 'middle';
+  x.font = `700 ${Math.round(dim * (lettere.length > 1 ? 0.34 : 0.46))}px system-ui, sans-serif`;
+  x.fillText(lettere, dim / 2, dim / 2 + dim * 0.02);
+  const blob = await new Promise((ok) => c.toBlob(ok, 'image/png'));
+  return base64(new Uint8Array(await blob.arrayBuffer()));
+}
+function pagina_installabile(h, tema) {
+  const tag = [];
+  if (!/<link[^>]+rel=["']?manifest/i.test(h)) tag.push('<link rel="manifest" href="manifest.webmanifest">');
+  if (!/<meta[^>]+name=["']theme-color/i.test(h)) tag.push(`<meta name="theme-color" content="${tema}">`);
+  if (!/<link[^>]+rel=["']apple-touch-icon/i.test(h)) tag.push('<link rel="apple-touch-icon" href="pwa-icona-192.png">');
+  if (tag.length) {
+    const testa = /<head[^>]*>/i.exec(h), dt = /^\s*<!doctype[^>]*>/i.exec(h);
+    const cs = testa && /<meta[^>]+charset[^>]*>/i.exec(h.slice(testa.index));
+    let dove = testa ? testa.index + testa[0].length : dt ? dt[0].length : 0;
+    if (cs && cs.index < 300) dove = testa.index + cs.index + cs[0].length;
+    h = h.slice(0, dove) + '\n' + tag.join('\n') + '\n' + h.slice(dove);
+  }
+  if (!/serviceWorker\s*\.\s*register/.test(h)) {
+    const s = "<script>if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(function () {});<" + "/script>\n";
+    const i = h.toLowerCase().lastIndexOf('</body>');
+    h = i >= 0 ? h.slice(0, i) + s + h.slice(i) : h + '\n' + s;
+  }
+  return h;
+}
+async function leggiFileRepo(repo, percorso, ramo) {
+  try {
+    const { dati } = await gh(`/repos/${repo}/contents/${encodeURI(percorso)}?ref=${encodeURIComponent(ramo)}`, { ripeti: false });
+    if (Array.isArray(dati)) return null;
+    let b64 = dati.content;
+    if (!b64) b64 = (await gh(`/repos/${repo}/git/blobs/${dati.sha}`)).dati.content;
+    return { sha: dati.sha, testo: testoUtf8(daBase64(b64)) };
+  } catch (e) { if (e.status === 404) return null; throw e; }
+}
+let pwaInCorso = false;
+$('#voce-pwa').addEventListener('click', async () => {
+  if (pwaInCorso || S.occupato) return;
+  const repo = CFG.attivo, nota = $('#voce-pwa-nota'), vecchia = nota.textContent;
+  if (!repo || !TOKEN) { vai('config'); return; }
+  pwaInCorso = true;
+  try {
+    nota.textContent = 'Leggo il sito…';
+    const { dati: pg } = await gh(`/repos/${repo}/pages`, { ripeti: false });
+    if (pg.build_type === 'workflow') throw new Error('Il sito è pubblicato da un workflow di GitHub Actions: non posso modificarlo da qui.');
+    const ramo = (pg.source && pg.source.branch) || (await gh(`/repos/${repo}`)).dati.default_branch;
+    const cartella = pg.source && pg.source.path && pg.source.path !== '/' ? pg.source.path.replace(/^\/|\/$/g, '') + '/' : '';
+    const info = SITI.get(repo) || await infoSito(repo, false);
+    const file = info.file || 'index.html';
+    const pagina = await leggiFileRepo(repo, cartella + file, ramo);
+    if (!pagina) throw new Error(`Non trovo ${cartella + file} nel ramo ${ramo}.`);
+    const titolo = ((/<title[^>]*>([^<]*)<\/title>/i.exec(pagina.testo) || [])[1] || '').trim().replace(/\s+/g, ' ') || repo.split('/')[1];
+    const tema = ((/<meta[^>]+name=["']theme-color["'][^>]*content=["'](#[0-9a-f]{3,8})["']/i.exec(pagina.testo) || [])[1]) || '#1c3270';
+    const esiste = {};
+    for (const f of ['manifest.webmanifest', 'sw.js', 'pwa-icona-192.png', 'pwa-icona-512.png']) esiste[f] = !!(await leggiFileRepo(repo, cartella + f, ramo));
+    const nuovi = Object.keys(esiste).filter((f) => !esiste[f]);
+    if (!confirm(`Rendo installabile «${titolo}» (${repo}).\n\nAggiungo al repository: ${nuovi.join(', ') || 'nessun file'}\nModifico ${cartella + file}: solo le righe per manifest e service worker, il resto resta uguale.\n\nContinuo?`)) { nota.textContent = vecchia; return; }
+    const msgC = 'Rende il sito installabile (Pubblica)';
+    const scrivi = (percorso, contenuto64, sha) => gh(`/repos/${repo}/contents/${encodeURI(percorso)}`, { metodo: 'PUT', ripeti: false,
+      corpo: Object.assign({ message: msgC, content: contenuto64, branch: ramo }, sha ? { sha } : {}) });
+    const utf8 = (s) => base64(new TextEncoder().encode(s));
+    if (!esiste['pwa-icona-192.png']) { nota.textContent = 'Creo le icone…'; const l = lettereApp(titolo); await scrivi(cartella + 'pwa-icona-192.png', await iconaPng(l, 192, tema)); await scrivi(cartella + 'pwa-icona-512.png', await iconaPng(l, 512, tema)); }
+    if (!esiste['sw.js']) { nota.textContent = 'Aggiungo il service worker…'; await scrivi(cartella + 'sw.js', utf8(SW_SITO)); }
+    if (!esiste['manifest.webmanifest']) {
+      nota.textContent = 'Aggiungo il manifest…';
+      const avvio = file === 'index.html' ? './' : './' + encodeURI(file);
+      await scrivi(cartella + 'manifest.webmanifest', utf8(JSON.stringify({ id: avvio, name: titolo, short_name: titolo.slice(0, 12), start_url: avvio, scope: './', display: 'standalone',
+        background_color: tema, theme_color: tema, lang: 'it',
+        icons: [{ src: 'pwa-icona-192.png', sizes: '192x192', type: 'image/png', purpose: 'any maskable' }, { src: 'pwa-icona-512.png', sizes: '512x512', type: 'image/png', purpose: 'any maskable' }] }, null, 2) + '\n'));
+    }
+    nota.textContent = 'Aggiorno la pagina…';
+    await scrivi(cartella + file, utf8(pagina_installabile(pagina.testo, tema)), pagina.sha);
+    SITI.delete(repo);
+    avviaContoApri();
+    await aggiornaSito(true);
+    $('#voce-pwa').hidden = false;
+    nota.textContent = '✓ Fatto. Tra 1–3 minuti GitHub aggiorna il sito: aprilo e Chrome offre «Installa app» (⋮ → Installa app).';
+  } catch (e) {
+    nota.textContent = '✗ ' + (e.status === 403 || e.status === 404 ? 'al token manca il permesso «Contents: Read and write» (token classico: «repo»).' : e.message);
+  } finally { pwaInCorso = false; }
+});
+
+/* ---------- 🩺 Controlla e ripara repository ---------- */
+const DIAG = { rapporto: null, occupato: false };
+const diagRiga = (tipo, testo) => ({ tipo, testo });
+function mostraDiagnosi(r) {
+  const ul = $('#diag-lista'); ul.replaceChildren();
+  for (const x of r.righe) {
+    const li = document.createElement('li');
+    li.textContent = ({ ok: '✓ ', avv: '⚠ ', err: '✗ ', inf: '• ' }[x.tipo] || '• ') + x.testo;
+    li.style.color = x.tipo === 'err' ? 'var(--ruggine)' : x.tipo === 'ok' ? 'var(--ok)' : '';
+    ul.append(li);
+  }
+  const b = $('#diag-ripara');
+  b.hidden = !r.correzioni.length || !r.puoScrivere;
+  b.textContent = `🛠️ Applica ${r.correzioni.length} correzion${r.correzioni.length === 1 ? 'e' : 'i'} sicur${r.correzioni.length === 1 ? 'a' : 'e'}`;
+}
+function risolviPercorso(base, riferimento) {
+  let r = String(riferimento || '').trim();
+  if (!r || r[0] === '#' || r[0] === '/' || /^(?:[a-z]+:|\/\/)/i.test(r)) return '';
+  r = r.split(/[?#]/)[0];
+  try { r = decodeURIComponent(r); } catch { /* usa il testo originale */ }
+  const parti = (base.includes('/') ? base.slice(0, base.lastIndexOf('/') + 1) : '').split('/').filter(Boolean);
+  for (const p of r.split('/')) {
+    if (!p || p === '.') continue;
+    if (p === '..') { if (!parti.length) return ''; parti.pop(); }
+    else parti.push(p);
+  }
+  return parti.join('/');
+}
+async function statoRamo(repo, ramo) {
+  const rif = (await gh(`/repos/${repo}/git/ref/heads/${rifRamo(ramo)}`)).dati;
+  const head = rif.object.sha;
+  const commit = (await gh(`/repos/${repo}/git/commits/${head}`)).dati;
+  const albero = (await gh(`/repos/${repo}/git/trees/${commit.tree.sha}?recursive=1`)).dati;
+  if (albero.truncated) throw new Error('Repository troppo grande per il controllo completo.');
+  return { ramo, head, treeSha: commit.tree.sha, tree: albero.tree };
+}
+async function controllaRepository() {
+  if (DIAG.occupato || S.occupato) return;
+  pulisci('#diag-esito'); $('#diag-lista').replaceChildren(); $('#diag-ripara').hidden = true;
+  DIAG.rapporto = null; DIAG.occupato = true; occupato(true);
+  try {
+    if (!TOKEN) throw new Error('Serve il token: inseriscilo in Impostazioni → Accesso.');
+    const repo = repoScelto();
+    msg('#diag-esito', 'inf', 'Controllo ' + repo + '…');
+    const info = (await gh(`/repos/${repo}`)).dati;
+    const puoScrivere = !!(info.permissions && info.permissions.push);
+    let pages = null, pagesSpento = false;
+    try { pages = (await gh(`/repos/${repo}/pages`, { ripeti: false })).dati; }
+    catch (e) { if (e.status === 404) pagesSpento = true; else throw e; }
+    const workflow = !!(pages && pages.build_type === 'workflow');
+    const ramo = (pages && pages.source && pages.source.branch) || info.default_branch;
+    const radice = pages && pages.source && pages.source.path && pages.source.path !== '/' ? pages.source.path.replace(/^\/|\/$/g, '') : '';
+    const ctx = await statoRamo(repo, ramo);
+    const blob = new Map(ctx.tree.filter((x) => x.type === 'blob').map((x) => [x.path, x]));
+    const pref = radice ? radice + '/' : '';
+    const righe = [], correzioni = [], files = new Map();
+    righe.push(diagRiga('ok', `Repository raggiungibile · ramo ${ramo}${puoScrivere ? ' · scrittura consentita' : ' · sola lettura'}.`));
+    if (pagesSpento) {
+      righe.push(diagRiga('err', 'GitHub Pages non è attivo.'));
+    } else righe.push(diagRiga('ok', `GitHub Pages attivo${workflow ? ' tramite workflow' : ` da ${ramo}/${radice || '(radice)'}`}.`));
+
+    if (pages && !workflow) {
+      try {
+        const ultimo = (await gh(`/repos/${repo}/pages/builds/latest`, { ripeti: false })).dati;
+        const nonAllineato = ultimo.status === 'built' && ultimo.commit && ultimo.commit !== ctx.head;
+        const tipo = ultimo.status === 'errored' ? 'err' : nonAllineato || ultimo.status !== 'built' ? 'avv' : 'ok';
+        righe.push(diagRiga(tipo, `Ultima pubblicazione Pages: ${ultimo.status || 'stato sconosciuto'}${ultimo.commit ? ' · commit ' + ultimo.commit.slice(0, 7) : ''}${nonAllineato ? ' · non ancora allineata al ramo' : ''}.`));
+      } catch { righe.push(diagRiga('avv', 'Stato dell’ultima pubblicazione non leggibile con questo token.')); }
+    } else if (workflow) {
+      try {
+        const azioni = (await gh(`/repos/${repo}/actions/runs?branch=${encodeURIComponent(ramo)}&per_page=5`, { ripeti: false })).dati;
+        const run = (azioni.workflow_runs || []).find((x) => /pages|deploy/i.test((x.name || '') + ' ' + (x.path || ''))) || (azioni.workflow_runs || [])[0];
+        if (!run) righe.push(diagRiga('avv', 'Nessuna esecuzione recente trovata in GitHub Actions.'));
+        else righe.push(diagRiga(run.conclusion === 'success' ? 'ok' : run.conclusion === 'failure' ? 'err' : 'avv', `Ultima esecuzione Actions: ${run.status}${run.conclusion ? ' · ' + run.conclusion : ''} · commit ${(run.head_sha || '').slice(0, 7) || 'non indicato'}.`));
+      } catch { righe.push(diagRiga('inf', 'La distribuzione è gestita da GitHub Actions: stato non leggibile con questo token.')); }
+    }
+
+    const index = pref + 'index.html';
+    const htmlRadice = [...blob.keys()].filter((p) => p.startsWith(pref) && !p.slice(pref.length).includes('/') && /\.html?$/i.test(p));
+    let pagina = blob.has(index) ? index : '';
+    if (pagina) righe.push(diagRiga('ok', 'Pagina iniziale presente: ' + index + '.'));
+    else if (htmlRadice.length === 1 && !workflow) {
+      pagina = htmlRadice[0];
+      const nome = pagina.slice(pref.length);
+      const rinvio = `<!doctype html>\n<html lang="it"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta http-equiv="refresh" content="0;url=${nome}"><title>Apertura ${nome}</title></head><body><p><a href="${nome}">Apri ${nome}</a></p></body></html>\n`;
+      files.set(index, new TextEncoder().encode(rinvio));
+      righe.push(diagRiga('avv', `Manca index.html; trovata una sola pagina (${nome}).`));
+      correzioni.push(`Creare ${index} come rinvio a ${nome}.`);
+    } else if (!htmlRadice.length) righe.push(diagRiga('err', `Nessuna pagina HTML trovata in ${radice || 'radice'}.`));
+    else righe.push(diagRiga('err', `Manca index.html e ci sono ${htmlRadice.length} pagine HTML: scegli manualmente quella iniziale.`));
+
+    if (pagesSpento && pagina) correzioni.unshift('Attivare GitHub Pages sul ramo ' + info.default_branch + '.');
+    else if (pagesSpento) righe.push(diagRiga('avv', 'Pages non verrà attivato automaticamente finché manca una pagina HTML iniziale certa.'));
+
+    if (pagina && !workflow && !blob.has(pref + '.nojekyll')) {
+      files.set(pref + '.nojekyll', new Uint8Array());
+      righe.push(diagRiga('avv', 'Manca .nojekyll: alcuni file potrebbero essere trasformati o esclusi.'));
+      correzioni.push('Aggiungere ' + pref + '.nojekyll.');
+    } else if (pagina && !workflow) righe.push(diagRiga('ok', '.nojekyll presente.'));
+
+    if (pagina) {
+      const letto = await leggiFileRepo(repo, pagina, ramo);
+      if (!letto) throw new Error('Non riesco a leggere ' + pagina + '.');
+      const doc = new DOMParser().parseFromString(letto.testo, 'text/html');
+      const mancanti = new Set();
+      for (const n of doc.querySelectorAll('[src],[href]')) {
+        const valore = n.getAttribute('src') || n.getAttribute('href');
+        const p = risolviPercorso(pagina, valore);
+        if (p && !blob.has(p) && !files.has(p)) mancanti.add(p);
+      }
+      if (mancanti.size) righe.push(diagRiga('err', `Riferimenti locali mancanti (${mancanti.size}): ${[...mancanti].slice(0, 6).join(', ')}${mancanti.size > 6 ? '…' : ''}.`));
+      else righe.push(diagRiga('ok', 'Nessun riferimento locale mancante nella pagina iniziale.'));
+
+      const titolo = (doc.querySelector('title') && doc.querySelector('title').textContent.trim()) || repo.split('/')[1];
+      const tema = (doc.querySelector('meta[name="theme-color"]') && doc.querySelector('meta[name="theme-color"]').content) || '#1c3270';
+      const dir = pagina.includes('/') ? pagina.slice(0, pagina.lastIndexOf('/') + 1) : '';
+      const linkManifest = doc.querySelector('link[rel~="manifest"]');
+      const manifest = linkManifest ? risolviPercorso(pagina, linkManifest.getAttribute('href')) : dir + 'manifest.webmanifest';
+      const reg = /serviceWorker\s*\.\s*register\s*\(\s*(['"])([^'"]+)\1/.exec(letto.testo);
+      const sw = reg ? risolviPercorso(pagina, reg[2]) : dir + 'sw.js';
+      const htmlNuovo = pagina_installabile(letto.testo, tema);
+      if (htmlNuovo !== letto.testo && !workflow) {
+        files.set(pagina, new TextEncoder().encode(htmlNuovo));
+        correzioni.push('Completare in ' + pagina + ' i collegamenti PWA mancanti.');
+        righe.push(diagRiga('avv', 'Collegamenti a manifest o service worker incompleti.'));
+      } else righe.push(diagRiga('ok', 'Collegamenti PWA presenti.'));
+
+      if (manifest && !blob.has(manifest) && linkManifest) {
+        righe.push(diagRiga('err', `La pagina richiama un manifest inesistente (${manifest}): percorso personalizzato, da correggere manualmente.`));
+      } else if (manifest && !blob.has(manifest) && !workflow) {
+        const mdir = manifest.includes('/') ? manifest.slice(0, manifest.lastIndexOf('/') + 1) : '';
+        const relPagina = pagina.slice(mdir.length) || 'index.html';
+        const dati = { id: './' + relPagina, name: titolo, short_name: titolo.slice(0, 12), start_url: './' + relPagina, scope: './', display: 'standalone', background_color: tema, theme_color: tema, lang: 'it', icons: [{ src: 'pwa-icona-192.png', sizes: '192x192', type: 'image/png', purpose: 'any maskable' }, { src: 'pwa-icona-512.png', sizes: '512x512', type: 'image/png', purpose: 'any maskable' }] };
+        files.set(manifest, new TextEncoder().encode(JSON.stringify(dati, null, 2) + '\n'));
+        correzioni.push('Creare ' + manifest + '.'); righe.push(diagRiga('avv', 'Manifest PWA mancante.'));
+        const lettere = lettereApp(titolo);
+        let iconeCreate = 0;
+        for (const dim of [192, 512]) {
+          const p = mdir + `pwa-icona-${dim}.png`;
+          if (!blob.has(p)) { files.set(p, { icona: { lettere, dim, tema } }); iconeCreate++; }
+        }
+        if (iconeCreate) correzioni.push(`Creare ${iconeCreate} icon${iconeCreate === 1 ? 'a' : 'e'} PWA mancanti.`);
+      } else if (manifest) {
+        righe.push(diagRiga('ok', 'Manifest PWA presente.'));
+        const mf = await leggiFileRepo(repo, manifest, ramo);
+        if (mf) {
+          try {
+            const dati = JSON.parse(mf.testo);
+            const iconeMancanti = (Array.isArray(dati.icons) ? dati.icons : []).map((x) => risolviPercorso(manifest, x && x.src)).filter((p) => p && !blob.has(p));
+            if (iconeMancanti.length) righe.push(diagRiga('err', 'Icone dichiarate ma mancanti: ' + iconeMancanti.join(', ') + '.'));
+          } catch { righe.push(diagRiga('err', manifest + ' non contiene JSON valido.')); }
+        }
+      }
+      if (sw && !blob.has(sw) && !workflow) {
+        files.set(sw, new TextEncoder().encode(SW_SITO));
+        correzioni.push('Creare ' + sw + '.'); righe.push(diagRiga('avv', 'Service worker mancante.'));
+      } else if (sw) righe.push(diagRiga('ok', 'Service worker presente.'));
+    }
+
+    if (workflow && correzioni.length) correzioni.length = 0;
+    if (!puoScrivere) righe.push(diagRiga('avv', 'Il token non può applicare correzioni: serve Contents → Read and write.'));
+    if (!correzioni.length) righe.push(diagRiga('inf', 'Nessuna correzione automatica sicura da applicare.'));
+    const rapporto = { repo, info, ctx, pagesSpento, workflow, radice, righe, correzioni, files, puoScrivere };
+    DIAG.rapporto = rapporto; pulisci('#diag-esito'); mostraDiagnosi(rapporto);
+  } catch (e) { pulisci('#diag-esito'); msg('#diag-esito', 'err', '✗ Controllo non riuscito: ' + e.message); }
+  finally { DIAG.occupato = false; occupato(false); }
+}
+async function riparaRepository() {
+  const r = DIAG.rapporto;
+  if (!r || DIAG.occupato || S.occupato || !r.correzioni.length || !r.puoScrivere) return;
+  const elenco = r.correzioni.map((x) => '• ' + x).join('\n');
+  if (!confirm(`Applico queste correzioni a ${r.repo}:\n\n${elenco}\n\nNon verrà eliminato alcun file. Continuo?`)) return;
+  DIAG.occupato = true; occupato(true); pulisci('#diag-esito'); msg('#diag-esito', 'inf', 'Applico le correzioni…');
+  try {
+    if (r.files.size) {
+      const ora = (await gh(`/repos/${r.repo}/git/ref/heads/${rifRamo(r.ctx.ramo)}`)).dati.object.sha;
+      if (ora !== r.ctx.head) throw new Error('Il repository è cambiato dopo il controllo: esegui nuovamente la diagnosi.');
+      const voci = [];
+      for (const [path, valore] of r.files) {
+        let dati = valore;
+        if (valore && valore.icona) dati = daBase64(await iconaPng(valore.icona.lettere, valore.icona.dim, valore.icona.tema));
+        const creato = (await gh(`/repos/${r.repo}/git/blobs`, { metodo: 'POST', corpo: { content: base64(dati), encoding: 'base64' } })).dati;
+        voci.push({ path, mode: '100644', type: 'blob', sha: creato.sha });
+      }
+      const albero = (await gh(`/repos/${r.repo}/git/trees`, { metodo: 'POST', corpo: { base_tree: r.ctx.treeSha, tree: voci } })).dati;
+      const commit = (await gh(`/repos/${r.repo}/git/commits`, { metodo: 'POST', corpo: { message: 'Controllo e riparazione automatica (Pubblica)', tree: albero.sha, parents: [r.ctx.head] } })).dati;
+      await gh(`/repos/${r.repo}/git/refs/heads/${rifRamo(r.ctx.ramo)}`, { metodo: 'PATCH', corpo: { sha: commit.sha, force: false } });
+    }
+    if (r.pagesSpento) await gh(`/repos/${r.repo}/pages`, { metodo: 'POST', corpo: { source: { branch: r.info.default_branch, path: '/' } }, ripeti: false });
+    SITI.delete(r.repo); DIAG.rapporto = null;
+    pulisci('#diag-esito'); msg('#diag-esito', 'ok', '✓ Correzioni applicate. Ricontrollo il repository…');
+  } catch (e) {
+    pulisci('#diag-esito'); msg('#diag-esito', 'err', '✗ Riparazione non completata: ' + e.message);
+    DIAG.occupato = false; occupato(false); return;
+  }
+  DIAG.occupato = false; occupato(false);
+  await controllaRepository();
+}
+$('#diag-controlla').addEventListener('click', controllaRepository);
+$('#diag-ripara').addEventListener('click', riparaRepository);
+
 /* ---------- 🔑 Chiedi il token giusto a GitHub ---------- */
 function linkToken() {
   const data = new Date().toISOString().slice(0, 10);
@@ -1946,7 +2285,7 @@ $('#tk-controlla').addEventListener('click', async () => {
 });
 
 /* ---------- viste e menu ---------- */
-const VISTE = ['menu', 'pubblica', 'link', 'installa', 'crea', 'svuota', 'elimina', 'config', 'apk', 'api', 'ai'];
+const VISTE = ['menu', 'pubblica', 'link', 'diagnosi', 'installa', 'crea', 'svuota', 'elimina', 'config', 'apk', 'api', 'ai'];
 function vai(nome) {
   if (S.occupato) return;
   for (const v of VISTE) $('#v-' + v).hidden = v !== nome;
@@ -1965,6 +2304,9 @@ function vai(nome) {
 /* Aggiorna menu e nomi; se il progetto attivo è cambiato, l'anteprima vecchia viene scartata. */
 function aggiornaTutto() {
   if (S.perRepo && S.perRepo !== CFG.attivo && !S.occupato) azzeraPubblica();
+  if (DIAG.rapporto && DIAG.rapporto.repo !== CFG.attivo && !DIAG.occupato) {
+    DIAG.rapporto = null; $('#diag-ripara').hidden = true; pulisci('#diag-esito'); $('#diag-lista').replaceChildren();
+  }
   const sel = $('#sel-attivo');
   sel.replaceChildren(...CFG.repo.map((r) => new Option(r.nome ? `${r.nome} — ${r.id}` : r.id, r.id)));
   sel.value = CFG.attivo; sel.disabled = !CFG.repo.length || S.occupato;
