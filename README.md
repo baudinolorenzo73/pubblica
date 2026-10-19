@@ -16,6 +16,7 @@ Pubblica i tuoi progetti su GitHub dal telefono, senza Termux. App installabile 
 
 - **🩺 Controlla e ripara**: nuova area per analizzare il repository selezionato, GitHub Pages, pagina iniziale, riferimenti locali, manifest, service worker, icone e ultima distribuzione.
 - Le correzioni sicure vengono mostrate prima e applicate soltanto dopo conferma; non vengono eliminati file e gli errori ambigui restano semplici segnalazioni.
+- **Correzione 3.10.1**: **📲 Rendi il sito installabile** resta sempre visibile. Se il sito è già installabile, usa un workflow o non è verificabile con certezza, apre il controllo guidato evitando file duplicati.
 
 ## Novità della 3.9
 

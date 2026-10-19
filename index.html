@@ -244,7 +244,7 @@ footer{text-align:center;color:var(--tenue);font-size:12.5px;padding:10px}
       <button type="button" class="voce" data-vai="ai"><span class="ico">🤖</span><span><b>API IA gratuite</b><small>Provider, limiti, modelli e configurazioni aggiornabili</small></span></button>
       <a id="voce-apri" class="btn voce" target="_blank" rel="noopener" href="https://github.com/" data-url="https://github.com/" data-testo="Apri repository"><span class="ico">🌐</span><span><b class="etichetta">Apri repository</b><small>Su GitHub. Dopo una pubblicazione si attiva in 60 secondi; se vedi la versione vecchia, ricarica la pagina</small></span></a>
       <a id="voce-sito" class="btn voce" target="_blank" rel="noopener" data-testo="Apri il sito (HTML)"><span class="ico">🗺️</span><span><b class="etichetta">Apri il sito (HTML)</b><small id="voce-sito-nota">La pagina online del progetto: da lì «Installa app»</small></span></a>
-      <button type="button" class="voce" id="voce-pwa" hidden><span class="ico">📲</span><span><b>Rendi il sito installabile</b><small id="voce-pwa-nota">Aggiunge i file che servono a Chrome per «Installa app»</small></span></button>
+      <button type="button" class="voce" id="voce-pwa"><span class="ico">📲</span><span><b>Rendi il sito installabile</b><small id="voce-pwa-nota">Controlla e aggiunge ciò che serve a Chrome per «Installa app»</small></span></button>
       <button type="button" class="voce" data-vai="diagnosi"><span class="ico">🩺</span><span><b>Controlla e ripara</b><small>Analizza pubblicazione, avvio, PWA e file mancanti</small></span></button>
       <button type="button" class="voce" data-vai="link"><span class="ico">🔗</span><span><b>Collegamenti</b><small>Apri il sito e scarica lo ZIP</small></span></button>
       <button type="button" class="voce" data-vai="installa"><span class="ico">💻</span><span><b>Installa in Termux</b><small>Un comando per scaricare i tuoi repository nel terminale</small></span></button>
@@ -1895,7 +1895,7 @@ async function infoSito(repo, forza) {
   return info;
 }
 function applicaSito(info) {
-  const a = $('#voce-sito'), nota = $('#voce-sito-nota'), et = a.querySelector('.etichetta');
+  const a = $('#voce-sito'), nota = $('#voce-sito-nota'), notaPwa = $('#voce-pwa-nota'), et = a.querySelector('.etichetta');
   if (info && info.url && info.stato !== 'assente') {
     // dopo una pubblicazione aggiungo ?agg=… così il browser non mostra la copia vecchia (GitHub la tiene 10 minuti)
     a.dataset.url = info.url + (prontoAlle ? `?agg=${prontoAlle}` : '');
@@ -1903,11 +1903,15 @@ function applicaSito(info) {
       ? `…${info.url.replace(/^https:\/\/[^/]+/, '')} · ` + (info.pwa === false ? 'non ancora installabile: usa «Rendi il sito installabile»' : 'poi in Chrome ⋮ → «Installa app»')
       : `Non riesco a verificare il sito (${info.msg}): provo l'indirizzo standard`;
     aggiornaApri();
-    $('#voce-pwa').hidden = !(info.stato === 'attivo' && info.pwa === false && !info.workflow);
+    notaPwa.textContent = info.stato !== 'attivo' || info.workflow || info.pwa === null
+      ? 'Controlla installabilità e configurazione PWA'
+      : info.pwa === false
+        ? 'Sito non ancora installabile: aggiunge i file necessari'
+        : 'Il sito risulta installabile: controlla o ripara';
   } else {
     delete a.dataset.url; a.removeAttribute('href'); a.removeAttribute('aria-disabled');
     et.textContent = a.dataset.testo;
-    $('#voce-pwa').hidden = true;
+    notaPwa.textContent = info ? 'Prima attiva il sito; il controllo ti guiderà' : 'Controlla e aggiunge ciò che serve a Chrome per «Installa app»';
     nota.textContent = info ? 'Sito non attivo: tocca per attivarlo (GitHub Pages, gratis)' : '';
   }
 }
@@ -2008,6 +2012,8 @@ $('#voce-pwa').addEventListener('click', async () => {
   if (pwaInCorso || S.occupato) return;
   const repo = CFG.attivo, nota = $('#voce-pwa-nota'), vecchia = nota.textContent;
   if (!repo || !TOKEN) { vai('config'); return; }
+  const noto = SITI.get(repo);
+  if (!noto || noto.stato !== 'attivo' || noto.pwa !== false || noto.workflow) { vai('diagnosi'); return; }
   pwaInCorso = true;
   try {
     nota.textContent = 'Leggo il sito…';
