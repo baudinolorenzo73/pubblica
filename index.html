@@ -240,6 +240,7 @@ footer{text-align:center;color:var(--tenue);font-size:12.5px;padding:10px}
     <div class="menu">
       <button type="button" class="voce princ" data-vai="pubblica"><span class="ico">🚀</span><span><b>Pubblica su GitHub</b><small>Scegli lo ZIP: il resto è nelle impostazioni</small></span></button>
       <button type="button" class="voce princ" data-vai="apk"><span class="ico">📱</span><span><b>Crea APK (Python o HTML)</b><small id="apk-menu-stato">Script .py, progetto ZIP o app HTML → app Android</small></span></button>
+      <button type="button" class="voce princ" id="voce-kivy"><span class="ico">🐍</span><span><b>Crea APK con Kivy</b><small>App Kivy già pronta: compila direttamente con Buildozer, senza console</small></span></button>
       <button type="button" class="voce" data-vai="api"><span class="ico">🔎</span><span><b>API gratuite</b><small>Elenco consultabile e aggiornabile, anche le tue</small></span></button>
       <button type="button" class="voce" data-vai="ai"><span class="ico">🤖</span><span><b>API IA gratuite</b><small>Provider, limiti, modelli e configurazioni aggiornabili</small></span></button>
       <a id="voce-apri" class="btn voce" target="_blank" rel="noopener" href="https://github.com/" data-url="https://github.com/" data-testo="Apri repository"><span class="ico">🌐</span><span><b class="etichetta">Apri repository</b><small>Su GitHub. Dopo una pubblicazione si attiva in 60 secondi; se vedi la versione vecchia, ricarica la pagina</small></span></a>
@@ -499,6 +500,14 @@ footer{text-align:center;color:var(--tenue);font-size:12.5px;padding:10px}
       </div>
       <input type="file" id="fileHtml" multiple hidden
         accept=".html,.htm,.zip,.css,.js,.json,.png,.jpg,.jpeg,.gif,.svg,.webp,.ico,.woff,.woff2,.ttf,.txt,.csv,.mp3,.ogg,.wav,.mp4,.webm">
+      <div id="bannerKivy" class="progetto" hidden>
+        <b>Modo Kivy</b>
+        <p class="nota" style="margin:4px 0 0">Per app che hanno già la loro interfaccia Kivy. Il tuo codice va nella
+          cartella principale del repository e <b>Buildozer lo compila così com'è</b>: niente console, nessun
+          <code>print</code>/<code>input</code> da convertire. Se il file di avvio non si chiama
+          <code>main.py</code>, ne viene creato uno che lo lancia. Carica un <b>progetto ZIP</b> (consigliato)
+          o un singolo file .py.</p>
+      </div>
       <input type="file" id="fileScript" accept=".py,.txt,text/plain,text/x-python" hidden>
       <input type="file" id="fileZip" accept=".zip,application/zip,application/x-zip-compressed" hidden>
       <div id="pannelloProgetto" class="progetto" hidden>
@@ -2301,7 +2310,7 @@ function vai(nome) {
   if (nome === 'config') rendiConfig();
   if (nome === 'link') mostraLink();
   if (nome === 'installa') rendiInstalla();
-  if (nome === 'apk' && window.creaApk) window.creaApk.mostrata();
+  if (nome === 'apk' && window.creaApk) window.creaApk.mostrata(window.__modoKivy === true);
   if (nome === 'api' && window.apiElenco) window.apiElenco.mostrata();
   if (nome === 'ai' && window.aiElenco) window.aiElenco.mostrata();
   if (nome === 'crea') $('#riep-crea').textContent = `Il repository sarà ${CFG.nuoviVis === 'privata' ? 'privato' : 'pubblico'}${CFG.nuoviVis === 'pubblica' && CFG.nuoviPages ? ' con GitHub Pages attivo' : ''}, con un README iniziale. Si cambia in Impostazioni.`;
@@ -2326,6 +2335,7 @@ function aggiornaTutto() {
   if (!TOKEN) msg('#avviso-menu', 'avv', 'Manca il token GitHub: inseriscilo in Impostazioni → Accesso (serve una volta sola).');
 }
 document.querySelectorAll('[data-vai]').forEach((b) => b.addEventListener('click', () => vai(b.dataset.vai)));
+$('#voce-kivy').addEventListener('click', () => { window.__modoKivy = true; vai('apk'); window.__modoKivy = false; });
 $('#btn-menu').addEventListener('click', () => vai('menu'));
 $('#sel-attivo').addEventListener('change', () => { if (S.occupato) return; CFG.attivo = $('#sel-attivo').value; salvaCfg(); aggiornaTutto(); });
 
@@ -3708,6 +3718,32 @@ const PRECAUZIONE = {
   kivy: "lo script è già un'app Kivy: compila direttamente quello con Buildozer, senza questa console."
 };
 
+const ESEMPIO_KIVY = `from kivy.app import App
+from kivy.uix.boxlayout import BoxLayout
+from kivy.uix.button import Button
+from kivy.uix.label import Label
+
+
+class Esempio(App):
+    def build(self):
+        self.conta = 0
+        radice = BoxLayout(orientation="vertical", padding=24, spacing=16)
+        self.testo = Label(text="Tocca il pulsante", font_size="24sp")
+        bottone = Button(text="Conta", size_hint_y=None, height=120)
+        bottone.bind(on_release=self.tocca)
+        radice.add_widget(self.testo)
+        radice.add_widget(bottone)
+        return radice
+
+    def tocca(self, *_):
+        self.conta += 1
+        self.testo.text = f"Toccato {self.conta} volte"
+
+
+if __name__ == "__main__":
+    Esempio().run()
+`;
+
 const ESEMPIO = `print("Ciao! Come ti chiami?")
 nome = input("Nome: ")
 print(f"Piacere, {nome}!")
@@ -3726,6 +3762,7 @@ for i in range(3):
    Stato
 ------------------------------------------------------------------ */
 const stato = {
+  kivy: false,            // true = modo «Crea APK con Kivy»: app Kivy compilata direttamente, senza console
   tipo: "python",         // "python" · "html" (app web avvolta in una WebView con Capacitor)
   html: null,             // {nome, file:[{percorso, dati}], scartati:[], avvio}
   modo: "singolo",        // "singolo" = un file .py · "progetto" = ZIP con più file
@@ -3947,12 +3984,19 @@ function analizza() {
 
   if (tabMisti.length) add("avviso", `Indentazione mista tab/spazi: Python potrebbe dare <code>TabError</code>. Usa solo spazi.${dove(tabMisti)}`);
 
+  if (stato.kivy) {
+    if (usatoDa.has("kivy")) add("ok", "Modo Kivy: l'app viene compilata direttamente con Buildozer, senza console.");
+    else add("avviso", "Modo Kivy attivo ma nel codice non c'è nessun <code>import kivy</code>: se è uno script normale con print/input usa «Crea APK (Python o HTML)».");
+    if (avvio !== "main.py" && tutti.some(f => f.percorso === "main.py"))
+      add("avviso", `Buildozer avvia sempre <code>main.py</code>: c'è già un tuo <code>main.py</code>, quindi parte quello e non <code>${esc(avvio)}</code>.`);
+  }
   const daAggiungere = [], sconosciuti = [];
   for (const mod of [...usatoDa.keys()].sort()) {
     if (locali.has(mod)) continue;
+    if (stato.kivy && mod === "kivy") continue;      // kivy è già nei requisiti
     const chi = usatoDa.get(mod);
     if (NON_ANDROID[mod]) { add("errore", `<code>${esc(mod)}</code>: ${NON_ANDROID[mod]}${dove(chi)}`); continue; }
-    if (PRECAUZIONE[mod]) add("avviso", `<code>${esc(mod)}</code>: ${PRECAUZIONE[mod]}${dove(chi)}`);
+    if (PRECAUZIONE[mod] && !(stato.kivy && mod === "kivy")) add("avviso", `<code>${esc(mod)}</code>: ${PRECAUZIONE[mod]}${dove(chi)}`);
     if (RETE_STD.has(mod) || RETE_PIP.has(mod)) permessi.add("INTERNET");
     if (mod === "ssl" || mod === "urllib" || mod === "http" || RETE_PIP.has(mod)) librerie.add("openssl");
     if (STDLIB.has(mod)) continue;
@@ -4718,10 +4762,52 @@ function genMain(s) {
     .replace('"__SCRIPT__"', JSON.stringify("progetto/" + fileAvvio()));
 }
 
+function genMainKivy(avvio) {
+  const cartella = avvio.includes("/") ? avvio.slice(0, avvio.lastIndexOf("/")) : "";
+  return `# main.py - generato da Crea APK (modo Kivy) · by Lollo ®2026
+# Buildozer avvia sempre main.py: questo file lancia il tuo ${avvio}.
+import os
+import runpy
+import sys
+
+BASE = os.path.dirname(os.path.abspath(__file__))
+for cartella in (BASE, os.path.join(BASE, ${JSON.stringify(cartella)})):
+    if cartella not in sys.path:
+        sys.path.insert(0, cartella)
+runpy.run_path(os.path.join(BASE, ${JSON.stringify(avvio)}), run_name="__main__")
+`;
+}
+
+function genLeggimiKivy(s) {
+  const descr = stato.modo === "progetto"
+    ? `dal progetto \`${stato.progetto.nome}\` (${stato.progetto.file.length} file)`
+    : `dal file \`${stato.nomeFile}\``;
+  return `# ${s.titolo}
+
+App Android Kivy compilata con **Crea APK · modo Kivy** (by Lollo ®2026) ${descr}.
+Il codice è compilato direttamente con Buildozer, senza console.
+
+## Struttura
+- il tuo codice, intatto, nella cartella principale (file di avvio: \`${fileAvvio()}\`)
+- \`main.py\` — è il punto di ingresso che Buildozer richiede${fileAvvio() === "main.py" ? " (è il tuo)" : " (creato per lanciare il tuo file di avvio)"}
+- \`buildozer.spec\` — configurazione della compilazione
+- \`.github/workflows/build-apk.yml\` — compila l'APK su GitHub a ogni push
+- \`firma/\` — creata al primo giro: chiave che permette gli aggiornamenti. Non cancellarla.
+
+## Come ottenere l'APK
+1. Scheda **Actions** → attendi il pallino verde (prima volta 20–40 min).
+2. Sezione **Releases** → scarica il file \`.apk\` e installalo.
+
+Pacchetto: \`${s.dominio}.${s.pacchetto}\` · versione ${s.versione}
+`;
+}
+
 function genSpec(s) {
   const estensioni = new Set(["py", "png", "jpg", "jpeg", "kv", "atlas", "json", "txt", "csv", "ttf", "db", "ini", "xml", "gpx", "yaml", "yml"]);
   fileUtente().forEach(f => { const m = f.percorso.match(/\.([A-Za-z0-9]+)$/); if (m) estensioni.add(m[1].toLowerCase()); });
-  const req = ["python3", "kivy", ...s.librerie].join(",");
+  const extra = [...s.librerie];
+  if (stato.kivy && extra.includes("openssl") && !extra.includes("certifi")) extra.push("certifi");
+  const req = ["python3", "kivy", ...extra].join(",");
   return `[app]
 # --- Identità dell'app ---
 title = ${s.titolo}
@@ -4730,7 +4816,7 @@ package.domain = ${s.dominio}
 version = ${s.versione}
 
 # --- Sorgenti ---
-# Il tuo codice è in progetto/ ; main.py è la console che lo esegue
+${stato.kivy ? "# Il tuo codice è nella cartella principale: Buildozer lo compila direttamente" : "# Il tuo codice è in progetto/ ; main.py è la console che lo esegue"}
 source.dir = .
 source.include_exts = ${[...estensioni].sort().join(",")}
 source.exclude_dirs = .github, bin, firma, .buildozer, venv
@@ -4917,6 +5003,20 @@ function generaFile() {
     document.querySelectorAll(".pk").forEach(el => el.textContent = s.pacchetto);
     return s;
   }
+  if (stato.kivy) {
+    const generati = new Set(["buildozer.spec", "LEGGIMI.md", "icon.png", ".github/workflows/build-apk.yml"]);
+    const utente = fileUtente().filter(f => !generati.has(f.percorso));
+    const kv = [];
+    if (!utente.some(f => f.percorso === "main.py")) kv.push({percorso: "main.py", testo: genMainKivy(fileAvvio())});
+    kv.push({percorso: "buildozer.spec", testo: genSpec(s)},
+            {percorso: ".github/workflows/build-apk.yml", testo: genWorkflow()},
+            {percorso: "LEGGIMI.md", testo: genLeggimiKivy(s)});
+    for (const f of utente) kv.push({percorso: f.percorso, dati: f.dati});
+    if (stato.icona) kv.push({percorso: "icon.png", dati: stato.icona});
+    stato.file = kv;
+    document.querySelectorAll(".pk").forEach(el => el.textContent = s.pacchetto);
+    return s;
+  }
   const file = [
     {percorso: "main.py", testo: genMain(s)},
     {percorso: "buildozer.spec", testo: genSpec(s)},
@@ -5026,8 +5126,15 @@ function disegnaHtml() {
     + pr.scartati.map(p => `<div class="esc" title="escluso">  ${esc(p)}</div>`).join("");
 }
 
+function disegnaKivy() {
+  const k = !!stato.kivy;
+  $("bannerKivy").hidden = !k;
+  $("btnHtmlIn").hidden = k;
+  if (k) $("autoAvvio").closest("label").style.display = "none";
+}
 function disegnaProgetto() {
   disegnaHtml();
+  disegnaKivy();
   if (stato.tipo === "html") return;
   const pr = stato.progetto, attivo = stato.modo === "progetto";
   $("pannelloProgetto").hidden = !attivo;
@@ -5126,7 +5233,7 @@ $("btnTornaPy").onclick = () => {
   if (stato.modo !== "progetto" && !$("codice").value.trim()) { impostaScript(ESEMPIO, "script_esempio.py"); return; }
   disegnaProgetto(); aggiornaTutto(); toast("Di nuovo in modo Python");
 };
-$("btnEsempio").onclick = () => impostaScript(ESEMPIO, "script_esempio.py");
+$("btnEsempio").onclick = () => stato.kivy ? impostaScript(ESEMPIO_KIVY, "main.py") : impostaScript(ESEMPIO, "script_esempio.py");
 
 $("btnExtra").onclick = () => $("fileExtra").click();
 $("fileExtra").onchange = async e => {
@@ -5976,7 +6083,13 @@ $("ghFerma").onclick = fermaCompilazione;
         caricaToken(); GH.login = ""; GH.ambiti = null; disegnaAccesso();
         if (GH.token) verificaToken(false).then(() => { if (!MON.runId) riprendiMonitor(); }).catch(() => {});
       },
-      mostrata() { caricaToken(); disegnaAccesso(); if (GH.token && !GH.login) window.creaApk.tokenCambiato(); }
+      mostrata(kivy) {
+        if (kivy !== undefined && !!kivy !== !!stato.kivy) {
+          stato.kivy = !!kivy;
+          if (stato.kivy) { stato.tipo = "python"; stato.html = null; }
+          disegnaProgetto(); aggiornaTutto();
+        }
+        caricaToken(); disegnaAccesso(); if (GH.token && !GH.login) window.creaApk.tokenCambiato(); }
     };
     $("ghVaiImpostazioni").onclick = () => vai("config");
     if (!leggi("gh.visibilita")) $("ghVisibilita").value = CFG.nuoviVis === "privata" ? "privato" : "pubblico";

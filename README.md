@@ -16,6 +16,7 @@ Pubblica i tuoi progetti su GitHub dal telefono, senza Termux. App installabile 
 
 - **🩺 Controlla e ripara**: nuova area per analizzare il repository selezionato, GitHub Pages, pagina iniziale, riferimenti locali, manifest, service worker, icone e ultima distribuzione.
 - Le correzioni sicure vengono mostrate prima e applicate soltanto dopo conferma; non vengono eliminati file e gli errori ambigui restano semplici segnalazioni.
+- **Novità 3.11.0**: nuovo pulsante **Crea APK con Kivy** nel menu. Per app che hanno già la loro interfaccia Kivy: il codice va nella cartella principale e Buildozer lo compila direttamente, senza la console print/input. Se il file di avvio non è `main.py`, ne viene creato uno che lo lancia. Il workflow viene inviato insieme al progetto.
 - **Correzione 3.10.3**: Crea APK ora fissa Buildozer 1.5.0, python-for-android v2024.01.21, NDK 25b e API 33. Risolve l'errore `charset_normalizer ... is not a supported wheel` (l'ultimo python-for-android compilava per Python 3.14).
 - **Correzione 3.10.2**: il workflow generato da **Crea APK** ora usa Ubuntu 22.04 e installa `libltdl-dev`, `libtool-bin` e `automake`: risolve l'errore `LT_SYS_SYMBOL_USCORE` durante la compilazione di libffi.
 - **Correzione 3.10.1**: **📲 Rendi il sito installabile** resta sempre visibile. Se il sito è già installabile, usa un workflow o non è verificabile con certezza, apre il controllo guidato evitando file duplicati.
