@@ -4743,6 +4743,11 @@ orientation = ${s.orientamento}
 fullscreen = 0
 ${stato.icona ? "icon.filename = %(source.dir)s/icon.png\n" : ""}
 # --- Android ---
+# Strumenti fissati (versioni provate insieme): senza questi, Buildozer prende l'ultimo
+# python-for-android, che compila per un Python piu nuovo e rompe librerie come requests.
+p4a.branch = v2024.01.21
+android.api = 33
+android.ndk = 25b
 ${s.permessi.length ? "android.permissions = " + s.permessi.join(", ") : "# android.permissions = INTERNET"}
 android.archs = ${s.arch}
 android.accept_sdk_license = True
@@ -4810,12 +4815,12 @@ jobs:
       - name: Buildozer e Cython
         run: |
           python -m pip install --upgrade pip
-          pip install --upgrade buildozer "cython==0.29.33" setuptools virtualenv
+          pip install buildozer==1.5.0 "cython==0.29.33" setuptools virtualenv
 
       - name: Chiave della cache
         # Dipende solo da librerie e processori: cambiare versione o titolo non la invalida
         id: chiave
-        run: echo "k=$(grep -E '^(requirements|android\\.archs) *=' buildozer.spec | sha1sum | cut -c1-16)" >> "$GITHUB_OUTPUT"
+        run: echo "k=$(grep -E '^(requirements|android\\.archs|android\\.ndk|p4a\\.branch) *=' buildozer.spec | sha1sum | cut -c1-16)" >> "$GITHUB_OUTPUT"
 
       - name: Cache strumenti Android (SDK/NDK)
         uses: actions/cache@v4
