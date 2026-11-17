@@ -1067,6 +1067,7 @@ async function gh(percorso, { metodo = 'GET', corpo, ripeti = true, segnale } = 
       r = await fetch(percorso.startsWith('http') ? percorso : API + percorso, {
         method: metodo,
         signal: ctrl.signal,
+        cache: 'no-store', // GitHub dice al browser di tenere le risposte 60 s: senza questo si leggono dati vecchi
         headers: Object.assign({ Accept: 'application/vnd.github+json', 'X-GitHub-Api-Version': '2022-11-28' },
           TOKEN ? { Authorization: 'Bearer ' + TOKEN } : {}, corpo ? { 'Content-Type': 'application/json' } : {}),
         body: corpo ? JSON.stringify(corpo) : undefined
@@ -1868,11 +1869,12 @@ async function iconaPng(lettere, dim, colore) {
   const blob = await new Promise((ok) => c.toBlob(ok, 'image/png'));
   return base64(new Uint8Array(await blob.arrayBuffer()));
 }
-function pagina_installabile(h, tema) {
+/* icona = percorso (relativo alla pagina) di un'icona che ESISTE; senza, l'icona per iOS non viene aggiunta. */
+function pagina_installabile(h, tema, icona) {
   const tag = [];
   if (!/<link[^>]+rel=["']?manifest/i.test(h)) tag.push('<link rel="manifest" href="manifest.webmanifest">');
   if (!/<meta[^>]+name=["']theme-color/i.test(h)) tag.push(`<meta name="theme-color" content="${tema}">`);
-  if (!/<link[^>]+rel=["']apple-touch-icon/i.test(h)) tag.push('<link rel="apple-touch-icon" href="pwa-icona-192.png">');
+  if (icona && !/<link[^>]+rel=["']apple-touch-icon/i.test(h)) tag.push(`<link rel="apple-touch-icon" href="${icona}">`);
   if (tag.length) {
     const testa = /<head[^>]*>/i.exec(h), dt = /^\s*<!doctype[^>]*>/i.exec(h);
     const cs = testa && /<meta[^>]+charset[^>]*>/i.exec(h.slice(testa.index));
@@ -1886,6 +1888,30 @@ function pagina_installabile(h, tema) {
     h = i >= 0 ? h.slice(0, i) + s + h.slice(i) : h + '\n' + s;
   }
   return h;
+}
+/* Cosa manca alla pagina per essere installabile (serve a dirlo con parole chiare). */
+function pwaCosaManca(h, icona) {
+  const m = [];
+  if (!/<link[^>]+rel=["']?manifest/i.test(h)) m.push('collegamento al manifest');
+  if (!/<meta[^>]+name=["']theme-color/i.test(h)) m.push('colore del tema');
+  if (icona && !/<link[^>]+rel=["']apple-touch-icon/i.test(h)) m.push('icona per iOS');
+  if (!/serviceWorker\s*\.\s*register/.test(h)) m.push('registrazione del service worker');
+  return m;
+}
+/* Se la pagina ha un apple-touch-icon verso un file che non esiste, lo punta a un'icona vera. */
+function ripunta_icona(h, nuova, mancante) {
+  if (!nuova) return h;
+  return h.replace(/<link\b[^>]*\brel=["']apple-touch-icon[^>]*>/i, (tag) =>
+    tag.replace(/(\bhref=["'])([^"']*)(["'])/i, (x, a, href, c) => (mancante(href) ? a + nuova + c : x)));
+}
+/* Cerca nel manifest un'icona PNG (meglio 192 px) che esiste nel repository; restituisce il percorso nel repo. */
+function iconaDaManifest(testo, manifest, blob) {
+  try {
+    const lista = (JSON.parse(testo).icons || []).map((x) => ({ p: risolviPercorso(manifest, x && x.src), s: parseInt(String(x && x.sizes).split('x')[0], 10) || 0, png: /\.png(\?|$)/i.test(String(x && x.src)) }))
+      .filter((x) => x.p && x.png && blob.has(x.p));
+    lista.sort((a, b) => Math.abs(a.s - 192) - Math.abs(b.s - 192));
+    return lista.length ? lista[0].p : '';
+  } catch { return ''; }
 }
 async function leggiFileRepo(repo, percorso, ramo) {
   try {
@@ -1934,7 +1960,7 @@ $('#voce-pwa').addEventListener('click', async () => {
         icons: [{ src: 'pwa-icona-192.png', sizes: '192x192', type: 'image/png', purpose: 'any maskable' }, { src: 'pwa-icona-512.png', sizes: '512x512', type: 'image/png', purpose: 'any maskable' }] }, null, 2) + '\n'));
     }
     nota.textContent = 'Aggiorno la pagina…';
-    await scrivi(cartella + file, utf8(pagina_installabile(pagina.testo, tema)), pagina.sha);
+    await scrivi(cartella + file, utf8(pagina_installabile(pagina.testo, tema, 'pwa-icona-192.png')), pagina.sha);
     SITI.delete(repo);
     avviaContoApri();
     await aggiornaSito(true);
@@ -2065,11 +2091,23 @@ async function controllaRepository() {
       const manifest = linkManifest ? risolviPercorso(pagina, linkManifest.getAttribute('href')) : dir + 'manifest.webmanifest';
       const reg = /serviceWorker\s*\.\s*register\s*\(\s*(['"])([^'"]+)\1/.exec(letto.testo);
       const sw = reg ? risolviPercorso(pagina, reg[2]) : dir + 'sw.js';
-      const htmlNuovo = pagina_installabile(letto.testo, tema);
+      // icona per iOS: solo se esiste davvero un'icona (del manifest, o quella che sto per creare)
+      const manifestEsiste = !!(manifest && blob.has(manifest));
+      const mf = manifestEsiste ? await leggiFileRepo(repo, manifest, ramo) : null;
+      const mdirIcona = manifest.includes('/') ? manifest.slice(0, manifest.lastIndexOf('/') + 1) : '';
+      let pIcona = mf ? iconaDaManifest(mf.testo, manifest, blob) : '';
+      if (!manifestEsiste && !linkManifest && !blob.has(mdirIcona + 'pwa-icona-192.png')) pIcona = mdirIcona + 'pwa-icona-192.png'; // la creo io più sotto
+      const iconaHref = pIcona && pIcona.startsWith(dir) ? pIcona.slice(dir.length) : '';
+      const rotta = (href) => { const x = risolviPercorso(pagina, href); return !!x && !blob.has(x) && !files.has(x) && x !== pIcona; };
+      const cosaManca = pwaCosaManca(letto.testo, iconaHref);
+      let htmlNuovo = pagina_installabile(letto.testo, tema, iconaHref);
+      const prima = htmlNuovo;
+      htmlNuovo = ripunta_icona(htmlNuovo, iconaHref, rotta);
+      if (htmlNuovo !== prima) cosaManca.push('icona per iOS che punta a un file inesistente');
       if (htmlNuovo !== letto.testo && !workflow) {
         files.set(pagina, new TextEncoder().encode(htmlNuovo));
-        correzioni.push('Completare in ' + pagina + ' i collegamenti PWA mancanti.');
-        righe.push(diagRiga('avv', 'Collegamenti a manifest o service worker incompleti.'));
+        correzioni.push('Completare in ' + pagina + ': ' + cosaManca.join(', ') + '.');
+        righe.push(diagRiga('avv', 'Collegamenti PWA incompleti: ' + cosaManca.join(', ') + '.'));
       } else righe.push(diagRiga('ok', 'Collegamenti PWA presenti.'));
 
       if (manifest && !blob.has(manifest) && linkManifest) {
@@ -2089,7 +2127,6 @@ async function controllaRepository() {
         if (iconeCreate) correzioni.push(`Creare ${iconeCreate} icon${iconeCreate === 1 ? 'a' : 'e'} PWA mancanti.`);
       } else if (manifest) {
         righe.push(diagRiga('ok', 'Manifest PWA presente.'));
-        const mf = await leggiFileRepo(repo, manifest, ramo);
         if (mf) {
           try {
             const dati = JSON.parse(mf.testo);
@@ -2121,7 +2158,7 @@ async function riparaRepository() {
   try {
     if (r.files.size) {
       const ora = (await gh(`/repos/${r.repo}/git/ref/heads/${rifRamo(r.ctx.ramo)}`)).dati.object.sha;
-      if (ora !== r.ctx.head) throw new Error('Il repository è cambiato dopo il controllo: esegui nuovamente la diagnosi.');
+      if (ora !== r.ctx.head) { const e = new Error('Il repository è cambiato dopo il controllo.'); e.rifai = true; throw e; }
       const voci = [];
       for (const [path, valore] of r.files) {
         let dati = valore;
@@ -2137,11 +2174,20 @@ async function riparaRepository() {
     SITI.delete(r.repo); DIAG.rapporto = null;
     pulisci('#diag-esito'); msg('#diag-esito', 'ok', '✓ Correzioni applicate. Ricontrollo il repository…');
   } catch (e) {
-    pulisci('#diag-esito'); msg('#diag-esito', 'err', '✗ Riparazione non completata: ' + e.message);
+    pulisci('#diag-esito');
+    if (e.rifai) {
+      DIAG.occupato = false; occupato(false);
+      await controllaRepository(); // lista rifatta con lo stato attuale; se non serve più nulla, sparisce il pulsante
+      msg('#diag-esito', 'inf', 'Il repository era cambiato dopo il primo controllo (di solito perché una riparazione era già stata applicata): ho rifatto il controllo, la lista qui sotto è aggiornata.');
+      return;
+    }
+    msg('#diag-esito', 'err', '✗ Riparazione non completata: ' + e.message);
     DIAG.occupato = false; occupato(false); return;
   }
   DIAG.occupato = false; occupato(false);
   await controllaRepository();
+  // il ricontrollo svuota i messaggi: così resta scritto che la riparazione è andata a buon fine
+  if (!$('#diag-esito').textContent.trim()) msg('#diag-esito', 'ok', '✓ Correzioni applicate al repository. GitHub aggiorna il sito tra 1–3 minuti: se la lista qui sotto mostra ancora un avviso, ricontrolla dopo qualche minuto.');
 }
 $('#diag-controlla').addEventListener('click', controllaRepository);
 $('#diag-ripara').addEventListener('click', riparaRepository);

@@ -12,6 +12,13 @@ Pubblica i tuoi progetti su GitHub dal telefono, senza Termux. App installabile 
 | `manifest.webmanifest` | Nome, colori e icone per l'installazione |
 | `icone/` | Icone dell'app |
 
+## Novità della 3.12.1
+
+- **Controlla e ripara**: le richieste a GitHub non usano più la copia salvata dal browser (GitHub la fa tenere per 60 secondi). Prima, subito dopo una riparazione, il controllo poteva mostrare ancora lo stato vecchio e il pulsante dava «Il repository è cambiato dopo il controllo».
+- Se il repository cambia davvero, il controllo si rifà da solo invece di mostrare un errore.
+- L'icona per iOS (`apple-touch-icon`) viene aggiunta solo se punta a un file che esiste; se una pagina ha già un'icona verso un file mancante, la riparazione la punta a un'icona vera del manifest.
+- L'avviso dice cosa manca (collegamento al manifest, colore del tema, icona per iOS, registrazione del service worker) e dopo la riparazione resta scritto «Correzioni applicate».
+
 ## Novità della 3.12
 
 - **Progetto diviso in due**: le voci **🔎 API gratuite** e **🤖 API IA gratuite** non sono più in Pubblica. Vivono nella nuova app separata **API gratuite** (`api.html`, repository `api`).
