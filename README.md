@@ -12,6 +12,12 @@ Pubblica i tuoi progetti su GitHub dal telefono, senza Termux. App installabile 
 | `manifest.webmanifest` | Nome, colori e icone per l'installazione |
 | `icone/` | Icone dell'app |
 
+## Novità della 3.12
+
+- **Progetto diviso in due**: le voci **🔎 API gratuite** e **🤖 API IA gratuite** non sono più in Pubblica. Vivono nella nuova app separata **API gratuite** (`api.html`, repository `api`).
+- Pubblica pesa quasi la metà e non apre più connessioni verso i siti usati dalle prove trekking (Open-Meteo, Open Topo Data, Overpass, Waymarked Trails, Nominatim).
+- I dati (preferite, API tue, elenchi aggiornati) restano sul telefono con le stesse chiavi `pubblica.api.*` e `pubblica.ai.*`: la nuova app li ritrova da sola (stesso indirizzo `baudinolorenzo73.github.io`).
+
 ## Novità della 3.10
 
 - **🩺 Controlla e ripara**: nuova area per analizzare il repository selezionato, GitHub Pages, pagina iniziale, riferimenti locali, manifest, service worker, icone e ultima distribuzione.
