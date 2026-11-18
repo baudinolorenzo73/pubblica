@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="theme-color" content="#1c3270">
+<meta name="theme-color" content="#0b0b1a">
 <meta http-equiv="Content-Security-Policy" content="default-src 'none'; connect-src https://api.github.com https://*.githubusercontent.com https://*.blob.core.windows.net https://pypi.org; script-src 'self' 'unsafe-inline'; style-src 'unsafe-inline'; img-src 'self' data: blob:; manifest-src 'self'; worker-src 'self'; base-uri 'none'; form-action 'none'">
 <title>Pubblica</title>
 <link rel="manifest" href="manifest.webmanifest">
@@ -12,12 +12,12 @@
 <script src="versione.js"></script>
 <style>
 :root{
-  --carta:#eef1f7;--foglio:#ffffff;--inchiostro:#1b2233;--tenue:#5a6478;--linea:#cdd4e2;
-  --prim:#2b4aa0;--prim-scuro:#1c3270;--accento:#e8912d;--ruggine:#c0392b;--ambra:#a8680a;--ok:#1f7a4d;
+  --carta:#07070f;--foglio:#0e0e1c;--inchiostro:#e6f6ff;--tenue:#8d9cc0;--linea:#2a2a4a;
+  --prim:#00f0ff;--prim-scuro:#0b3d4f;--accento:#ff2bd6;--ruggine:#ff4d6d;--ambra:#ffd23f;--ok:#39ff88;
 }
 @media (prefers-color-scheme:dark){:root{
-  --carta:#10141f;--foglio:#1a2030;--inchiostro:#e7ecf8;--tenue:#a9b4cc;--linea:#34405a;
-  --prim:#7b98f2;--prim-scuro:#2b4aa0;--accento:#f0a24a;--ruggine:#ee7d6e;--ambra:#e8b455;--ok:#6fcf9a;
+  --carta:#07070f;--foglio:#0e0e1c;--inchiostro:#e6f6ff;--tenue:#8d9cc0;--linea:#2a2a4a;
+  --prim:#00f0ff;--prim-scuro:#0b3d4f;--accento:#ff2bd6;--ruggine:#ff4d6d;--ambra:#ffd23f;--ok:#39ff88;
 }}
 *{box-sizing:border-box}
 html,body{margin:0}
@@ -185,11 +185,89 @@ footer{text-align:center;color:var(--tenue);font-size:12.5px;padding:10px}
 .voce .stato-apk{font-weight:600}
 .voce>span{min-width:0}
 #voce-sito-nota{overflow-wrap:anywhere}
-.riquadro-token{border:1.5px solid var(--prim);border-radius:14px;padding:12px 14px;margin:10px 0 14px;background:color-mix(in srgb,var(--prim) 6%,transparent)}.riquadro-token h3{margin:0 0 6px;font-size:16px}.riquadro-token ol{display:grid;gap:8px;padding-left:20px}.riquadro-token .btn{flex:1 1 200px}</style>
+.riquadro-token{border:1.5px solid var(--prim);border-radius:14px;padding:12px 14px;margin:10px 0 14px;background:color-mix(in srgb,var(--prim) 6%,transparent)}.riquadro-token h3{margin:0 0 6px;font-size:16px}.riquadro-token ol{display:grid;gap:8px;padding-left:20px}.riquadro-token .btn{flex:1 1 200px}
+/* ===================== TEMA CYBERPUNK · by Lollo ®2026 ===================== */
+:root{--mono:ui-monospace,"Cascadia Mono","Roboto Mono",SFMono-Regular,Menlo,Consolas,monospace;--neon:#00f0ff;--neon2:#ff2bd6;color-scheme:dark}
+body{background-color:var(--carta);background-image:linear-gradient(rgba(0,240,255,.035) 1px,transparent 1px),linear-gradient(90deg,rgba(0,240,255,.035) 1px,transparent 1px),radial-gradient(ellipse at 50% 0,rgba(255,43,214,.12),transparent 60%);background-size:28px 28px,28px 28px,100% 100%;background-attachment:fixed}
+::selection{background:var(--neon2);color:#05050c}
+header{background:linear-gradient(135deg,#0b0b1a 0%,#170a2c 60%,#0a1828 100%);border-bottom:2px solid var(--neon2);box-shadow:0 2px 0 rgba(0,240,255,.55),0 10px 30px rgba(255,43,214,.18);position:relative;overflow:hidden}
+header::after{content:"";position:absolute;inset:0;pointer-events:none;background:repeating-linear-gradient(0deg,rgba(255,255,255,.035) 0 1px,transparent 1px 3px)}
+header>*{position:relative;z-index:1}
+header h1{font:800 25px var(--mono);text-transform:uppercase;letter-spacing:.14em;color:var(--neon);text-shadow:0 0 6px rgba(0,240,255,.8),0 0 18px rgba(0,240,255,.35),2px 0 0 rgba(255,43,214,.75)}
+header p{color:#c9b8ff;opacity:.95;font:12px/1.4 var(--mono);letter-spacing:.02em}
+#btn-menu{background:rgba(0,240,255,.06);border:1.5px solid var(--neon);color:var(--neon);font-family:var(--mono);box-shadow:0 0 10px rgba(0,240,255,.35);border-radius:6px}
+.ico-testa{width:46px;min-width:46px;height:46px;min-height:46px;padding:0;font-size:23px;line-height:1;background:rgba(255,43,214,.06);border:1.5px solid var(--neon2);color:var(--neon2);box-shadow:0 0 10px rgba(255,43,214,.45);border-radius:8px;flex:none}
+.ico-testa.attivo{background:var(--neon2);color:#05050c}
+.card{position:relative;background:linear-gradient(180deg,rgba(255,255,255,.018),transparent 40%),var(--foglio);border:1px solid rgba(0,240,255,.22);border-radius:6px;box-shadow:inset 0 0 0 1px rgba(255,43,214,.05),0 6px 24px rgba(0,0,0,.45)}
+.card::before{content:"";position:absolute;top:-1px;left:-1px;width:18px;height:18px;border-top:2px solid var(--neon2);border-left:2px solid var(--neon2);border-top-left-radius:6px;pointer-events:none}
+.card h2{font:700 16.5px var(--mono);text-transform:uppercase;letter-spacing:.08em;color:var(--neon);text-shadow:0 0 8px rgba(0,240,255,.45)}
+label:not(.chk){font-family:var(--mono);font-size:13px;letter-spacing:.03em;color:#bfefff}
+input[type=text],input[type=password],input[type=number],select,textarea{background:#05050c;border-color:#2c2c50;border-radius:6px}
+input:focus,select:focus,textarea:focus{border-color:var(--neon);box-shadow:0 0 0 1px var(--neon),0 0 12px rgba(0,240,255,.3)}
+button,.btn{border-radius:6px;background:rgba(0,240,255,.04)}
+button:not(:disabled):hover,.btn:hover{box-shadow:0 0 12px rgba(0,240,255,.35)}
+button.primario,.btn.primario{background:var(--neon);border-color:var(--neon);color:#05050c;box-shadow:0 0 14px rgba(0,240,255,.45)}
+button.pericolo{background:rgba(255,77,109,.06)}
+button.pericolo.primario{background:var(--ruggine);color:#05050c}
+.menu{gap:12px}
+.voce{border-radius:6px;background:linear-gradient(90deg,rgba(0,240,255,.06),transparent 65%),var(--foglio);border:1px solid #2a2a50;color:var(--inchiostro)}
+.voce:not(:disabled):hover,.voce:focus-visible{border-color:var(--neon);box-shadow:0 0 14px rgba(0,240,255,.25)}
+.voce .ico{filter:drop-shadow(0 0 6px rgba(0,240,255,.55))}
+.voce b{font-family:var(--mono);letter-spacing:.03em;color:#eafcff}
+.voce.princ{border:1px solid rgba(255,43,214,.55);border-left:4px solid var(--neon2);background:linear-gradient(90deg,rgba(255,43,214,.10),transparent 65%),var(--foglio);box-shadow:0 0 16px rgba(255,43,214,.16)}
+.voce.rosso b{color:var(--ruggine)}
+.voce.gruppo b::after{content:" ›";color:var(--neon2)}
+.voce:disabled{opacity:.6}
+.chip-arrivo{display:inline-block;margin-left:6px;padding:1px 8px;border:1px solid var(--ambra);color:var(--ambra);border-radius:99px;font:700 10.5px var(--mono);letter-spacing:.08em;text-transform:uppercase;vertical-align:2px}
+.sotto-tit{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:0 0 4px}
+.sotto-tit .proj{display:block;flex-basis:100%;margin:0;color:var(--tenue)}
+.msg{border-radius:6px;background:rgba(0,0,0,.28)}
+.barra-app .ver b{color:var(--neon);font-family:var(--mono)}
+code{background:#05050c;border-color:#2c2c50;color:#9ff7ff}
+ul.elenco,ul.repo li{border-radius:6px}
+footer{font-family:var(--mono);letter-spacing:.04em;color:#6f7ea0}
+footer::before{content:"";display:block;height:1px;max-width:860px;margin:0 auto 10px;background:linear-gradient(90deg,transparent,var(--neon2),var(--neon),transparent)}
+.riquadro-token{border-color:var(--neon2);border-radius:6px;background:rgba(255,43,214,.05)}
+#v-apk .card>h2{font-family:var(--mono);color:var(--neon);letter-spacing:.04em}
+#v-apk .card>h2 .n{background:var(--neon2);color:#05050c;border-radius:4px}
+#v-apk .schede button.attiva{color:#05050c}
+#v-apk button.verde{color:#05050c;box-shadow:0 0 14px rgba(57,255,136,.4)}
+.toast{background:var(--neon);color:#05050c;box-shadow:0 0 18px rgba(0,240,255,.5)}
+@media (prefers-reduced-motion:no-preference){header h1{animation:sfarfallio 7s infinite}}
+
+/* ===================== EXE PER WINDOWS ===================== */
+#v-exe ul.passi{list-style:none;margin:10px 0 0;padding:0;display:grid;gap:6px}
+#v-exe ul.passi:empty{display:none}
+#v-exe ul.passi li{display:flex;gap:8px;align-items:flex-start;padding:8px 10px;border-radius:6px;font-size:14px;background:var(--carta);border:1px solid var(--linea);overflow-wrap:anywhere}
+#v-exe ul.passi li i{font-style:normal;font-weight:800;width:16px;flex:none;text-align:center}
+#v-exe li.ok i{color:var(--ok)} #v-exe li.info i{color:var(--prim)} #v-exe li.avviso{border-color:var(--ambra)} #v-exe li.avviso i{color:var(--ambra)}
+#v-exe li.errore{border-color:var(--ruggine)} #v-exe li.errore i{color:var(--ruggine)} #v-exe li.corso i{color:var(--prim);animation:apkPulsa 1.2s infinite}
+#v-exe .build{margin-top:10px;background:var(--carta);border:1px solid var(--linea);border-radius:6px;padding:10px;display:grid;gap:8px}
+#v-exe .build .testa{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+#v-exe .build .tempo{margin-left:auto;font:12px var(--mono);color:var(--tenue)}
+#v-exe .chip{font:12px var(--mono);padding:2px 9px;border-radius:99px;border:1px solid var(--linea);color:var(--tenue)}
+#v-exe .passiBuild{display:grid;gap:2px;font:12px/1.5 var(--mono)}
+#v-exe .passiBuild div{display:flex;gap:8px;color:var(--tenue)}
+#v-exe .passiBuild div i{font-style:normal;width:14px;text-align:center;flex:none}
+#v-exe .passiBuild div span:last-child{margin-left:auto}
+#v-exe .passiBuild .ok i{color:var(--ok)} #v-exe .passiBuild .corso{color:var(--inchiostro);font-weight:700} #v-exe .passiBuild .corso i{color:var(--prim);animation:apkPulsa 1.2s infinite} #v-exe .passiBuild .errore{color:var(--ruggine)}
+#v-exe progress{width:100%;height:10px}
+#v-exe .esito-exe{margin-top:10px;border:2px solid var(--ok);border-radius:6px;padding:12px;display:grid;gap:8px;background:rgba(57,255,136,.06)}
+#v-exe .esito-exe>b{color:var(--ok);font:700 16px var(--mono)}
+#v-exe button.verde{min-height:52px;font-size:16px;background:var(--ok);border-color:var(--ok);color:#05050c;box-shadow:0 0 14px rgba(57,255,136,.4)}
+#v-exe .errbox{margin-top:10px;border:1.5px solid var(--ruggine);border-radius:6px;padding:10px;display:grid;gap:8px;background:rgba(255,77,109,.06)}
+#v-exe .errbox>b{color:var(--ruggine)}
+#v-exe pre.log{margin:0;background:#05050c;border:1px solid var(--linea);border-radius:6px;padding:8px;font:11px/1.55 var(--mono);max-height:300px;overflow:auto;white-space:pre-wrap;overflow-wrap:anywhere}
+#v-exe .file-exe{font:12.5px/1.6 var(--mono);color:var(--tenue);max-height:180px;overflow:auto;border:1px solid var(--linea);border-radius:6px;padding:6px 10px;background:var(--carta);margin:8px 0;white-space:pre}
+#v-exe .file-exe .avvio{color:var(--prim);font-weight:700}
+#v-exe textarea{font:13px/1.5 var(--mono)}
+@keyframes sfarfallio{0%,92%,100%{opacity:1}93%{opacity:.55}94%{opacity:1}96%{opacity:.7}97%{opacity:1}}
+</style>
 </head>
 <body>
 <header>
-  <div class="tit"><h1>Pubblica</h1><p>GitHub dal browser e app Android da Python o HTML · by Lollo ®2026</p></div>
+  <button id="btn-config" type="button" class="ico-testa" aria-label="Impostazioni" title="Impostazioni">⚙</button>
+  <div class="tit"><h1>Pubblica</h1><p>GitHub · APK · by Lollo ®2026</p></div>
   <button id="btn-menu" type="button" hidden>← Menu</button>
 </header>
 <div class="barra-app" role="region" aria-label="Versione e aggiornamenti dell'app">
@@ -209,19 +287,104 @@ footer{text-align:center;color:var(--tenue);font-size:12.5px;padding:10px}
     <div id="avviso-menu"></div>
     <div class="menu">
       <button type="button" class="voce princ" data-vai="pubblica"><span class="ico">🚀</span><span><b>Pubblica su GitHub</b><small>Scegli lo ZIP: il resto è nelle impostazioni</small></span></button>
-      <button type="button" class="voce princ" data-vai="apk"><span class="ico">📱</span><span><b>Crea APK (Python o HTML)</b><small id="apk-menu-stato">Script .py, progetto ZIP o app HTML → app Android</small></span></button>
-      <button type="button" class="voce princ" id="voce-kivy"><span class="ico">🐍</span><span><b>Crea APK con Kivy</b><small>App Kivy già pronta: compila direttamente con Buildozer, senza console</small></span></button>
-      <a id="voce-apri" class="btn voce" target="_blank" rel="noopener" href="https://github.com/" data-url="https://github.com/" data-testo="Apri repository"><span class="ico">🌐</span><span><b class="etichetta">Apri repository</b><small>Su GitHub. Dopo una pubblicazione si attiva in 60 secondi; se vedi la versione vecchia, ricarica la pagina</small></span></a>
+      <button type="button" class="voce princ gruppo" data-vai="g-compila"><span class="ico">🛠️</span><span><b>Compila</b><small>APK da Python o HTML · APK con Kivy · EXE per Windows</small></span></button>
+      <button type="button" class="voce gruppo" data-vai="g-sito"><span class="ico">🌐</span><span><b>Sito e PWA</b><small>Apri il sito · Rendi installabile · Controlla e ripara · Collegamenti</small></span></button>
+      <button type="button" class="voce gruppo" data-vai="g-repo"><span class="ico">🗂️</span><span><b>Repository</b><small>Apri su GitHub · Crea · Svuota · Elimina · Termux</small></span></button>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== SOTTOMENU: 🛠️ COMPILA ===================== -->
+<section id="v-g-compila" class="vista" hidden>
+  <div class="card">
+    <div class="sotto-tit"><h2>🛠️ Compila</h2><span class="proj">Progetto: <b class="nome-attivo"></b></span></div>
+    <p class="nota">Trasforma il progetto in un'app da installare. Si compila su GitHub: il telefono non fa fatica.</p>
+    <div class="menu">
+      <button type="button" class="voce princ" data-vai="apk"><span class="ico">📱</span><span><b>APK da Python o HTML</b><small id="apk-menu-stato">Script .py, progetto ZIP o app HTML → app Android</small></span></button>
+      <button type="button" class="voce princ" id="voce-kivy"><span class="ico">🐍</span><span><b>APK con Kivy</b><small>App Kivy già pronta: compila direttamente con Buildozer, senza console</small></span></button>
+      <button type="button" class="voce princ" id="voce-exe" data-vai="exe"><span class="ico">🪟</span><span><b>EXE per Windows</b><small>Script .py o progetto ZIP → programma .exe, compilato su GitHub</small></span></button>
+    </div>
+  </div>
+</section>
+<!-- ===================== SOTTOMENU: 🌐 SITO E PWA ===================== -->
+<section id="v-g-sito" class="vista" hidden>
+  <div class="card">
+    <div class="sotto-tit"><h2>🌐 Sito e PWA</h2><span class="proj">Progetto: <b class="nome-attivo"></b></span></div>
+    <p class="nota">La pagina online del progetto (GitHub Pages) e l'installazione come app.</p>
+    <div class="menu">
       <a id="voce-sito" class="btn voce" target="_blank" rel="noopener" data-testo="Apri il sito (HTML)"><span class="ico">🗺️</span><span><b class="etichetta">Apri il sito (HTML)</b><small id="voce-sito-nota">La pagina online del progetto: da lì «Installa app»</small></span></a>
       <button type="button" class="voce" id="voce-pwa"><span class="ico">📲</span><span><b>Rendi il sito installabile</b><small id="voce-pwa-nota">Controlla e aggiunge ciò che serve a Chrome per «Installa app»</small></span></button>
       <button type="button" class="voce" data-vai="diagnosi"><span class="ico">🩺</span><span><b>Controlla e ripara</b><small>Analizza pubblicazione, avvio, PWA e file mancanti</small></span></button>
       <button type="button" class="voce" data-vai="link"><span class="ico">🔗</span><span><b>Collegamenti</b><small>Apri il sito e scarica lo ZIP</small></span></button>
-      <button type="button" class="voce" data-vai="installa"><span class="ico">💻</span><span><b>Installa in Termux</b><small>Un comando per scaricare i tuoi repository nel terminale</small></span></button>
+    </div>
+  </div>
+</section>
+<!-- ===================== SOTTOMENU: 🗂️ REPOSITORY ===================== -->
+<section id="v-g-repo" class="vista" hidden>
+  <div class="card">
+    <div class="sotto-tit"><h2>🗂️ Repository</h2><span class="proj">Progetto: <b class="nome-attivo"></b></span></div>
+    <p class="nota">Gestione dei repository su GitHub e copia in Termux.</p>
+    <div class="menu">
+      <a id="voce-apri" class="btn voce" target="_blank" rel="noopener" href="https://github.com/" data-url="https://github.com/" data-testo="Apri repository"><span class="ico">🌐</span><span><b class="etichetta">Apri repository</b><small>Su GitHub. Dopo una pubblicazione si attiva in 60 secondi; se vedi la versione vecchia, ricarica la pagina</small></span></a>
       <button type="button" class="voce" data-vai="crea"><span class="ico">➕</span><span><b>Crea un repository</b><small>Nome e conferma, il resto è automatico</small></span></button>
       <button type="button" class="voce" data-vai="svuota"><span class="ico">🧹</span><span><b>Svuota un repository</b><small>Cancella i file, tiene la cronologia</small></span></button>
+      <button type="button" class="voce" data-vai="installa"><span class="ico">💻</span><span><b>Installa in Termux</b><small>Un comando per scaricare i tuoi repository nel terminale</small></span></button>
       <button type="button" class="voce rosso" data-vai="elimina"><span class="ico">🗑️</span><span><b>Elimina un repository</b><small>Definitivo, serve conferma scritta</small></span></button>
-      <button type="button" class="voce" data-vai="config"><span class="ico">⚙️</span><span><b>Impostazioni</b><small>Token, repository, regole di pubblicazione</small></span></button>
     </div>
+  </div>
+</section>
+<!-- ===================== EXE PER WINDOWS ===================== -->
+<section id="v-exe" class="vista" hidden>
+  <div class="card">
+    <h2>🪟 1 · Il programma</h2>
+    <p class="nota">Da uno script Python a un programma <code>.exe</code> per Windows. Compila GitHub con PyInstaller su una macchina Windows: il telefono invia solo i file.</p>
+    <div class="riga">
+      <button type="button" id="exe-btn-py" class="primario">Carica file .py</button>
+      <button type="button" id="exe-btn-zip">Carica progetto ZIP</button>
+    </div>
+    <input type="file" id="exe-in-py" accept=".py,.pyw,text/x-python,text/plain" hidden>
+    <input type="file" id="exe-in-zip" accept=".zip,application/zip" hidden>
+    <div id="exe-progetto"></div>
+  </div>
+  <div class="card">
+    <h2>2 · Opzioni</h2>
+    <label for="exe-nome">Nome del programma</label>
+    <input id="exe-nome" type="text" autocomplete="off" spellcheck="false" placeholder="MioProgramma">
+    <label for="exe-versione">Versione</label>
+    <input id="exe-versione" type="text" inputmode="decimal" autocomplete="off" value="1.0">
+    <p class="nota">Se ricompili con il programma cambiato, sale da sola (1.0 → 1.1).</p>
+    <label for="exe-tipo">Tipo di programma</label>
+    <select id="exe-tipo">
+      <option value="console">Con console (testo: print e input)</option>
+      <option value="finestra">Solo finestra (tkinter, PyQt, pygame…)</option>
+    </select>
+    <p class="nota" id="exe-tipo-nota"></p>
+    <label class="chk"><input type="checkbox" id="exe-unfile" checked> <span><b>Un solo file .exe</b>: comodo da copiare, parte qualche secondo più lento. Senza spunta ottieni uno ZIP con la cartella del programma.</span></label>
+    <label for="exe-librerie">Librerie da installare (pip, una per riga)</label>
+    <textarea id="exe-librerie" rows="3" spellcheck="false" placeholder="requests&#10;pillow"></textarea>
+    <p class="nota" id="exe-librerie-nota"></p>
+    <label for="exe-btn-icona">Icona (facoltativa: PNG o ICO)</label>
+    <div class="riga"><button type="button" id="exe-btn-icona">Scegli icona…</button><span id="exe-icona-nome" class="nota">Automatica: iniziali del nome</span></div>
+    <input type="file" id="exe-icona-in" accept=".png,.ico,image/png,image/x-icon" hidden>
+  </div>
+  <div class="card">
+    <h2>3 · Compila su GitHub</h2>
+    <label for="exe-repo">Repository dedicato</label>
+    <input id="exe-repo" type="text" autocomplete="off" spellcheck="false" placeholder="utente/nome-exe">
+    <p class="nota">Se non esiste viene creato. Usane uno solo per questo programma.</p>
+    <label for="exe-vis">Se va creato, il repository sarà</label>
+    <select id="exe-vis">
+      <option value="pubblico">Pubblico (download diretto dell'EXE)</option>
+      <option value="privato">Privato</option>
+    </select>
+    <div class="riga" style="margin-top:12px">
+      <button type="button" id="exe-vai" class="primario">🚀 Pubblica e compila EXE</button>
+      <button type="button" id="exe-ricompila">Ricompila senza modifiche</button>
+      <button type="button" id="exe-ferma" class="pericolo sempre" hidden>Ferma</button>
+    </div>
+    <ul id="exe-passi" class="passi" aria-live="polite"></ul>
+    <div id="exe-build"></div>
+    <div id="exe-risultato" aria-live="polite"></div>
   </div>
 </section>
 
@@ -668,7 +831,7 @@ pip install --upgrade buildozer "cython==0.29.33" setuptools</pre></li>
       <h3>🔑 Non hai ancora il token? Chiedilo a GitHub</h3>
       <p class="nota">Il token è una «password per le app»: serve a Pubblica per scrivere sui tuoi repository al posto tuo. Scegli cosa vuoi fare e premi il pulsante: GitHub si apre già compilato.</p>
       <label class="chk"><input type="checkbox" id="tk-pubblica" checked disabled> <span><b>Pubblicare e leggere i repository</b> (sempre incluso)</span></label>
-      <label class="chk"><input type="checkbox" id="tk-apk" checked> <span><b>Compilare APK</b> con Crea APK (serve per i file dei workflow)</span></label>
+      <label class="chk"><input type="checkbox" id="tk-apk" checked> <span><b>Compilare APK ed EXE</b> (serve per i file dei workflow)</span></label>
       <label class="chk"><input type="checkbox" id="tk-crea"> <span><b>Creare ed eliminare repository</b> da qui (permesso più potente: attivalo solo se serve)</span></label>
       <div class="riga" style="margin-top:8px">
         <a id="tk-classico" class="btn primario" target="_blank" rel="noopener">🔑 Chiedi il token a GitHub</a>
@@ -2226,17 +2389,25 @@ $('#tk-controlla').addEventListener('click', async () => {
 });
 
 /* ---------- viste e menu ---------- */
-const VISTE = ['menu', 'pubblica', 'link', 'diagnosi', 'installa', 'crea', 'svuota', 'elimina', 'config', 'apk'];
+const VISTE = ['menu', 'g-compila', 'g-sito', 'g-repo', 'pubblica', 'link', 'diagnosi', 'installa', 'crea', 'svuota', 'elimina', 'config', 'apk', 'exe'];
+// Da quale sottomenu si arriva a ogni schermata: il pulsante in alto riporta lì.
+const PADRE = { apk: 'g-compila', exe: 'g-compila', diagnosi: 'g-sito', link: 'g-sito', crea: 'g-repo', svuota: 'g-repo', elimina: 'g-repo', installa: 'g-repo' };
+const NOME_VISTA = { menu: 'Menu', 'g-compila': 'Compila', 'g-sito': 'Sito', 'g-repo': 'Repository' };
+let VISTA_ORA = 'menu';
 function vai(nome) {
   if (S.occupato) return;
   for (const v of VISTE) $('#v-' + v).hidden = v !== nome;
+  VISTA_ORA = nome;
   $('#btn-menu').hidden = nome === 'menu';
+  $('#btn-menu').textContent = '← ' + NOME_VISTA[PADRE[nome] || 'menu'];
+  $('#btn-config').classList.toggle('attivo', nome === 'config');
   aggiornaTutto();
   if (nome === 'pubblica') applicaCambi();
   if (nome === 'config') rendiConfig();
   if (nome === 'link') mostraLink();
   if (nome === 'installa') rendiInstalla();
   if (nome === 'apk' && window.creaApk) window.creaApk.mostrata(window.__modoKivy === true);
+  if (nome === 'exe' && window.creaExe) window.creaExe.mostrata();
   if (nome === 'crea') $('#riep-crea').textContent = `Il repository sarà ${CFG.nuoviVis === 'privata' ? 'privato' : 'pubblico'}${CFG.nuoviVis === 'pubblica' && CFG.nuoviPages ? ' con GitHub Pages attivo' : ''}, con un README iniziale. Si cambia in Impostazioni.`;
   window.scrollTo(0, 0);
 }
@@ -2255,12 +2426,13 @@ function aggiornaTutto() {
   aggiornaApri();
   aggiornaSito();
   pulisci('#avviso-menu');
-  if (!CFG.repo.length) msg('#avviso-menu', 'avv', 'Nessun repository: aggiungine uno in Impostazioni.');
-  if (!TOKEN) msg('#avviso-menu', 'avv', 'Manca il token GitHub: inseriscilo in Impostazioni → Accesso (serve una volta sola).');
+  if (!CFG.repo.length) msg('#avviso-menu', 'avv', 'Nessun repository: aggiungine uno in ⚙ Impostazioni (in alto a sinistra).');
+  if (!TOKEN) msg('#avviso-menu', 'avv', 'Manca il token GitHub: inseriscilo in ⚙ Impostazioni (in alto a sinistra) → Accesso. Serve una volta sola.');
 }
 document.querySelectorAll('[data-vai]').forEach((b) => b.addEventListener('click', () => vai(b.dataset.vai)));
 $('#voce-kivy').addEventListener('click', () => { window.__modoKivy = true; vai('apk'); window.__modoKivy = false; });
-$('#btn-menu').addEventListener('click', () => vai('menu'));
+$('#btn-menu').addEventListener('click', () => vai(PADRE[VISTA_ORA] || 'menu'));
+$('#btn-config').addEventListener('click', () => vai('config'));
 $('#sel-attivo').addEventListener('change', () => { if (S.occupato) return; CFG.attivo = $('#sel-attivo').value; salvaCfg(); aggiornaTutto(); });
 
 async function mostraLink() {
@@ -2511,6 +2683,596 @@ avviaPWA();
 aggiornaTutto();
 vai(TOKEN ? 'menu' : 'config');
 if (!TOKEN) msg('#esito-token', 'inf', 'Per iniziare incolla il tuo token GitHub: serve una volta sola.');
+</script>
+<script>
+/* ===================== 🪟 EXE per Windows (dentro Pubblica) · by Lollo ®2026 =====================
+   Script .py o progetto ZIP → repository GitHub dedicato → GitHub Actions su Windows con PyInstaller
+   → l'EXE finisce nelle Releases e si scarica da qui. Usa gh(), TOKEN e CFG di Pubblica. */
+(() => {
+'use strict';
+const g = (id) => document.getElementById(id);
+const WF = '.github/workflows/build-exe.yml';
+const SCRIPT = "\"\"\"Compila il programma Python in EXE con PyInstaller. Lo usa il workflow «Build EXE».\nLe scelte (nome, versione, file di avvio, console…) stanno in exe.json. Generato da Pubblica · by Lollo ®2026\"\"\"\nimport json, os, shutil, sys\nimport PyInstaller.__main__\n\nos.chdir(os.path.dirname(os.path.abspath(__file__)))\nc = json.load(open(\"exe.json\", encoding=\"utf-8\"))\nnome = c[\"nome\"]\nversione = str(c.get(\"versione\", \"1.0\"))\ncartella = os.path.abspath(\"progetto\")\navvio = os.path.abspath(c[\"avvio\"])\nif not os.path.isfile(avvio):\n    sys.exit(\"File di avvio non trovato: \" + c[\"avvio\"])\n\narg = [avvio, \"--name\", nome, \"--noconfirm\", \"--clean\",\n       \"--distpath\", \"dist\", \"--workpath\", \"build\", \"--specpath\", \"build\",\n       \"--paths\", os.path.dirname(avvio), \"--paths\", cartella]\narg.append(\"--onefile\" if c.get(\"unFile\", True) else \"--onedir\")\narg.append(\"--console\" if c.get(\"console\", True) else \"--windowed\")\nicona = c.get(\"icona\")\nif icona and os.path.isfile(icona):\n    arg += [\"--icon\", os.path.abspath(icona)]   # PNG: PyInstaller lo converte in .ico grazie a Pillow\nfor f in c.get(\"dati\", []):                     # immagini, json, testi del progetto: dentro l'EXE, stesse cartelle\n    if os.path.isfile(f):\n        dest = os.path.relpath(os.path.dirname(os.path.abspath(f)), cartella)\n        arg += [\"--add-data\", os.path.abspath(f) + os.pathsep + dest]\nfor m in c.get(\"nascosti\", []):\n    arg += [\"--hidden-import\", m]\nprint(\"PyInstaller \" + \" \".join(arg), flush=True)\nPyInstaller.__main__.run(arg)\n\nos.makedirs(\"uscita\", exist_ok=True)\nest = \".exe\" if os.name == \"nt\" else \"\"\nif c.get(\"unFile\", True):\n    finale = os.path.join(\"uscita\", nome + \"-\" + versione + est)\n    shutil.copy2(os.path.join(\"dist\", nome + est), finale)\nelse:\n    finale = shutil.make_archive(os.path.join(\"uscita\", nome + \"-\" + versione + \"-windows\"), \"zip\", os.path.join(\"dist\", nome))\nprint(\"Pronto: \" + finale + \" (\" + str(os.path.getsize(finale)) + \" byte)\")\n";
+const WORKFLOW = "# Compila l'EXE per Windows a ogni invio (o a mano: Actions → Build EXE → Run workflow)\n# e lo pubblica nelle Releases del repository. Generato da Pubblica · by Lollo ®2026\nname: Build EXE\n\non:\n  push:\n    paths-ignore:\n      - \"README.md\"\n  workflow_dispatch:\n\npermissions:\n  contents: write\n\n# Un nuovo invio annulla la compilazione precedente ancora in corso\nconcurrency:\n  group: build-exe-${{ github.ref }}\n  cancel-in-progress: true\n\njobs:\n  build:\n    runs-on: windows-latest\n    timeout-minutes: 45\n    steps:\n      - name: Scarica il codice\n        uses: actions/checkout@v4\n\n      - name: Python 3.12\n        uses: actions/setup-python@v5\n        with:\n          python-version: \"3.12\"\n\n      - name: PyInstaller e librerie\n        run: |\n          python -m pip install --upgrade pip\n          pip install \"pyinstaller>=6.10,<7\" pillow\n          pip install -r requirements.txt\n\n      - name: Compila EXE\n        run: python crea_exe.py\n\n      - name: Controllo del risultato\n        run: Get-ChildItem uscita | Format-Table Name, Length\n\n      - name: Salva tra gli artifact\n        uses: actions/upload-artifact@v4\n        with:\n          name: exe\n          path: uscita/*\n          if-no-files-found: error\n\n      - name: Pubblica nelle Releases\n        uses: softprops/action-gh-release@v2\n        with:\n          tag_name: exe-${{ github.run_number }}\n          name: EXE build ${{ github.run_number }}\n          body: Compilato automaticamente dal commit ${{ github.sha }}\n          files: uscita/*\n";
+const STDLIB = new Set("abc antigravity argparse array ast asyncio atexit base64 bdb binascii bisect builtins bz2 cProfile calendar cmath cmd code codecs codeop collections colorsys compileall concurrent configparser contextlib contextvars copy copyreg csv ctypes curses dataclasses datetime dbm decimal difflib dis doctest email encodings ensurepip enum errno faulthandler fcntl filecmp fileinput fnmatch fractions ftplib functools gc genericpath getopt getpass gettext glob graphlib grp gzip hashlib heapq hmac html http idlelib imaplib importlib inspect io ipaddress itertools json keyword linecache locale logging lzma mailbox marshal math mimetypes mmap modulefinder msvcrt multiprocessing netrc nt ntpath nturl2path numbers opcode operator optparse os pathlib pdb pickle pickletools pkgutil platform plistlib poplib posix posixpath pprint profile pstats pty pwd py_compile pyclbr pydoc pydoc_data pyexpat queue quopri random re readline reprlib resource rlcompleter runpy sched secrets select selectors shelve shlex shutil signal site smtplib socket socketserver sqlite3 sre_compile sre_constants sre_parse ssl stat statistics string stringprep struct subprocess symtable sys sysconfig syslog tabnanny tarfile tempfile termios textwrap this threading time timeit tkinter token tokenize tomllib trace traceback tracemalloc tty turtle turtledemo types typing unicodedata unittest urllib uuid venv warnings wave weakref webbrowser winreg winsound wsgiref xml xmlrpc zipapp zipfile zipimport zlib zoneinfo".split(' '));
+// nome usato in «import» → nome del pacchetto da installare con pip
+const PIP = { PIL: 'pillow', cv2: 'opencv-python', yaml: 'pyyaml', bs4: 'beautifulsoup4', sklearn: 'scikit-learn',
+  skimage: 'scikit-image', serial: 'pyserial', dateutil: 'python-dateutil', dotenv: 'python-dotenv', Crypto: 'pycryptodome',
+  docx: 'python-docx', pptx: 'python-pptx', fitz: 'pymupdf', usb: 'pyusb', win32api: 'pywin32', win32con: 'pywin32',
+  win32gui: 'pywin32', win32com: 'pywin32', pythoncom: 'pywin32', pywintypes: 'pywin32', wx: 'wxPython', OpenGL: 'PyOpenGL',
+  telegram: 'python-telegram-bot', jwt: 'PyJWT', attr: 'attrs', websocket: 'websocket-client', zmq: 'pyzmq', nacl: 'PyNaCl',
+  github: 'PyGithub', discord: 'discord.py', Levenshtein: 'python-Levenshtein', magic: 'python-magic', mutagen: 'mutagen',
+  pydub: 'pydub', gtts: 'gTTS', speech_recognition: 'SpeechRecognition', pyttsx3: 'pyttsx3', googletrans: 'googletrans',
+  openpyxl: 'openpyxl', xlrd: 'xlrd', reportlab: 'reportlab', qrcode: 'qrcode', ttkbootstrap: 'ttkbootstrap',
+  customtkinter: 'customtkinter', PyQt5: 'PyQt5', PyQt6: 'PyQt6', PySide6: 'PySide6', pygame: 'pygame' };
+// moduli che aprono una finestra: il programma parte senza console nera
+const GRAFICI = new Set(['tkinter', 'PyQt5', 'PyQt6', 'PySide2', 'PySide6', 'wx', 'pygame', 'kivy', 'customtkinter',
+  'ttkbootstrap', 'flet', 'pyglet', 'arcade', 'dearpygui', 'PySimpleGUI', 'eel', 'webview']);
+// solo Android/Termux: su Windows non esistono
+const SOLO_ANDROID = new Set(['android', 'jnius', 'androidhelper', 'termux']);
+const SCARTA = /(^|\/)(\.git|__pycache__|__MACOSX|\.buildozer|venv|\.venv|build|dist|uscita|node_modules)(\/|$)|(^|\/)(\.DS_Store|Thumbs\.db)$|\.(pyc|pyo|exe|apk|aab)$/i;
+const NON_DATI = /(^|\/)(README(\.md|\.txt)?|LEGGIMI\.md|requirements\.txt|LICENSE(\.md)?|\.gitignore)$/i;
+const ENC = new TextEncoder(), DEC = new TextDecoder('utf-8');
+
+const EX = { file: [], avvio: '', origine: '', icona: null, nomeToccato: false, repoToccato: false, libToccate: false,
+  tipoToccato: false, gen: 0, runId: 0, repo: '', privato: false, orologio: null, inizio: 0, fine: 0, stima: 0, passi: [], login: '' };
+
+/* ---------- memoria (dentro try: può non essere disponibile) ---------- */
+const leggi = (k) => { try { return localStorage.getItem('pubblica.exe.' + k); } catch { return null; } };
+const salva = (k, v) => { try { localStorage.setItem('pubblica.exe.' + k, v); } catch { /* niente */ } };
+const togli = (k) => { try { localStorage.removeItem('pubblica.exe.' + k); } catch { /* niente */ } };
+
+/* ---------- utilità ---------- */
+const attendi = (ms) => new Promise((ok) => setTimeout(ok, ms));
+const mmss = (ms) => { const s = Math.max(0, Math.round(ms / 1000)); return Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0'); };
+const kb = (n) => n < 1024 ? n + ' byte' : n < 1048576 ? (n / 1024).toFixed(0) + ' KB' : (n / 1048576).toFixed(1) + ' MB';
+function nomeSicuro(s) {
+  const t = String(s || '').normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/\.pyw?$/i, '')
+    .replace(/[\s.]+/g, '-').replace(/[^A-Za-z0-9_-]/g, '').replace(/-+/g, '-').replace(/^[-_]+|[-_]+$/g, '').slice(0, 40);
+  return t || 'Programma';
+}
+const slug = (s) => nomeSicuro(s).toLowerCase().replace(/_/g, '-');
+function confrontaVer(a, b) {
+  const x = String(a).split('.').map(Number), y = String(b).split('.').map(Number);
+  for (let i = 0; i < Math.max(x.length, y.length); i++) { const d = (x[i] || 0) - (y[i] || 0); if (d) return d; }
+  return 0;
+}
+function incrementaVer(v) { const p = String(v).split('.').map(Number); p[p.length - 1]++; return p.join('.'); }
+async function shaGit(u8) {          // stesso hash di git: i file uguali non si reinviano
+  const testa = ENC.encode('blob ' + u8.length + '\0'), tutto = new Uint8Array(testa.length + u8.length);
+  tutto.set(testa); tutto.set(u8, testa.length);
+  return [...new Uint8Array(await crypto.subtle.digest('SHA-1', tutto))].map((b) => b.toString(16).padStart(2, '0')).join('');
+}
+
+/* ---------- passi e messaggi ---------- */
+const ICONE = { ok: '✓', info: 'i', avviso: '!', errore: '✗', corso: '●' };
+function aggiorna(li, tipo, testo, link) {
+  li.className = tipo; li.replaceChildren();
+  const i = document.createElement('i'); i.textContent = ICONE[tipo] || '•';
+  const s = document.createElement('span'); s.textContent = testo;
+  if (link) { const a = Object.assign(document.createElement('a'), { href: link.url, target: '_blank', rel: 'noopener', textContent: ' ' + link.testo }); s.append(a); }
+  li.append(i, s);
+}
+function passo(testo, tipo = 'corso', link) { const li = document.createElement('li'); aggiorna(li, tipo, testo, link); g('exe-passi').append(li); return li; }
+
+/* ---------- 1 · caricamento del programma ---------- */
+function candidatoAvvio(file) {
+  const py = file.filter((f) => /\.pyw?$/i.test(f.percorso));
+  const prima = (n) => py.find((f) => f.percorso.toLowerCase() === n);
+  return (prima('main.py') || prima('__main__.py') || prima('app.py')
+    || py.find((f) => !f.percorso.includes('/') && /if\s+__name__\s*==\s*['"]__main__['"]/.test(DEC.decode(f.u8)))
+    || py.find((f) => !f.percorso.includes('/')) || py[0] || {}).percorso || '';
+}
+async function caricaPy(f) {
+  const u8 = new Uint8Array(await f.arrayBuffer());
+  const nome = f.name.replace(/[^\w.\- ]/g, '_') || 'main.py';
+  impostaProgetto([{ percorso: nome, u8 }], f.name, null);
+}
+async function caricaZip(f) {
+  let zip; try { zip = await JSZip.loadAsync(f); } catch { throw new Error('Archivio ZIP non leggibile.'); }
+  let voci = [];
+  for (const [nome, z] of Object.entries(zip.files)) {
+    if (z.dir) continue;
+    const orig = z.unsafeOriginalName || nome;
+    if (orig.split('/').includes('..') || orig.startsWith('/')) throw new Error('Lo ZIP contiene percorsi non sicuri: ' + orig);
+    if (SCARTA.test(nome)) continue;
+    voci.push({ percorso: nome, z });
+  }
+  // una sola cartella esterna (progetto.zip → progetto/…): si toglie
+  const radici = new Set(voci.map((v) => v.percorso.split('/')[0]));
+  let cartella = '';
+  if (radici.size === 1 && voci.every((v) => v.percorso.includes('/'))) {
+    cartella = [...radici][0]; voci.forEach((v) => { v.percorso = v.percorso.slice(cartella.length + 1); });
+  }
+  if (!voci.some((v) => /\.pyw?$/i.test(v.percorso))) throw new Error('Nello ZIP non c\'è nessun file .py.');
+  if (voci.length > 1500) throw new Error('Troppi file nello ZIP (' + voci.length + '): togli le cartelle che non servono.');
+  const file = [];
+  let tot = 0;
+  for (const v of voci) { const u8 = await v.z.async('uint8array'); tot += u8.length; file.push({ percorso: v.percorso, u8 }); }
+  if (tot > 60 * 1048576) throw new Error('Il progetto pesa ' + kb(tot) + ': troppo per inviarlo da qui (massimo 60 MB).');
+  const req = file.find((x) => x.percorso.toLowerCase() === 'requirements.txt');
+  impostaProgetto(file, f.name, req ? DEC.decode(req.u8) : null, cartella);
+}
+function impostaProgetto(file, origine, requisiti, cartella) {
+  EX.file = file.sort((a, b) => a.percorso.localeCompare(b.percorso)); EX.origine = origine;
+  EX.avvio = candidatoAvvio(EX.file);
+  // il nome viene dalla cartella del progetto dentro lo ZIP (gli ZIP scaricati si chiamano spesso «progetto (1).zip»)
+  if (!EX.nomeToccato) g('exe-nome').value = nomeSicuro(file.length === 1 ? EX.avvio : cartella || origine.replace(/\.zip$/i, ''));
+  if (requisiti != null && !EX.libToccate) { g('exe-librerie').value = requisiti.replace(/\r/g, '').trim(); EX.libToccate = true; }
+  analizza();
+  proponiRepo();
+  disegnaProgetto();
+}
+function disegnaProgetto() {
+  const box = g('exe-progetto'); box.replaceChildren();
+  if (!EX.file.length) { box.append(Object.assign(document.createElement('p'), { className: 'nota', textContent: 'Nessun programma caricato.' })); return; }
+  const py = EX.file.filter((f) => /\.pyw?$/i.test(f.percorso));
+  const tot = EX.file.reduce((s, f) => s + f.u8.length, 0);
+  box.append(Object.assign(document.createElement('p'), { className: 'nota', textContent: `${EX.origine} · ${EX.file.length} file · ${kb(tot)}` }));
+  if (py.length > 1) {
+    const lab = Object.assign(document.createElement('label'), { textContent: 'File da avviare' }); lab.htmlFor = 'exe-avvio';
+    const sel = Object.assign(document.createElement('select'), { id: 'exe-avvio' });
+    for (const f of py) sel.append(new Option(f.percorso, f.percorso));
+    sel.value = EX.avvio; sel.onchange = () => { EX.avvio = sel.value; analizza(); disegnaElenco(); };
+    box.append(lab, sel);
+  }
+  const el = Object.assign(document.createElement('div'), { className: 'file-exe', id: 'exe-elenco' });
+  box.append(el); disegnaElenco();
+}
+function disegnaElenco() {
+  const el = g('exe-elenco'); if (!el) return; el.replaceChildren();
+  for (const f of EX.file.slice(0, 200)) {
+    const d = document.createElement('div'); d.textContent = (f.percorso === EX.avvio ? '▶ ' : '  ') + f.percorso;
+    if (f.percorso === EX.avvio) d.className = 'avvio'; el.append(d);
+  }
+  if (EX.file.length > 200) el.append(Object.assign(document.createElement('div'), { textContent: `… e altri ${EX.file.length - 200}` }));
+}
+
+/* ---------- librerie e tipo di programma, letti dal codice ---------- */
+function moduliImportati() {
+  const locali = new Set();
+  for (const f of EX.file) {
+    const parti = f.percorso.split('/');
+    locali.add(parti[0].replace(/\.pyw?$/i, ''));
+    if (/\.pyw?$/i.test(f.percorso)) locali.add(parti[parti.length - 1].replace(/\.pyw?$/i, ''));
+  }
+  const trovati = new Set();
+  for (const f of EX.file.filter((x) => /\.pyw?$/i.test(x.percorso))) {
+    const testo = DEC.decode(f.u8);
+    for (const m of testo.matchAll(/^[ \t]*(?:import[ \t]+([\w.]+(?:[ \t]*,[ \t]*[\w.]+)*)|from[ \t]+([\w.]+)[ \t]+import\b)/gm)) {
+      const nomi = m[1] ? m[1].split(',').map((x) => x.trim()) : [m[2]];
+      for (const n of nomi) { const top = n.split('.')[0]; if (top && !locali.has(top)) trovati.add(top); }
+    }
+  }
+  return trovati;
+}
+function analizza() {
+  const mod = moduliImportati();
+  const esterni = [...mod].filter((m) => !STDLIB.has(m) && !SOLO_ANDROID.has(m) && m !== '__future__').sort();
+  const pip = [...new Set(esterni.map((m) => PIP[m] || m))];
+  const grafico = [...mod].some((m) => GRAFICI.has(m));
+  if (!EX.tipoToccato) g('exe-tipo').value = grafico ? 'finestra' : 'console';
+  g('exe-tipo-nota').textContent = grafico ? 'Il codice apre una finestra: niente console nera.' : 'Il codice usa print/input: serve la console.';
+  if (!EX.libToccate) g('exe-librerie').value = pip.join('\n');
+  const nota = [];
+  if (pip.length) nota.push('Trovate nel codice: ' + pip.join(', ') + '.');
+  else nota.push('Nessuna libreria esterna trovata: bastano quelle di Python (tkinter compreso).');
+  const android = [...mod].filter((m) => SOLO_ANDROID.has(m));
+  if (android.length) nota.push('⚠ ' + android.join(', ') + ' esiste solo su Android: su Windows quella parte non funzionerà.');
+  g('exe-librerie-nota').textContent = nota.join(' ');
+}
+
+/* ---------- 3 · file da inviare ---------- */
+function impostazioni() {
+  const nome = nomeSicuro(g('exe-nome').value || EX.avvio);
+  let versione = g('exe-versione').value.trim(); if (!/^\d+(\.\d+){0,3}$/.test(versione)) versione = '1.0';
+  return { nome, versione, console: g('exe-tipo').value === 'console', unFile: g('exe-unfile').checked,
+    librerie: g('exe-librerie').value.split(/[\n,]+/).map((x) => x.trim()).filter((x) => x && !x.startsWith('#')) };
+}
+async function generaFile(s) {
+  const file = EX.file.map((f) => ({ path: 'progetto/' + f.percorso, u8: f.u8 }));
+  let icona = 'icona.png', iconaU8;
+  if (EX.icona) { icona = /\.ico$/i.test(EX.icona.nome) ? 'icona.ico' : 'icona.png'; iconaU8 = EX.icona.u8; }
+  else iconaU8 = daBase64(await iconaPng(lettereApp(s.nome.replace(/[-_]/g, ' ')), 256, '#0b0b1a'));
+  const dati = EX.file.filter((f) => !/\.pyw?$/i.test(f.percorso) && !NON_DATI.test(f.percorso)).map((f) => 'progetto/' + f.percorso);
+  const conf = { nome: s.nome, versione: s.versione, avvio: 'progetto/' + EX.avvio, console: s.console, unFile: s.unFile,
+    icona, dati, nascosti: [], generato: 'Pubblica · by Lollo ®2026' };
+  const readme = `# ${s.nome} ${s.versione}\n\nProgramma per Windows compilato da Python con **PyInstaller** su GitHub Actions.\n\n`
+    + `- Il codice è in \`progetto/\` (si avvia \`${EX.avvio}\`).\n- L'EXE pronto è nelle **Releases** del repository.\n`
+    + `- Le scelte (nome, console, un solo file) sono in \`exe.json\`; le librerie in \`requirements.txt\`.\n\nCreato con Pubblica · by Lollo ®2026\n`;
+  file.push(
+    { path: 'exe.json', u8: ENC.encode(JSON.stringify(conf, null, 2) + '\n') },
+    { path: 'requirements.txt', u8: ENC.encode('# Librerie installate prima della compilazione (una per riga) · Pubblica\n' + s.librerie.join('\n') + (s.librerie.length ? '\n' : '')) },
+    { path: 'crea_exe.py', u8: ENC.encode(SCRIPT) },
+    { path: WF, u8: ENC.encode(WORKFLOW) },
+    { path: icona, u8: iconaU8 },
+    { path: 'README.md', u8: ENC.encode(readme) });
+  for (const f of file) f.sha = await shaGit(f.u8);
+  return file;
+}
+
+/* ---------- GitHub ---------- */
+function proponiRepo() {
+  if (EX.repoToccato) return;
+  const u = (CFG.utente || '').trim();
+  g('exe-repo').value = u ? `${u}/${slug(g('exe-nome').value || EX.avvio)}-exe` : '';
+}
+async function collegati() {
+  if (EX.login) return EX.login;
+  EX.login = (await gh('/user')).dati.login; return EX.login;
+}
+async function preparaRepo(repo, li, puoiCreare) {
+  try {
+    const { dati } = await gh(`/repos/${repo}`);
+    if (dati.archived) throw new Error(`Il repository ${repo} è archiviato (sola lettura).`);
+    if (dati.permissions && !dati.permissions.push) throw new Error(`Il token può leggere ${repo} ma non scriverci: serve «Contents: Read and write» (token classico: «repo»).`);
+    aggiorna(li, 'ok', `Repository ${dati.full_name} (${dati.private ? 'privato' : 'pubblico'})`, { url: dati.html_url, testo: 'apri' });
+    return dati;
+  } catch (e) { if (e.status !== 404 || !puoiCreare) throw e; }
+  const [proprietario, nome] = repo.split('/');
+  const privato = g('exe-vis').value === 'privato';
+  aggiorna(li, 'corso', `Creo il repository ${repo} (${privato ? 'privato' : 'pubblico'})…`);
+  const percorso = proprietario.toLowerCase() === EX.login.toLowerCase() ? '/user/repos' : `/orgs/${proprietario}/repos`;
+  try {
+    const { dati } = await gh(percorso, { metodo: 'POST', ripeti: false,
+      corpo: { name: nome, private: privato, auto_init: true, has_wiki: false, description: 'Programma Windows (EXE) creato con Pubblica · by Lollo ®2026' } });
+    aggiorna(li, 'ok', `Repository creato: ${dati.full_name}`, { url: dati.html_url, testo: 'apri' });
+    dati.appenaCreato = true; return dati;
+  } catch (e) {
+    if (e.status === 422) throw new Error(`Esiste già un repository «${nome}» ma il token non può usarlo: cambia nome qui sopra oppure dai al token l'accesso a quel repository.`);
+    if (e.status === 403 || e.status === 404) throw new Error(`Il repository ${repo} non esiste e il token non può crearlo. Crealo tu su github.com (+ → New repository) e riprova.`);
+    throw e;
+  }
+}
+async function leggiRepo(info) {
+  const repo = info.full_name, ramo = info.default_branch || 'main';
+  let head = null;
+  for (let t = 0; t < 8 && !head; t++) {
+    try { head = (await gh(`/repos/${repo}/git/ref/heads/${rifRamo(ramo)}`)).dati.object.sha; }
+    catch (e) {
+      if (e.status !== 404 && e.status !== 409) throw e;
+      if (!info.appenaCreato && t === 0) {               // repository vuoto: serve un primo commit
+        await gh(`/repos/${repo}/contents/README.md`, { metodo: 'PUT', ripeti: false, corpo: { message: 'Primo commit', content: base64(ENC.encode('# ' + repo.split('/')[1] + '\n')) } });
+      } else await attendi(1500);                         // GitHub sta ancora preparando il repository
+    }
+  }
+  if (!head) throw new Error('GitHub non ha ancora preparato il repository: riprova tra un minuto.');
+  const commit = (await gh(`/repos/${repo}/git/commits/${head}`)).dati;
+  const albero = (await gh(`/repos/${repo}/git/trees/${commit.tree.sha}?recursive=1`)).dati;
+  if (albero.truncated) throw new Error('Il repository contiene troppi file: usane uno dedicato a questo programma.');
+  return { repo, ramo, head, treeSha: commit.tree.sha, html: info.html_url,
+    mappa: new Map(albero.tree.filter((x) => x.type === 'blob').map((x) => [x.path, x])) };
+}
+async function versioneRemota(ctx) {
+  const v = ctx.mappa.get('exe.json'); if (!v) return null;
+  try { const t = DEC.decode(daBase64((await gh(`/repos/${ctx.repo}/git/blobs/${v.sha}`)).dati.content)); const x = String(JSON.parse(t).versione || ''); return /^[\d.]+$/.test(x) ? x : null; }
+  catch { return null; }
+}
+function differenze(ctx, file) {
+  const cambiati = file.filter((f) => { const e = ctx.mappa.get(f.path); return !e || e.sha !== f.sha; });
+  const nuovi = new Set(file.map((f) => f.path));
+  // si tolgono solo i file del programma che non ci sono più (e la vecchia icona); il resto del repository resta
+  const tolti = [...ctx.mappa.keys()].filter((p) => !nuovi.has(p) && (p.startsWith('progetto/') || /^icona\.(png|ico)$/.test(p)));
+  return { cambiati, tolti };
+}
+async function invia(ctx, d, messaggio) {
+  const sha = new Map();
+  for (const f of d.cambiati) {
+    const { dati } = await gh(`/repos/${ctx.repo}/git/blobs`, { metodo: 'POST', corpo: { content: base64(f.u8), encoding: 'base64' } });
+    sha.set(f.path, dati.sha);
+  }
+  const modo = (p) => (ctx.mappa.get(p) && ctx.mappa.get(p).mode) || '100644';
+  const voci = d.cambiati.map((f) => ({ path: f.path, mode: modo(f.path), type: 'blob', sha: sha.get(f.path) }))
+    .concat(d.tolti.map((p) => ({ path: p, mode: modo(p), type: 'blob', sha: null })));
+  const albero = (await gh(`/repos/${ctx.repo}/git/trees`, { metodo: 'POST', corpo: { base_tree: ctx.treeSha, tree: voci } })).dati;
+  const commit = (await gh(`/repos/${ctx.repo}/git/commits`, { metodo: 'POST', corpo: { message: messaggio, tree: albero.sha, parents: [ctx.head] } })).dati;
+  try { await gh(`/repos/${ctx.repo}/git/refs/heads/${rifRamo(ctx.ramo)}`, { metodo: 'PATCH', ripeti: false, corpo: { sha: commit.sha, force: false } }); }
+  catch (e) {
+    if ((e.status === 403 || e.status === 404) && d.cambiati.some((f) => f.path === WF))
+      e.message = 'GitHub non accetta il file del workflow: al token manca il permesso «workflow» (token classico) o «Workflows: Read and write» (fine-grained). Crealo di nuovo da ⚙ Impostazioni → Accesso con «Compilare APK ed EXE» spuntato.';
+    throw e;
+  }
+  return commit.sha;
+}
+function registraInPubblica(repo, nome) {        // il repository compare anche nell'elenco dei progetti
+  try {
+    if (!CFG.repo.some((r) => r.id.toLowerCase() === repo.toLowerCase())) { CFG.repo.push({ id: repo, nome: (nome + ' (EXE)').slice(0, 60) }); salvaCfg(); aggiornaTutto(); }
+  } catch { /* facoltativo */ }
+}
+
+/* ---------- pulsante principale ---------- */
+async function compila(soloRicompila) {
+  if (S.occupato) return;
+  if (!TOKEN) { alert('Prima inserisci il token GitHub in ⚙ Impostazioni → Accesso.'); vai('config'); return; }
+  if (!soloRicompila && !EX.file.length) { alert('Prima carica un file .py o un progetto ZIP (punto 1).'); return; }
+  const repo = normRepo(g('exe-repo').value);
+  if (!repo) { alert('Scrivi il repository come utente/nome, per esempio ' + (CFG.utente || 'utente') + '/mio-programma-exe.'); g('exe-repo').focus(); return; }
+  fermaMonitor(); togli('build');
+  g('exe-passi').replaceChildren(); g('exe-build').replaceChildren(); g('exe-risultato').replaceChildren();
+  occupato(true);
+  let li = passo('Collegamento a GitHub…');
+  try {
+    aggiorna(li, 'ok', 'Collegato come ' + await collegati());
+    li = passo(`Repository ${repo}…`);
+    const info = await preparaRepo(repo, li, !soloRicompila);
+    EX.privato = !!info.private;
+    const t0 = Date.now();
+    for (let tentativo = 1; ; tentativo++) {
+      li = passo('Leggo cosa c\'è già su GitHub…');
+      const ctx = await leggiRepo(info);
+      const nostro = ctx.mappa.has(WF);
+      if (soloRicompila) {
+        if (!nostro) throw new Error('In questo repository non c\'è ancora il programma: usa «Pubblica e compila EXE».');
+        aggiorna(li, 'ok', 'Programma presente su GitHub');
+        await avviaAMano(ctx, t0); return;
+      }
+      const LIBERI = new Set(['README.md', 'README', 'LICENSE', 'LICENSE.md', '.gitignore', '.gitattributes']);
+      const estranei = [...ctx.mappa.keys()].filter((p) => !LIBERI.has(p));
+      if (!nostro && estranei.length && tentativo === 1
+        && !confirm(`Il repository ${ctx.repo} contiene già ${estranei.length} file non creati da qui (per esempio: ${estranei.slice(0, 3).join(', ')}).\n\nConviene un repository dedicato solo a questo programma. Continuare comunque?`))
+        throw new Error('Annullato: scrivi un repository dedicato, per esempio ' + EX.login + '/' + slug(g('exe-nome').value) + '-exe (viene creato da solo).');
+      // versione: se il programma è cambiato e non l'hai alzata tu, sale da sola (1.0 → 1.1)
+      let s = impostazioni(), nota = '';
+      const remota = await versioneRemota(ctx);
+      let file = await generaFile(s), d = differenze(ctx, file);
+      const cambiaCodice = d.tolti.length || d.cambiati.some((f) => f.path !== 'exe.json');
+      if (remota && cambiaCodice && confrontaVer(s.versione, remota) <= 0) {
+        g('exe-versione').value = incrementaVer(remota); s = impostazioni();
+        file = await generaFile(s); d = differenze(ctx, file); nota = ` · versione ${remota} → ${s.versione}`;
+      }
+      salva('versione.' + ctx.repo.toLowerCase(), s.versione);
+      if (!d.cambiati.length && !d.tolti.length) { aggiorna(li, 'ok', 'Su GitHub c\'è già esattamente questo programma: niente da inviare'); await avviaAMano(ctx, t0); return; }
+      aggiorna(li, 'ok', `Da inviare: ${d.cambiati.length} file${d.tolti.length ? `, da togliere: ${d.tolti.length}` : ''}${nota}`);
+      li = passo(`Invio ${d.cambiati.length} file in un unico commit…`);
+      try {
+        const sha = await invia(ctx, d, `EXE: ${s.nome} ${s.versione} (Pubblica)`);
+        aggiorna(li, 'ok', `Inviato (commit ${sha.slice(0, 7)})`, { url: `${ctx.html}/commit/${sha}`, testo: 'vedi' });
+        registraInPubblica(ctx.repo, s.nome);
+        occupato(false);
+        segui(ctx.repo, { sha, dopo: t0 }).catch((e) => passo(e.message, 'errore'));
+        return;
+      } catch (e) {
+        if (e.status === 422 && tentativo < 3) { aggiorna(li, 'info', 'GitHub è cambiato nel frattempo: ricalcolo e riprovo'); continue; }
+        throw e;
+      }
+    }
+  } catch (e) {
+    aggiorna(li, 'errore', e.message || String(e));
+  } finally { occupato(false); }
+}
+async function avviaAMano(ctx, t0) {
+  const li = passo('Avvio una nuova compilazione…');
+  try { await gh(`/repos/${ctx.repo}/actions/workflows/build-exe.yml/dispatches`, { metodo: 'POST', ripeti: false, corpo: { ref: ctx.ramo } }); }
+  catch (e) { if (e.status === 403 || e.status === 404) e.message = 'GitHub non permette di avviare la compilazione: al token serve «workflow» (classico) o «Actions: Read and write» (fine-grained).'; throw e; }
+  aggiorna(li, 'ok', 'Compilazione richiesta');
+  occupato(false);
+  segui(ctx.repo, { sha: ctx.head, dopo: t0, evento: 'workflow_dispatch' }).catch((e) => passo(e.message, 'errore'));
+}
+
+/* ---------- monitoraggio ---------- */
+function fermaMonitor() { EX.gen++; EX.runId = 0; clearInterval(EX.orologio); EX.orologio = null; g('exe-ferma').hidden = true; }
+function attendiOVisibile(ms) {
+  return new Promise((ok) => {
+    const fine = () => { clearTimeout(t); document.removeEventListener('visibilitychange', vis); ok(); };
+    const vis = () => { if (!document.hidden) fine(); };
+    const t = setTimeout(fine, ms); document.addEventListener('visibilitychange', vis);
+  });
+}
+async function segui(repo, filtro) {
+  fermaMonitor(); const gen = EX.gen;
+  const li = passo('Aspetto che GitHub avvii la compilazione…');
+  const linkActions = { url: `https://github.com/${repo}/actions`, testo: 'Actions' };
+  let run = null; const limite = Date.now() + 150000;
+  while (!run && Date.now() < limite) {
+    if (gen !== EX.gen) return;
+    try {
+      const q = filtro.sha ? `head_sha=${filtro.sha}&` : '';
+      const { dati } = await gh(`/repos/${repo}/actions/runs?${q}per_page=20`, { ripeti: false });
+      run = (dati.workflow_runs || []).filter((r) => /build-exe\.yml$/.test(r.path || '') || r.name === 'Build EXE')
+        .filter((r) => !filtro.dopo || Date.parse(r.created_at) >= filtro.dopo - 60000)
+        .filter((r) => !filtro.evento || r.event === filtro.evento).sort((a, b) => b.id - a.id)[0] || null;
+    } catch (e) {
+      if (e.status === 403 || e.status === 404) { aggiorna(li, 'avviso', 'Il token non può leggere le Actions: la compilazione è partita, seguila su GitHub →', linkActions); return; }
+    }
+    if (!run) await attendi(5000);
+  }
+  if (gen !== EX.gen) return;
+  if (!run) { aggiorna(li, 'avviso', 'GitHub non ha avviato la compilazione entro 2 minuti. Nel repository apri Settings → Actions → General, scegli «Allow all actions», salva e premi «Ricompila senza modifiche».', linkActions); return; }
+  aggiorna(li, 'ok', `Compilazione n. ${run.run_number} avviata`, { url: run.html_url, testo: 'apri su GitHub' });
+  salva('build', JSON.stringify({ repo, runId: run.id }));
+  await seguiRun(repo, run.id, gen);
+}
+async function stimaDurata(repo) {
+  try {
+    const { dati } = await gh(`/repos/${repo}/actions/workflows/build-exe.yml/runs?status=success&per_page=5`, { ripeti: false });
+    const d = (dati.workflow_runs || []).map((r) => Date.parse(r.updated_at) - Date.parse(r.run_started_at || r.created_at)).filter((x) => x > 30000).sort((a, b) => a - b);
+    return d.length ? d[Math.floor(d.length / 2)] : 0;
+  } catch { return 0; }
+}
+async function seguiRun(repo, runId, gen) {
+  EX.repo = repo; EX.runId = runId; EX.stima = 0; EX.inizio = 0; EX.fine = 0;
+  g('exe-ferma').hidden = false;
+  stimaDurata(repo).then((x) => { EX.stima = x; });
+  clearInterval(EX.orologio); EX.orologio = setInterval(orologio, 1000);
+  let errori = 0;
+  while (gen === EX.gen) {
+    let run, job;
+    try {
+      run = (await gh(`/repos/${repo}/actions/runs/${runId}`, { ripeti: false })).dati;
+      job = ((await gh(`/repos/${repo}/actions/runs/${runId}/jobs`, { ripeti: false })).dati.jobs || [])[0];
+      errori = 0;
+    } catch (e) {
+      if (gen !== EX.gen) return;
+      if (e.status === 404 || e.status === 401) { passo(e.message, 'errore'); fermaMonitor(); return; }
+      if (++errori === 3) passo('Connessione instabile: continuo a riprovare…', 'avviso');
+      await attendiOVisibile(20000); continue;
+    }
+    if (gen !== EX.gen) return;
+    disegnaBuild(run, job);
+    if (run.status === 'completed') { await concludi(repo, run, job, gen); return; }
+    await attendiOVisibile(run.status === 'in_progress' ? 10000 : 6000);
+  }
+}
+function disegnaBuild(run, job) {
+  EX.inizio = Date.parse(run.run_started_at || run.created_at);
+  EX.fine = run.status === 'completed' ? Date.parse(run.updated_at) : 0;
+  EX.passi = ((job && job.steps) || []).filter((s) => !/^(Set up job|Complete job|Post )/.test(s.name));
+  const stato = { queued: 'in coda', waiting: 'in attesa', pending: 'in attesa', requested: 'in coda', in_progress: 'in corso' }[run.status]
+    || ({ success: 'riuscita', failure: 'fallita', cancelled: 'fermata' }[run.conclusion] || run.conclusion || run.status);
+  const box = document.createElement('div'); box.className = 'build';
+  const testa = document.createElement('div'); testa.className = 'testa';
+  testa.append(Object.assign(document.createElement('b'), { textContent: 'Compilazione n. ' + run.run_number }),
+    Object.assign(document.createElement('span'), { className: 'chip', textContent: stato }),
+    Object.assign(document.createElement('span'), { className: 'tempo', id: 'exe-tempo' }));
+  const prog = Object.assign(document.createElement('progress'), { id: 'exe-prog', max: 1, value: 0 });
+  const elenco = document.createElement('div'); elenco.className = 'passiBuild';
+  if (!EX.passi.length) elenco.append(Object.assign(document.createElement('div'), { textContent: '○ GitHub sta preparando la macchina Windows…' }));
+  for (const s of EX.passi) {
+    const tipo = s.status === 'completed' ? (s.conclusion === 'success' ? 'ok' : s.conclusion === 'skipped' ? '' : 'errore') : s.status === 'in_progress' ? 'corso' : '';
+    const r = document.createElement('div'); r.className = tipo;
+    const dur = s.started_at ? mmss((s.completed_at ? Date.parse(s.completed_at) : Date.now()) - Date.parse(s.started_at)) : '';
+    r.append(Object.assign(document.createElement('i'), { textContent: { ok: '✓', errore: '✗', corso: '●' }[tipo] || '○' }),
+      Object.assign(document.createElement('span'), { textContent: s.name }), Object.assign(document.createElement('span'), { textContent: dur }));
+    elenco.append(r);
+  }
+  box.append(testa, prog, elenco); g('exe-build').replaceChildren(box); orologio();
+}
+function orologio() {
+  const t = g('exe-tempo'), p = g('exe-prog'); if (!t || !EX.inizio) return;
+  const trascorso = (EX.fine || Date.now()) - EX.inizio, stima = EX.stima || 4 * 60000;
+  t.textContent = mmss(trascorso) + (EX.fine ? '' : EX.stima ? ` · di solito ~${Math.max(1, Math.round(EX.stima / 60000))} min` : ' · di solito 3–6 min');
+  const fatti = EX.passi.filter((s) => s.status === 'completed').length, tot = EX.passi.length || 1;
+  p.value = EX.fine ? 1 : Math.max(Math.min(trascorso / stima, 0.97), (fatti / tot) * 0.9);
+}
+async function concludi(repo, run, job, gen) {
+  clearInterval(EX.orologio); EX.orologio = null; g('exe-ferma').hidden = true;
+  if (run.conclusion === 'success') {
+    try { navigator.vibrate && navigator.vibrate([120, 80, 120]); } catch { /* niente */ }
+    let rel = null;
+    for (let i = 0; i < 5 && !rel; i++) {
+      try { rel = (await gh(`/repos/${repo}/releases/tags/exe-${run.run_number}`, { ripeti: false })).dati; }
+      catch { if (gen !== EX.gen) return; await attendi(3000); }
+    }
+    mostraExe(repo, rel, run);
+  } else if (run.conclusion === 'cancelled') {
+    passo('Compilazione fermata. Puoi rilanciarla con «Ricompila senza modifiche».', 'avviso');
+  } else await mostraErrore(repo, run, job);
+}
+function mostraExe(repo, rel, run) {
+  const box = document.createElement('div'); box.className = 'esito-exe';
+  const file = rel ? (rel.assets || []).filter((a) => /\.(exe|zip)$/i.test(a.name)) : [];
+  if (!file.length) {
+    box.append(Object.assign(document.createElement('b'), { textContent: 'Compilazione riuscita' }),
+      Object.assign(document.createElement('span'), { className: 'nota', textContent: 'Non trovo l\'EXE nelle Releases: è comunque tra gli «Artifacts» della compilazione su GitHub.' }),
+      Object.assign(document.createElement('a'), { className: 'btn', href: run.html_url, target: '_blank', rel: 'noopener', textContent: 'Apri la compilazione su GitHub' }));
+    g('exe-risultato').replaceChildren(box); return;
+  }
+  box.append(Object.assign(document.createElement('b'), { textContent: '✓ EXE pronto' }));
+  for (const a of file) {
+    const b = Object.assign(document.createElement('button'), { type: 'button', className: 'verde', textContent: `Scarica ${/\.zip$/i.test(a.name) ? 'ZIP' : 'EXE'} · ${kb(a.size)}` });
+    b.onclick = () => scarica(repo, a, b);
+    box.append(b, Object.assign(document.createElement('span'), { className: 'nota', textContent: a.name }));
+  }
+  const pc = document.createElement('div'); pc.className = 'riga';
+  const copia = Object.assign(document.createElement('button'), { type: 'button', textContent: '🔗 Copia il link per il PC' });
+  copia.onclick = async () => { try { await navigator.clipboard.writeText(rel.html_url); copia.textContent = '✓ Link copiato'; } catch { prompt('Copia questo link e aprilo sul PC:', rel.html_url); } };
+  pc.append(copia, Object.assign(document.createElement('a'), { className: 'btn', href: rel.html_url, target: '_blank', rel: 'noopener', textContent: 'Pagina della release' }));
+  const istr = document.createElement('details');
+  istr.innerHTML = `<summary>Come si usa sul PC</summary><ol>
+    <li>Apri il link della release sul PC (o copia lì il file scaricato dal telefono).</li>
+    <li>Fai doppio clic sull'EXE. Se Windows mostra «Windows ha protetto il PC», tocca <b>Ulteriori informazioni → Esegui comunque</b>: succede con tutti i programmi non firmati.</li>
+    <li>Se all'avvio compare <code>ModuleNotFoundError</code>, aggiungi quella libreria al punto 2 e ricompila.</li>
+    <li>Nella versione «un solo file», i file di dati del progetto si trovano con <code>sys._MEIPASS</code>: <code>os.path.join(getattr(sys, "_MEIPASS", "."), "dati.json")</code>.</li></ol>`;
+  box.append(pc, istr);
+  if (EX.privato) box.append(Object.assign(document.createElement('span'), { className: 'nota', textContent: 'Repository privato: il link funziona solo dove hai fatto l\'accesso a GitHub.' }));
+  g('exe-risultato').replaceChildren(box);
+}
+async function scarica(repo, asset, btn) {
+  if (!EX.privato) { window.open(asset.browser_download_url, '_blank'); return; }   // pubblico: link diretto
+  const testo = btn.textContent; btn.disabled = true; btn.textContent = 'Scarico…';
+  try {          // privato: passo dalle API con il token
+    const r = await fetch(`https://api.github.com/repos/${repo}/releases/assets/${asset.id}`, { cache: 'no-store',
+      headers: { Accept: 'application/octet-stream', Authorization: 'Bearer ' + TOKEN } });
+    if (!r.ok) throw new Error(r.status);
+    const url = URL.createObjectURL(await r.blob());
+    const a = Object.assign(document.createElement('a'), { href: url, download: asset.name }); document.body.append(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 60000);
+  } catch { window.open(asset.browser_download_url, '_blank'); }
+  finally { btn.disabled = false; btn.textContent = testo; }
+}
+const SUGGERIMENTI = [
+  [/No matching distribution found for ([\w.\-\[\]]+)|Could not find a version that satisfies the requirement ([\w.\-\[\]]+)/i, (m) => `La libreria «${m[1] || m[2]}» non si installa su Windows: correggi il nome o toglila al punto 2.`],
+  [/File di avvio non trovato/i, () => 'Il file da avviare non c\'è nel progetto: ricaricalo e scegli il file giusto.'],
+  [/SyntaxError|IndentationError/i, () => 'C\'è un errore di scrittura nel codice Python (sintassi o rientri): correggilo e ripubblica.'],
+  [/ModuleNotFoundError: No module named '([\w.]+)'/i, (m) => `Manca il modulo «${m[1]}»: aggiungilo alle librerie al punto 2 (se è un tuo file, mettilo nello ZIP).`],
+  [/Unable to (download|fetch)|Connection (timed out|reset)|HTTP Error 5\d\d|ReadTimeout/i, () => 'Errore di rete su GitHub: premi «Ricompila senza modifiche».']
+];
+async function mostraErrore(repo, run, job) {
+  const fallito = ((job && job.steps) || []).find((s) => s.conclusion === 'failure');
+  const box = document.createElement('div'); box.className = 'errbox';
+  box.append(Object.assign(document.createElement('b'), { textContent: '✗ Compilazione non riuscita' + (fallito ? ` al passaggio «${fallito.name}»` : '') }));
+  g('exe-risultato').replaceChildren(box);
+  let log = '';
+  if (job) { try { const r = await fetch(`https://api.github.com/repos/${repo}/actions/jobs/${job.id}/logs`, { cache: 'no-store', headers: { Authorization: 'Bearer ' + TOKEN } }); if (r.ok) log = await r.text(); } catch { /* resta il link */ } }
+  if (log) {
+    const fine = log.split(/\r?\n/).map((x) => x.replace(/^\d{4}-\d\d-\d\dT[\d:.]+Z ?/, '')).filter((x) => x.trim()).slice(-60).join('\n');
+    for (const [re, f] of SUGGERIMENTI) { const m = log.match(re); if (m) { box.append(Object.assign(document.createElement('span'), { className: 'nota', textContent: 'Suggerimento: ' + f(m) })); break; } }
+    const pre = Object.assign(document.createElement('pre'), { className: 'log', textContent: fine });
+    const b = Object.assign(document.createElement('button'), { type: 'button', textContent: 'Copia il log (ultime 60 righe)' });
+    b.onclick = async () => { try { await navigator.clipboard.writeText(fine); b.textContent = '✓ Copiato: incollalo a Claude'; } catch { b.textContent = 'Copia non riuscita: seleziona il testo a mano'; } };
+    box.append(pre, b); pre.scrollTop = pre.scrollHeight;
+  } else box.append(Object.assign(document.createElement('span'), { className: 'nota', textContent: 'Apri il log su GitHub, scorri fino in fondo al passaggio con la ✗ e copia le ultime righe.' }));
+  box.append(Object.assign(document.createElement('a'), { className: 'btn', target: '_blank', rel: 'noopener', href: (job && job.html_url) || run.html_url, textContent: 'Apri il log su GitHub' }));
+}
+async function ferma() {
+  if (!EX.runId || !confirm('Fermare la compilazione in corso?')) return;
+  try { await gh(`/repos/${EX.repo}/actions/runs/${EX.runId}/cancel`, { metodo: 'POST', ripeti: false }); passo('Richiesta inviata: GitHub la ferma entro qualche secondo.', 'info'); }
+  catch (e) { passo(e.message, 'errore'); }
+}
+
+/* ---------- eventi ---------- */
+g('exe-btn-py').onclick = () => g('exe-in-py').click();
+g('exe-btn-zip').onclick = () => g('exe-in-zip').click();
+g('exe-in-py').onchange = async (e) => { const f = e.target.files[0]; e.target.value = ''; if (!f) return; try { await caricaPy(f); } catch (er) { alert(er.message); } };
+g('exe-in-zip').onchange = async (e) => { const f = e.target.files[0]; e.target.value = ''; if (!f) return; try { EX.libToccate = false; await caricaZip(f); } catch (er) { alert(er.message); } };
+g('exe-btn-icona').onclick = () => g('exe-icona-in').click();
+g('exe-icona-in').onchange = async (e) => {
+  const f = e.target.files[0]; e.target.value = ''; if (!f) return;
+  if (!/\.(png|ico)$/i.test(f.name)) { alert('Serve un\'immagine PNG o ICO.'); return; }
+  EX.icona = { nome: f.name, u8: new Uint8Array(await f.arrayBuffer()) }; g('exe-icona-nome').textContent = f.name;
+};
+g('exe-nome').oninput = () => { EX.nomeToccato = !!g('exe-nome').value.trim(); proponiRepo(); };
+g('exe-tipo').onchange = () => { EX.tipoToccato = true; };
+g('exe-librerie').oninput = () => { EX.libToccate = true; };
+g('exe-repo').oninput = () => { EX.repoToccato = !!g('exe-repo').value.trim(); };
+g('exe-repo').onblur = () => { if (!g('exe-repo').value.trim()) { EX.repoToccato = false; proponiRepo(); } };
+g('exe-repo').onchange = () => { const r = normRepo(g('exe-repo').value); if (r) { const v = leggi('versione.' + r.toLowerCase()); if (v) g('exe-versione').value = v; } };
+g('exe-unfile').onchange = () => salva('unfile', g('exe-unfile').checked ? '1' : '0');
+g('exe-vis').onchange = () => salva('vis', g('exe-vis').value);
+g('exe-vai').onclick = () => compila(false);
+g('exe-ricompila').onclick = () => compila(true);
+g('exe-ferma').onclick = ferma;
+
+/* ---------- avvio ---------- */
+if (leggi('unfile') === '0') g('exe-unfile').checked = false;
+g('exe-vis').value = leggi('vis') || (CFG.nuoviVis === 'privata' ? 'privato' : 'pubblico');
+disegnaProgetto();
+window.creaExe = {
+  mostrata() {                         // all'ingresso nella schermata: riprende una compilazione rimasta a metà
+    proponiRepo();
+    if (EX.runId || !TOKEN) return;
+    let b = null; try { b = JSON.parse(leggi('build') || 'null'); } catch { b = null; }
+    if (!b || !b.repo || !b.runId) return;
+    if (!g('exe-repo').value || !EX.repoToccato) { g('exe-repo').value = b.repo; EX.repoToccato = true; }
+    gh(`/repos/${b.repo}`, { ripeti: false }).then(({ dati }) => {
+      EX.privato = !!dati.private; fermaMonitor(); const gen = EX.gen;
+      passo(`Ultima compilazione su ${b.repo}`, 'info', { url: `https://github.com/${b.repo}/actions/runs/${b.runId}`, testo: 'apri' });
+      seguiRun(b.repo, b.runId, gen).catch((e) => passo(e.message, 'errore'));
+    }).catch(() => {});
+  },
+  _stato: () => ({ file: EX.file.map((f) => f.percorso), avvio: EX.avvio, ...impostazioni() })
+};
+})();
 </script>
 <script type="text/plain" id="tplMain">
 # -*- coding: utf-8 -*-

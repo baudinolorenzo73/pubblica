@@ -12,6 +12,24 @@ Pubblica i tuoi progetti su GitHub dal telefono, senza Termux. App installabile 
 | `manifest.webmanifest` | Nome, colori e icone per l'installazione |
 | `icone/` | Icone dell'app |
 
+## Novità della 3.14
+
+- **🪟 EXE per Windows** (menu Compila): carichi uno script `.py` o un progetto ZIP e GitHub lo compila in un programma `.exe` con PyInstaller, su una macchina Windows. L'EXE finisce nelle Releases e si scarica da Pubblica.
+  - Riconosce da solo le librerie da installare (`import requests` → `requests`, `import PIL` → `pillow`…) e se il programma apre una finestra (tkinter, PyQt, pygame…) o usa la console.
+  - Un solo file `.exe` oppure ZIP con la cartella; icona tua (PNG/ICO) o automatica con le iniziali.
+  - Repository dedicato creato da solo (`utente/nome-exe`), versione che sale da sola a ogni ricompilazione con modifiche, avanzamento passo per passo, log e suggerimenti se qualcosa va storto.
+  - Serve il token con il permesso «workflow» (in ⚙ Impostazioni → Accesso: «Compilare APK ed EXE»).
+
+## Novità della 3.13
+
+- **Grafica cyberpunk**: tema scuro con neon ciano e magenta, griglia di sfondo, testata luminosa e icone nuove.
+- **Menu più snello**: quattro voci — 🚀 Pubblica su GitHub, 🛠️ Compila, 🌐 Sito e PWA, 🗂️ Repository.
+  - **Compila**: APK da Python o HTML · APK con Kivy · EXE per Windows (in arrivo).
+  - **Sito e PWA**: Apri il sito · Rendi il sito installabile · Controlla e ripara · Collegamenti.
+  - **Repository**: Apri su GitHub · Crea · Svuota · Installa in Termux · Elimina.
+- **⚙ Impostazioni** è l'icona in alto a sinistra, sempre a portata di dito.
+- Il pulsante in alto («← Compila», «← Sito», «← Repository») riporta al sottomenu da cui sei entrato.
+
 ## Novità della 3.12.1
 
 - **Controlla e ripara**: le richieste a GitHub non usano più la copia salvata dal browser (GitHub la fa tenere per 60 secondi). Prima, subito dopo una riparazione, il controllo poteva mostrare ancora lo stato vecchio e il pulsante dava «Il repository è cambiato dopo il controllo».

@@ -8,12 +8,31 @@
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
-  "background_color": "#eef1f7",
-  "theme_color": "#1c3270",
-  "categories": ["developer", "productivity", "utilities"],
+  "background_color": "#07070f",
+  "theme_color": "#0b0b1a",
+  "categories": [
+    "developer",
+    "productivity",
+    "utilities"
+  ],
   "icons": [
-    { "src": "icone/icona-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
-    { "src": "icone/icona-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
-    { "src": "icone/icona-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+    {
+      "src": "icone/icona-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icone/icona-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icone/icona-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
   ]
 }
