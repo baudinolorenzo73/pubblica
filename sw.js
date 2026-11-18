@@ -39,10 +39,42 @@ self.addEventListener('message', (e) => {
   if (tipo === 'attiva') self.skipWaiting();
 });
 
+/* «Condividi» da un'altra app (Android): il file arriva qui, si mette da parte
+   e si apre Pubblica, che chiede cosa farne. La cache non inizia con «pubblica-»: gli aggiornamenti non la cancellano. */
+const CONDIVISI = 'condivisi-pubblica';
+async function riceviCondivisi(req) {
+  let n = 0;
+  try {
+    const dati = await req.formData();
+    const file = dati.getAll('file').filter((f) => f && typeof f !== 'string').slice(0, 50);
+    const c = await caches.open(CONDIVISI);
+    for (const k of await c.keys()) await c.delete(k);
+    for (const f of file) {
+      await c.put(new Request('condiviso/' + n), new Response(f, { headers: {
+        'content-type': f.type || 'application/octet-stream', 'x-nome': encodeURIComponent(f.name || 'file') } }));
+      n++;
+    }
+  } catch (err) { /* si apre comunque l'app */ }
+  return Response.redirect(new URL('./?condiviso=' + n, self.registration.scope).href, 303);
+}
+
+/* Tocco sulla notifica «APK/EXE pronto»: riporta in primo piano Pubblica (o la apre). */
+self.addEventListener('notificationclick', (e) => {
+  e.notification.close();
+  e.waitUntil((async () => {
+    const aperte = await self.clients.matchAll({ type: 'window', includeUncontrolled: true });
+    for (const c of aperte) if ('focus' in c) return c.focus();
+    return self.clients.openWindow('./');
+  })());
+});
+
 /* Richieste: solo i file dell'app (stesso sito, GET) vengono serviti dalla cache. */
 self.addEventListener('fetch', (e) => {
   const req = e.request;
   const url = new URL(req.url);
+  if (req.method === 'POST' && url.origin === self.location.origin && url.pathname.endsWith('/condividi')) {
+    e.respondWith(riceviCondivisi(req)); return;
+  }
   if (req.method !== 'GET' || url.origin !== self.location.origin) return; // GitHub e altri siti: rete normale
   e.respondWith((async () => {
     const cache = await caches.open(CACHE);

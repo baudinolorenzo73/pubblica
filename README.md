@@ -1,129 +1,186 @@
-# Pubblica
+<div align="center">
 
-Pubblica i tuoi progetti su GitHub dal telefono, senza Termux. App installabile (PWA). by Lollo ®2026
+<img src="icone/icona-512.png" width="128" alt="Icona di Pubblica: una P neon ciano su fondo scuro">
 
-## File
+# PUBBLICA
+
+**GitHub dal telefono · APK ed EXE senza un PC**
+
+![PWA](https://img.shields.io/badge/PWA-installabile-00f0ff?style=flat-square&labelColor=0b0b1a)
+![Offline](https://img.shields.io/badge/funziona-offline-39ff88?style=flat-square&labelColor=0b0b1a)
+![Lingua](https://img.shields.io/badge/lingua-italiano-ff2bd6?style=flat-square&labelColor=0b0b1a)
+![Marchio](https://img.shields.io/badge/by%20Lollo-%C2%AE2026-ffd23f?style=flat-square&labelColor=0b0b1a)
+
+</div>
+
+---
+
+Pubblica è **una sola pagina web** che si installa come app sul telefono. Con lei:
+
+- **pubblichi** i tuoi progetti su GitHub scegliendo uno ZIP;
+- **compili** script Python e pagine HTML in **app Android (APK)** e **programmi Windows (EXE)**;
+- **controlli e ripari** il sito GitHub Pages di un progetto;
+- **gestisci** i repository: li crei, li svuoti, li elimini o li installi in Termux.
+
+Il lavoro pesante lo fa GitHub, gratis: il telefono invia solo i file e ti mostra l'avanzamento.
+
+## Il menu
+
+| | Voce | Cosa fa |
+|---|---|---|
+| 🚀 | **Pubblica su GitHub** | Scegli uno ZIP, dei file o una cartella. Pubblica mostra cosa aggiunge, modifica e toglie, poi invia tutto in **un solo commit** (tutto o niente). |
+| 🛠️ | **Compila** | 📱 APK da Python o HTML · 🐍 APK con Kivy · 🪟 EXE per Windows |
+| 🌐 | **Sito e PWA** | Apri il sito · Rendi il sito installabile · 🩺 Controlla e ripara · Collegamenti |
+| 🗂️ | **Repository** | Apri su GitHub · Crea · Svuota · 💻 Installa in Termux · Elimina |
+| ⚙ | **Impostazioni** | L'icona in alto a sinistra: token, repository, preferenze |
+
+## In 30 secondi
+
+```mermaid
+flowchart LR
+    T["📱 Telefono<br/>Pubblica"] -- "file in un commit" --> G["GitHub<br/>repository"]
+    G -- "sito" --> P["🌐 GitHub Pages<br/>app installabile"]
+    G -- "compilazione" --> A["⚙️ GitHub Actions<br/>Ubuntu · Windows"]
+    A -- "APK · EXE" --> R["📦 Releases"]
+    R -- "Scarica" --> T
+```
+
+1. **⚙ Impostazioni → Accesso**: tocca «Chiedi il token a GitHub». Si apre GitHub con nome e permessi già compilati: crea il token e incollalo. Serve una volta sola.
+2. **⚙ Impostazioni → I tuoi repository**: aggiungi i progetti (per esempio `baudinolorenzo73/lollolab`).
+3. Dal menu scegli cosa fare. Ogni passaggio ti dice cosa sta succedendo e, se qualcosa va storto, come rimediare.
+
+## Le funzioni
+
+### 🚀 Pubblica su GitHub
+- Accetta ZIP, file sparsi o una cartella (anche da Google Drive, dal selettore di Android).
+- **Anteprima** delle differenze prima di inviare; nota per il commit facoltativa.
+- Controlla la versione: se lo ZIP è **più vecchio** di quello online, la pubblicazione si ferma.
+- Rifiuta i file con **chiavi segrete** (`.env`, `.pem`, keystore…) e non tocca mai `CNAME`, `.nojekyll` e la cartella `firma/`.
+- Con `__patch_only__.txt` nello ZIP invia solo i file modificati e lascia gli altri.
+
+### 🛠️ Compila
+| | Da | A | Dove compila |
+|---|---|---|---|
+| 📱 | Script Python (print/input), progetto ZIP, app HTML | APK Android | GitHub Actions · Ubuntu (Buildozer / Capacitor) |
+| 🐍 | App con interfaccia Kivy | APK Android | GitHub Actions · Ubuntu (Buildozer) |
+| 🪟 | Script `.py` o progetto ZIP | EXE Windows | GitHub Actions · Windows (PyInstaller) |
+
+**🪟 EXE per Windows** in dettaglio:
+- legge il codice e trova da solo le **librerie** (`import PIL` → `pillow`, `import cv2` → `opencv-python`…) e se il programma apre una **finestra** (tkinter, PyQt, pygame…) o usa la **console**;
+- **un solo `.exe`** oppure ZIP con la cartella; icona tua (PNG/ICO) o automatica con le iniziali;
+- l'EXE ha le **proprietà di Windows** compilate (nome, versione, «by Lollo ®2026») e un file **`.sha256`** per controllare che il download sia integro;
+- crea da solo il **repository dedicato** (`utente/nome-exe`); la **versione sale da sola** se ricompili con il programma cambiato;
+- le librerie restano in **cache** su GitHub, quindi le ricompilazioni sono più veloci;
+- a fine compilazione: **Scarica EXE**, «Copia il link per il PC» o **📤 Manda il link al PC** (WhatsApp, Telegram, email). Se fallisce, vedi il passaggio sbagliato, un suggerimento e il log.
+
+> Sul PC, al primo avvio Windows può dire «Windows ha protetto il PC»: **Ulteriori informazioni → Esegui comunque**. Succede con tutti i programmi non firmati.
+
+### 🌐 Sito e PWA
+- **Apri il sito**: apre la pagina GitHub Pages del progetto (se Pages è spento, lo attiva).
+- **Rendi il sito installabile**: aggiunge manifest, service worker e icone, solo se mancano e dopo la tua conferma.
+- **🩺 Controlla e ripara**: verifica ramo, Pages, pagina iniziale, riferimenti, manifest, service worker e icone. Mostra le **correzioni sicure** e le applica solo dopo conferma, senza mai cancellare file.
+
+### 🗂️ Repository
+- Crea, svuota, elimina (per eliminare devi scrivere «ELIMINA» e il nome del repository: niente cancellazioni per sbaglio).
+- **💻 Installa in Termux**: spunti i repository e Pubblica prepara il comando `installa-repo`, che li scarica in `~/progetti`, installa `requirements.txt` e crea un comando per avviarli.
+
+### 📥 Condividi con Pubblica
+Da qualsiasi app (file manager, Telegram, Gmail, Drive) tocca **Condividi → Pubblica** su uno ZIP, un `.py` o una pagina `.html`. Pubblica si apre e chiede cosa farne:
+
+| File | Scelte |
+|---|---|
+| `.zip` | Pubblica · EXE · APK da progetto Python · APK da sito HTML |
+| `.py` | Pubblica · EXE · APK da Python |
+| `.html` | Pubblica · APK da app HTML |
+
+*Pubblica compare nel menu «Condividi» solo dopo averla installata come app.*
+
+### 🔔 Notifiche
+Al primo tocco su «Compila», Pubblica chiede il permesso per le notifiche. Puoi uscire dall'app: quando l'APK o l'EXE è pronto (o se la compilazione non riesce) arriva una notifica, e toccandola torni a Pubblica.
+
+## Il token GitHub
+
+| Per… | Token classico | Token fine-grained |
+|---|---|---|
+| Pubblicare | `repo` | Contents: Read and write |
+| Creare / eliminare repository | `repo`, `delete_repo` | Administration: Read and write |
+| Compilare APK ed EXE | `repo`, `workflow` | Contents, Workflows, Actions: Read and write |
+
+In **⚙ Impostazioni → Accesso**, il pulsante «Controlla il mio token» dice cosa manca.
+
+## Installare Pubblica (una volta sola)
+
+1. Su GitHub crea il repository `pubblica` e attiva **Pages** sul ramo principale, cartella `/ (root)`.
+2. Carica lì il contenuto di questo ZIP.
+3. Dopo 1–3 minuti apri `https://baudinolorenzo73.github.io/pubblica/` e tocca **📲 Installa**.
+
+## Aggiornare Pubblica
+
+1. Aumenta il numero in `versione.js` **e** in `versione.json` (es. da `3.15.0` a `3.15.1`). Senza questo passo i telefoni non vedono l'aggiornamento.
+2. Pubblica il nuovo ZIP con Pubblica stessa.
+3. Alla riapertura compare **⬆ Aggiorna alla 3.15.1** (oppure tocca **↻ Controlla aggiornamenti**).
+
+## Come è fatta
 
 | File | A cosa serve |
 |---|---|
-| `index.html` | L'app |
-| `versione.js` | Numero di versione: **l'unico posto dove si cambia** |
-| `sw.js` | Service worker: uso senza rete e aggiornamenti |
-| `manifest.webmanifest` | Nome, colori e icone per l'installazione |
-| `icone/` | Icone dell'app |
+| `index.html` | Tutta l'app: interfaccia, Pubblica, Crea APK, EXE, Controlla e ripara (CSS e JavaScript inclusi, nessuna libreria da internet) |
+| `versione.js` | Il numero di versione: lo leggono la pagina e il service worker |
+| `versione.json` | Lo stesso numero, per il controllo «origine più vecchia» |
+| `sw.js` | Service worker: uso senza rete, aggiornamenti, file ricevuti da «Condividi», tocco sulle notifiche |
+| `manifest.webmanifest` | Nome, colori, icone e voce «Condividi» per l'installazione |
+| `icone/` | Icone dell'app (anche la versione «maskable» per Android) |
 
-## Novità della 3.14
+Le richieste a GitHub non passano mai dalla cache: Pubblica vede sempre lo stato reale del repository.
 
-- **🪟 EXE per Windows** (menu Compila): carichi uno script `.py` o un progetto ZIP e GitHub lo compila in un programma `.exe` con PyInstaller, su una macchina Windows. L'EXE finisce nelle Releases e si scarica da Pubblica.
-  - Riconosce da solo le librerie da installare (`import requests` → `requests`, `import PIL` → `pillow`…) e se il programma apre una finestra (tkinter, PyQt, pygame…) o usa la console.
-  - Un solo file `.exe` oppure ZIP con la cartella; icona tua (PNG/ICO) o automatica con le iniziali.
-  - Repository dedicato creato da solo (`utente/nome-exe`), versione che sale da sola a ogni ricompilazione con modifiche, avanzamento passo per passo, log e suggerimenti se qualcosa va storto.
-  - Serve il token con il permesso «workflow» (in ⚙ Impostazioni → Accesso: «Compilare APK ed EXE»).
+## Sicurezza e privacy
 
-## Novità della 3.13
+- Pubblica parla **solo con GitHub** (e con PyPI, per cercare i nomi delle librerie Python): nessun altro server, nessuna statistica.
+- Il token resta **sul tuo telefono**.
+- ⚠ Tutte le tue app su `baudinolorenzo73.github.io` condividono la memoria del browser: se fai ricordare il token, anche le altre pagine di quel dominio potrebbero leggerlo. Pubblica i siti di altri su un altro account o dominio.
+- Le regole di sicurezza della pagina (Content-Security-Policy) permettono connessioni solo verso GitHub, i suoi server di file e PyPI.
 
-- **Grafica cyberpunk**: tema scuro con neon ciano e magenta, griglia di sfondo, testata luminosa e icone nuove.
-- **Menu più snello**: quattro voci — 🚀 Pubblica su GitHub, 🛠️ Compila, 🌐 Sito e PWA, 🗂️ Repository.
-  - **Compila**: APK da Python o HTML · APK con Kivy · EXE per Windows (in arrivo).
-  - **Sito e PWA**: Apri il sito · Rendi il sito installabile · Controlla e ripara · Collegamenti.
-  - **Repository**: Apri su GitHub · Crea · Svuota · Installa in Termux · Elimina.
-- **⚙ Impostazioni** è l'icona in alto a sinistra, sempre a portata di dito.
-- Il pulsante in alto («← Compila», «← Sito», «← Repository») riporta al sottomenu da cui sei entrato.
+## Novità
 
-## Novità della 3.12.1
+### 3.15
+- **📥 Condividi con Pubblica**: da qualsiasi app, ZIP, `.py` e `.html` arrivano a Pubblica, che propone Pubblica / EXE / APK.
+- **🔔 Notifiche** quando l'APK o l'EXE è pronto (o la compilazione non riesce), anche con l'app chiusa in secondo piano.
+- **EXE**: proprietà del file in Windows (nome, versione, «by Lollo ®2026»), impronta `.sha256`, cache delle librerie (ricompilazioni più veloci), pagina della release con le istruzioni per il PC, pulsante **📤 Manda il link al PC**.
+- README nuovo.
 
-- **Controlla e ripara**: le richieste a GitHub non usano più la copia salvata dal browser (GitHub la fa tenere per 60 secondi). Prima, subito dopo una riparazione, il controllo poteva mostrare ancora lo stato vecchio e il pulsante dava «Il repository è cambiato dopo il controllo».
-- Se il repository cambia davvero, il controllo si rifà da solo invece di mostrare un errore.
-- L'icona per iOS (`apple-touch-icon`) viene aggiunta solo se punta a un file che esiste; se una pagina ha già un'icona verso un file mancante, la riparazione la punta a un'icona vera del manifest.
-- L'avviso dice cosa manca (collegamento al manifest, colore del tema, icona per iOS, registrazione del service worker) e dopo la riparazione resta scritto «Correzioni applicate».
+### 3.14
+- **🪟 EXE per Windows** nel menu Compila: da script `.py` o progetto ZIP a programma `.exe` con PyInstaller su GitHub Actions (Windows).
 
-## Novità della 3.12
+### 3.13
+- **Grafica cyberpunk** (neon ciano e magenta, icone nuove) e **menu snello** a quattro voci con sottomenu; ⚙ Impostazioni in alto a sinistra.
 
-- **Progetto diviso in due**: le voci **🔎 API gratuite** e **🤖 API IA gratuite** non sono più in Pubblica. Vivono nella nuova app separata **API gratuite** (`api.html`, repository `api`).
-- Pubblica pesa quasi la metà e non apre più connessioni verso i siti usati dalle prove trekking (Open-Meteo, Open Topo Data, Overpass, Waymarked Trails, Nominatim).
-- I dati (preferite, API tue, elenchi aggiornati) restano sul telefono con le stesse chiavi `pubblica.api.*` e `pubblica.ai.*`: la nuova app li ritrova da sola (stesso indirizzo `baudinolorenzo73.github.io`).
+### 3.12
+- 3.12.1 · **Controlla e ripara** più affidabile: niente più dati vecchi dalla cache del browser, controllo che si rifà da solo, icona per iOS solo se il file esiste.
+- 3.12 · Le **API gratuite** diventano un'app separata (`api`): Pubblica pesa quasi la metà.
 
-## Novità della 3.10
+<details>
+<summary><b>Versioni precedenti (3.0 – 3.11)</b></summary>
 
-- **🩺 Controlla e ripara**: nuova area per analizzare il repository selezionato, GitHub Pages, pagina iniziale, riferimenti locali, manifest, service worker, icone e ultima distribuzione.
-- Le correzioni sicure vengono mostrate prima e applicate soltanto dopo conferma; non vengono eliminati file e gli errori ambigui restano semplici segnalazioni.
-- **Novità 3.11.0**: nuovo pulsante **Crea APK con Kivy** nel menu. Per app che hanno già la loro interfaccia Kivy: il codice va nella cartella principale e Buildozer lo compila direttamente, senza la console print/input. Se il file di avvio non è `main.py`, ne viene creato uno che lo lancia. Il workflow viene inviato insieme al progetto.
-- **Correzione 3.10.3**: Crea APK ora fissa Buildozer 1.5.0, python-for-android v2024.01.21, NDK 25b e API 33. Risolve l'errore `charset_normalizer ... is not a supported wheel` (l'ultimo python-for-android compilava per Python 3.14).
-- **Correzione 3.10.2**: il workflow generato da **Crea APK** ora usa Ubuntu 22.04 e installa `libltdl-dev`, `libtool-bin` e `automake`: risolve l'errore `LT_SYS_SYMBOL_USCORE` durante la compilazione di libffi.
-- **Correzione 3.10.1**: **📲 Rendi il sito installabile** resta sempre visibile. Se il sito è già installabile, usa un workflow o non è verificabile con certezza, apre il controllo guidato evitando file duplicati.
+- **3.11** · Crea APK con Kivy, per app che hanno già la loro interfaccia Kivy.
+- **3.10** · 🩺 Controlla e ripara. 3.10.1–3.10.3: «Rendi il sito installabile» sempre visibile; workflow APK su Ubuntu 22.04 con Buildozer 1.5.0, python-for-android v2024.01.21, NDK 25b e API 33.
+- **3.9** · API IA gratuite (poi spostate nell'app `api`).
+- **3.8** · 💻 Installa in Termux e 📲 Rendi il sito installabile.
+- **3.7** · API gratuite e Trekking/GPX (poi spostate nell'app `api`); aggiornamento dall'app per gli APK HTML.
+- **3.6** · L'APK prende il nome dell'app; un nuovo progetto parte pulito.
+- **3.5** · Controllo automatico dell'APK a fine compilazione e riquadro «Non si installa?».
+- **3.4** · Nome dell'APK come il repository.
+- **3.3** · 🔑 «Chiedi il token a GitHub» con permessi già compilati e «Controlla il mio token».
+- **3.2** · Librerie Python cercate in automatico su PyPI; download funzionanti nelle app HTML.
+- **3.0 / 3.1** · 📱 Crea APK (Python o HTML) e 🗺️ Apri il sito.
 
-## Novità della 3.9
+</details>
 
-- **🤖 API IA gratuite**: nuova area con provider, numero di modelli, modalità supportate, contesto, requisiti di registrazione e indirizzo dell'endpoint.
-- Ricerca e filtri per modalità, assenza di carta, assenza di verifica telefonica e preferiti.
-- **Aggiornamento futuro della lista**: il pulsante «Aggiorna da GitHub» legge le tabelle di `awesome-freellm-apis`, conserva l'ultima copia valida sul dispositivo e continua a funzionare offline. Le chiavi API non vengono scaricate né salvate.
-- **Correzione 3.9.1**: ripristinata la funzione **📲 Rendi il sito installabile**, rimossa per errore durante l'unione con la nuova area IA.
+## Grazie a
 
-## Novità della 3.8
+[PyInstaller](https://pyinstaller.org) · [Buildozer](https://github.com/kivy/buildozer) e [python-for-android](https://github.com/kivy/python-for-android) · [Capacitor](https://capacitorjs.com) · [JSZip](https://stuk.github.io/jszip/) · [GitHub Actions](https://docs.github.com/actions) e [GitHub Pages](https://pages.github.com)
 
-- **💻 Installa in Termux** (nel menu): spunti i tuoi repository GitHub e l'app prepara il comando da incollare in Termux. Crea il comando permanente `installa-repo`, scarica i repository in `~/progetti`, installa le librerie di `requirements.txt` e crea un comando per avviare ogni repository: lo script Python oppure, per le app HTML, un piccolo server locale che apre la pagina nel browser. Dopo la prima volta basta `installa-repo nome-repository` (rilanciato, aggiorna).
-- **📲 Rendi il sito installabile** (menu, compare quando il sito Pages del progetto attivo non è ancora installabile): aggiunge al repository `manifest.webmanifest`, `sw.js`, due icone e due righe nella pagina (solo se mancano), dopo la tua conferma. Passati 1–3 minuti, «Apri il sito (HTML)» → Chrome offre «Installa app». Serve il permesso «Contents: Read and write».
-- Corretta la versione mostrata nel pannello Crea APK (diceva sempre «v3.2»): ora segue `versione.js`.
+<div align="center">
 
-## Novità della 3.7
+**by Lollo ®2026**
 
-- **Trekking e GPX** (dentro «API gratuite»): riepilogo a mano delle API per quota, sentieri e meteo in montagna, con il pulsante «Prova ora» che fa una richiesta vera dal tuo telefono e ricorda l'esito (funziona dalla pagina / bloccata / errore).
-- **API gratuite** (voce 🔎 del menu): elenco di oltre 2000 API pubbliche (da public-apis) con ricerca anche in italiano, filtri «senza chiave» / «CORS sì» / HTTPS, categorie, preferite e le tue API aggiunte a mano. «Aggiorna da GitHub» scarica l'elenco nuovo e dice quante API sono nuove; senza internet resta la copia inclusa.
-- **Aggiornamento dall'app (app HTML)**: dentro l'APK compare il pulsante ⟳. Controlla le Releases del repository, scarica l'APK nuovo e apre l'installazione di Android (la conferma resta tua). I dati dell'app restano. Serve il repository pubblico. Si spegne con la casella nel pannello dell'app HTML.
-- Le app Python restano come prima: si aggiornano scaricando e installando l'APK dalla pagina.
-
-## Novità della 3.6
-
-- **L'APK prende il nome dell'app** (quello del punto 3): «Simulatore GEA PWA V5.13» → `Simulatore_GEA_PWA_V5.13-1.1.apk`.
-- **Un nuovo progetto parte pulito**: caricando un altro script, ZIP o app HTML sparisce il risultato della compilazione
-  precedente e il repository passa da solo a quello del nuovo progetto (se era quello del precedente).
-- Il punto 4 (anteprima dei file) è ora facoltativo e chiuso: per compilare non serve.
-
-## Novità della 3.5
-
-- Controllo automatico dell'APK a fine compilazione (firma, pacchetto, Android minimo) e riquadro «Non si installa?» con le cause più comuni.
-
-## Novità della 3.4
-
-- **Nome dell'APK come il repository**: `nomerepository-versione.apk` (con più processori, anche il tipo: `…-arm64-v8a.apk`).
-  Vale per le app Python e HTML; si aggiorna alla prossima compilazione.
-
-## Novità della 3.3
-
-- **🔑 «Chiedi il token a GitHub»** nelle Impostazioni: scegli cosa ti serve, il pulsante apre GitHub con nome e permessi già compilati,
-  con la guida passo per passo, l'opzione fine-grained e «Controlla il mio token» che dice cosa manca.
-
-## Novità della 3.2
-
-- **Librerie Python cercate in automatico**: se lo script importa una libreria che Crea APK non conosce, la cerca su PyPI,
-  aggiunge da sola il nome giusto e le dipendenze, e avvisa *prima* di compilare se ha parti in C senza ricetta per Android.
-- **App HTML: i download funzionano nell'APK**: esportazioni e file scaricati dalla pagina aprono «Salva o condividi»
-  (plugin Filesystem e Share di Capacitor, aggiunti da soli). I tuoi file HTML restano intatti.
-
-## Novità della 3.1 (e della 3.0)
-
-- **📱 Crea APK (Python o HTML)**: trasforma uno script Python normale (print/input), un progetto ZIP o un'**app HTML**
-  (file .html o ZIP con le pagine) in un'app Android. Le app HTML sono avvolte da Capacitor (WebView) e funzionano offline.
-  Crea il repository, invia i file, GitHub compila e compare il pulsante «Scarica APK».
-- **🗺️ Apri il sito (HTML)** nel menu principale: apre la pagina online del progetto attivo (da lì Chrome → ⋮ → «Installa app»).
-  Se GitHub Pages non è attivo, lo attiva.
-- La cartella `firma/` dei repository di Crea APK non viene mai cancellata, nemmeno pubblicando uno ZIP completo.
-- Per gli APK il token deve avere anche **Workflows** e **Actions** (token classico: `repo` e `workflow`).
-
-## Messa online (una volta sola)
-
-1. Crea un repository, ad esempio `pubblica`, con GitHub Pages attivo sul ramo principale.
-2. Pubblica questo ZIP nel repository.
-3. Apri `https://baudinolorenzo73.github.io/pubblica/` (cambia il nome se il repository è diverso).
-4. Premi **📲 Installa**.
-
-## Pubblicare una nuova versione
-
-1. Modifica i file.
-2. Aumenta il numero in `versione.js` (es. da `2.3` a `2.4`). Senza questo passo i telefoni non vedono l'aggiornamento.
-3. Pubblica lo ZIP.
-4. Sul telefono compare **⬆ Aggiorna alla 2.4** (subito alla riapertura dell'app, oppure con **↻ Controlla aggiornamenti**).
-
-## Nota sulla sicurezza
-
-Tutte le tue app su `baudinolorenzo73.github.io` condividono la memoria del browser: se fai ricordare il token, anche le altre pagine di quel dominio potrebbero leggerlo.
+</div>

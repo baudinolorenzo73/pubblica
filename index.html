@@ -261,6 +261,11 @@ footer::before{content:"";display:block;height:1px;max-width:860px;margin:0 auto
 #v-exe .file-exe{font:12.5px/1.6 var(--mono);color:var(--tenue);max-height:180px;overflow:auto;border:1px solid var(--linea);border-radius:6px;padding:6px 10px;background:var(--carta);margin:8px 0;white-space:pre}
 #v-exe .file-exe .avvio{color:var(--prim);font-weight:700}
 #v-exe textarea{font:13px/1.5 var(--mono)}
+/* file ricevuto con «Condividi» */
+.condivisi{border:1.5px solid var(--neon2);border-radius:6px;padding:12px;margin-bottom:14px;background:rgba(255,43,214,.07);box-shadow:0 0 16px rgba(255,43,214,.18)}
+.condivisi>b{display:block;font:700 15px var(--mono);color:var(--neon2);overflow-wrap:anywhere}
+.condivisi .menu{margin-top:10px}
+.condivisi .chiudi{margin-top:10px;min-height:40px}
 @keyframes sfarfallio{0%,92%,100%{opacity:1}93%{opacity:.55}94%{opacity:1}96%{opacity:.7}97%{opacity:1}}
 </style>
 </head>
@@ -282,6 +287,7 @@ footer::before{content:"";display:block;height:1px;max-width:860px;margin:0 auto
 <!-- ===================== MENU PRINCIPALE ===================== -->
 <section id="v-menu" class="vista">
   <div class="card">
+    <div id="condivisi" class="condivisi" hidden aria-live="polite"></div>
     <label for="sel-attivo" style="margin-top:0">Progetto attivo</label>
     <select id="sel-attivo" aria-label="Progetto attivo"></select>
     <div id="avviso-menu"></div>
@@ -2678,6 +2684,73 @@ async function avviaPWA() {
   document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') controllaAggiornamenti(false); });
 }
 
+/* ---------- notifiche a fine compilazione (APK ed EXE) ----------
+   Il permesso si chiede una volta sola, al tocco di «Compila»; la notifica arriva solo se l'app non è in primo piano. */
+function chiediNotifiche() {
+  try { if ('Notification' in window && Notification.permission === 'default') Notification.requestPermission().catch(() => {}); } catch { /* niente */ }
+}
+async function notificaFine(titolo, testo) {
+  try {
+    if (!document.hidden || !('Notification' in window) || Notification.permission !== 'granted') return;
+    const op = { body: testo, icon: 'icone/icona-192.png', badge: 'icone/icona-192.png', tag: 'pubblica-compilazione', renotify: true };
+    const reg = navigator.serviceWorker && await navigator.serviceWorker.getRegistration();
+    if (reg) await reg.showNotification(titolo, op); else new Notification(titolo, op);
+  } catch { /* le notifiche sono un di più */ }
+}
+
+/* ---------- file condivisi da altre app (Condividi → Pubblica) ----------
+   Il service worker riceve il file, lo mette in una cache temporanea e riapre l'app con ?condiviso=N. */
+const CACHE_CONDIVISI = 'condivisi-pubblica';
+async function riceviCondivisi() {
+  if (!new URLSearchParams(location.search).has('condiviso')) return;
+  history.replaceState(null, '', location.pathname);
+  const file = [];
+  try {
+    const c = await caches.open(CACHE_CONDIVISI);
+    for (const k of await c.keys()) {
+      const r = await c.match(k); const b = await r.blob();
+      file.push(new File([b], decodeURIComponent(r.headers.get('x-nome') || 'file'), { type: b.type }));
+      await c.delete(k);
+    }
+  } catch { /* niente */ }
+  if (!TOKEN) { vai('config'); msg('#esito-token', 'avv', 'Hai condiviso un file, ma prima serve il token GitHub: inseriscilo qui e poi condividi di nuovo il file.'); return; }
+  vai('menu');
+  mostraCondivisi(file);
+}
+function mettiNelCampo(id, lista) {   // come se il file fosse stato scelto con il pulsante di quella schermata
+  const dt = new DataTransfer(); lista.forEach((f) => dt.items.add(f));
+  const el = document.getElementById(id); el.files = dt.files; el.dispatchEvent(new Event('change', { bubbles: true }));
+}
+function mostraCondivisi(file) {
+  const box = $('#condivisi'); box.replaceChildren(); box.hidden = false;
+  const chiudi = Object.assign(document.createElement('button'), { type: 'button', className: 'chiudi', textContent: '✕ Lascia stare' });
+  chiudi.onclick = () => { box.hidden = true; box.replaceChildren(); };
+  if (!file.length) { box.append(Object.assign(document.createElement('b'), { textContent: 'Non è arrivato nessun file: prova a condividerlo di nuovo.' }), chiudi); return; }
+  const f = file[0], n = f.name.toLowerCase(), uno = file.length === 1;
+  const zip = n.endsWith('.zip'), py = /\.pyw?$/.test(n), html = file.some((x) => /\.html?$/i.test(x.name));
+  const peso = file.reduce((s, x) => s + x.size, 0);
+  const kb = peso < 1048576 ? Math.max(1, Math.round(peso / 1024)) + ' KB' : (peso / 1048576).toFixed(1) + ' MB';
+  const azioni = [['🚀', 'Pubblica su GitHub', (CFG.attivo ? 'Nel progetto attivo: ' + nomeRepoCfg(CFG.attivo) : 'Prima scegli il progetto attivo qui sotto'), () => { vai('pubblica'); S.ultimi = file; nuoviFile(file); }]];
+  if (uno && (py || zip)) azioni.push(['🪟', 'EXE per Windows', 'Compila il programma Python', async () => { vai('exe'); try { await window.creaExe.carica(f); } catch (e) { alert(e.message); } }]);
+  if (uno && py) azioni.push(['📱', 'APK da Python', 'App Android dallo script', () => { window.__modoKivy = false; vai('apk'); mettiNelCampo('fileScript', [f]); }]);
+  if (uno && zip) azioni.push(['📱', 'APK da progetto Python', 'Lo ZIP contiene file .py', () => { window.__modoKivy = false; vai('apk'); mettiNelCampo('fileZip', [f]); }],
+    ['🌐', 'APK da sito HTML', 'Lo ZIP contiene una pagina web', () => { window.__modoKivy = false; vai('apk'); mettiNelCampo('fileHtml', [f]); }]);
+  else if (html) azioni.push(['📱', 'APK da app HTML', 'App Android dalla pagina', () => { window.__modoKivy = false; vai('apk'); mettiNelCampo('fileHtml', file); }]);
+  const elenco = document.createElement('div'); elenco.className = 'menu';
+  for (const [ico, tit, sotto, fa] of azioni) {
+    const b = document.createElement('button'); b.type = 'button'; b.className = 'voce';
+    const i = Object.assign(document.createElement('span'), { className: 'ico', textContent: ico });
+    const s = document.createElement('span');
+    s.append(Object.assign(document.createElement('b'), { textContent: tit }), Object.assign(document.createElement('small'), { textContent: sotto }));
+    b.append(i, s);
+    b.onclick = () => { box.hidden = true; box.replaceChildren(); fa(); };
+    elenco.append(b);
+  }
+  box.append(Object.assign(document.createElement('b'), { textContent: `📥 Ricevuto: ${uno ? f.name : file.length + ' file'} · ${kb}` }),
+    Object.assign(document.createElement('p'), { className: 'nota', textContent: 'Cosa vuoi farne?' }), elenco, chiudi);
+}
+window.addEventListener('load', () => { riceviCondivisi(); });   // dopo che anche EXE e Crea APK sono pronti
+
 /* ---------- avvio ---------- */
 avviaPWA();
 aggiornaTutto();
@@ -2692,8 +2765,8 @@ if (!TOKEN) msg('#esito-token', 'inf', 'Per iniziare incolla il tuo token GitHub
 'use strict';
 const g = (id) => document.getElementById(id);
 const WF = '.github/workflows/build-exe.yml';
-const SCRIPT = "\"\"\"Compila il programma Python in EXE con PyInstaller. Lo usa il workflow «Build EXE».\nLe scelte (nome, versione, file di avvio, console…) stanno in exe.json. Generato da Pubblica · by Lollo ®2026\"\"\"\nimport json, os, shutil, sys\nimport PyInstaller.__main__\n\nos.chdir(os.path.dirname(os.path.abspath(__file__)))\nc = json.load(open(\"exe.json\", encoding=\"utf-8\"))\nnome = c[\"nome\"]\nversione = str(c.get(\"versione\", \"1.0\"))\ncartella = os.path.abspath(\"progetto\")\navvio = os.path.abspath(c[\"avvio\"])\nif not os.path.isfile(avvio):\n    sys.exit(\"File di avvio non trovato: \" + c[\"avvio\"])\n\narg = [avvio, \"--name\", nome, \"--noconfirm\", \"--clean\",\n       \"--distpath\", \"dist\", \"--workpath\", \"build\", \"--specpath\", \"build\",\n       \"--paths\", os.path.dirname(avvio), \"--paths\", cartella]\narg.append(\"--onefile\" if c.get(\"unFile\", True) else \"--onedir\")\narg.append(\"--console\" if c.get(\"console\", True) else \"--windowed\")\nicona = c.get(\"icona\")\nif icona and os.path.isfile(icona):\n    arg += [\"--icon\", os.path.abspath(icona)]   # PNG: PyInstaller lo converte in .ico grazie a Pillow\nfor f in c.get(\"dati\", []):                     # immagini, json, testi del progetto: dentro l'EXE, stesse cartelle\n    if os.path.isfile(f):\n        dest = os.path.relpath(os.path.dirname(os.path.abspath(f)), cartella)\n        arg += [\"--add-data\", os.path.abspath(f) + os.pathsep + dest]\nfor m in c.get(\"nascosti\", []):\n    arg += [\"--hidden-import\", m]\nprint(\"PyInstaller \" + \" \".join(arg), flush=True)\nPyInstaller.__main__.run(arg)\n\nos.makedirs(\"uscita\", exist_ok=True)\nest = \".exe\" if os.name == \"nt\" else \"\"\nif c.get(\"unFile\", True):\n    finale = os.path.join(\"uscita\", nome + \"-\" + versione + est)\n    shutil.copy2(os.path.join(\"dist\", nome + est), finale)\nelse:\n    finale = shutil.make_archive(os.path.join(\"uscita\", nome + \"-\" + versione + \"-windows\"), \"zip\", os.path.join(\"dist\", nome))\nprint(\"Pronto: \" + finale + \" (\" + str(os.path.getsize(finale)) + \" byte)\")\n";
-const WORKFLOW = "# Compila l'EXE per Windows a ogni invio (o a mano: Actions → Build EXE → Run workflow)\n# e lo pubblica nelle Releases del repository. Generato da Pubblica · by Lollo ®2026\nname: Build EXE\n\non:\n  push:\n    paths-ignore:\n      - \"README.md\"\n  workflow_dispatch:\n\npermissions:\n  contents: write\n\n# Un nuovo invio annulla la compilazione precedente ancora in corso\nconcurrency:\n  group: build-exe-${{ github.ref }}\n  cancel-in-progress: true\n\njobs:\n  build:\n    runs-on: windows-latest\n    timeout-minutes: 45\n    steps:\n      - name: Scarica il codice\n        uses: actions/checkout@v4\n\n      - name: Python 3.12\n        uses: actions/setup-python@v5\n        with:\n          python-version: \"3.12\"\n\n      - name: PyInstaller e librerie\n        run: |\n          python -m pip install --upgrade pip\n          pip install \"pyinstaller>=6.10,<7\" pillow\n          pip install -r requirements.txt\n\n      - name: Compila EXE\n        run: python crea_exe.py\n\n      - name: Controllo del risultato\n        run: Get-ChildItem uscita | Format-Table Name, Length\n\n      - name: Salva tra gli artifact\n        uses: actions/upload-artifact@v4\n        with:\n          name: exe\n          path: uscita/*\n          if-no-files-found: error\n\n      - name: Pubblica nelle Releases\n        uses: softprops/action-gh-release@v2\n        with:\n          tag_name: exe-${{ github.run_number }}\n          name: EXE build ${{ github.run_number }}\n          body: Compilato automaticamente dal commit ${{ github.sha }}\n          files: uscita/*\n";
+const SCRIPT = "\"\"\"Compila il programma Python in EXE con PyInstaller. Lo usa il workflow «Build EXE».\nLe scelte (nome, versione, file di avvio, console…) stanno in exe.json. Generato da Pubblica · by Lollo ®2026\"\"\"\nimport hashlib, json, os, re, shutil, sys\nimport PyInstaller.__main__\n\nos.chdir(os.path.dirname(os.path.abspath(__file__)))\nc = json.load(open(\"exe.json\", encoding=\"utf-8\"))\nnome = c[\"nome\"]\nversione = str(c.get(\"versione\", \"1.0\"))\ncartella = os.path.abspath(\"progetto\")\navvio = os.path.abspath(c[\"avvio\"])\nif not os.path.isfile(avvio):\n    sys.exit(\"File di avvio non trovato: \" + c[\"avvio\"])\n\n\ndef file_versione(percorso):\n    \"\"\"Proprietà del file in Windows (tasto destro → Proprietà → Dettagli): nome, versione, autore.\"\"\"\n    n = [int(x) for x in re.findall(r\"\\d+\", versione)][:4]\n    n += [0] * (4 - len(n))\n    t = tuple(n)\n    testo = f\"\"\"VSVersionInfo(\n  ffi=FixedFileInfo(filevers={t}, prodvers={t}, mask=0x3f, flags=0x0, OS=0x40004, fileType=0x1, subtype=0x0, date=(0, 0)),\n  kids=[\n    StringFileInfo([StringTable('041004B0', [\n      StringStruct('CompanyName', 'by Lollo'),\n      StringStruct('FileDescription', {nome!r}),\n      StringStruct('FileVersion', {versione!r}),\n      StringStruct('InternalName', {nome!r}),\n      StringStruct('LegalCopyright', 'by Lollo ®2026'),\n      StringStruct('OriginalFilename', {nome + '.exe'!r}),\n      StringStruct('ProductName', {nome!r}),\n      StringStruct('ProductVersion', {versione!r})])]),\n    VarFileInfo([VarStruct('Translation', [0x0410, 1200])])\n  ]\n)\n\"\"\"\n    os.makedirs(os.path.dirname(percorso), exist_ok=True)\n    with open(percorso, \"w\", encoding=\"utf-8\") as f:\n        f.write(testo)\n    return percorso\n\n\narg = [avvio, \"--name\", nome, \"--noconfirm\", \"--clean\",\n       \"--distpath\", \"dist\", \"--workpath\", \"build\", \"--specpath\", \"build\",\n       \"--paths\", os.path.dirname(avvio), \"--paths\", cartella]\narg.append(\"--onefile\" if c.get(\"unFile\", True) else \"--onedir\")\narg.append(\"--console\" if c.get(\"console\", True) else \"--windowed\")\nicona = c.get(\"icona\")\nif icona and os.path.isfile(icona):\n    arg += [\"--icon\", os.path.abspath(icona)]   # PNG: PyInstaller lo converte in .ico grazie a Pillow\nif os.name == \"nt\":                              # le proprietà del file esistono solo su Windows\n    arg += [\"--version-file\", os.path.abspath(file_versione(os.path.join(\"build\", \"versione.txt\")))]\nfor f in c.get(\"dati\", []):                     # immagini, json, testi del progetto: dentro l'EXE, stesse cartelle\n    if os.path.isfile(f):\n        dest = os.path.relpath(os.path.dirname(os.path.abspath(f)), cartella)\n        arg += [\"--add-data\", os.path.abspath(f) + os.pathsep + dest]\nfor m in c.get(\"nascosti\", []):\n    arg += [\"--hidden-import\", m]\nprint(\"PyInstaller \" + \" \".join(arg), flush=True)\nPyInstaller.__main__.run(arg)\n\nos.makedirs(\"uscita\", exist_ok=True)\nest = \".exe\" if os.name == \"nt\" else \"\"\nif c.get(\"unFile\", True):\n    finale = os.path.join(\"uscita\", nome + \"-\" + versione + est)\n    shutil.copy2(os.path.join(\"dist\", nome + est), finale)\nelse:\n    finale = shutil.make_archive(os.path.join(\"uscita\", nome + \"-\" + versione + \"-windows\"), \"zip\", os.path.join(\"dist\", nome))\n\n# impronta SHA-256: chi scarica può controllare che il file sia proprio questo\nh = hashlib.sha256()\nwith open(finale, \"rb\") as f:\n    for blocco in iter(lambda: f.read(1 << 20), b\"\"):\n        h.update(blocco)\nwith open(finale + \".sha256\", \"w\", encoding=\"utf-8\") as f:\n    f.write(h.hexdigest() + \"  \" + os.path.basename(finale) + \"\\n\")\nprint(\"Pronto: \" + finale + \" (\" + str(os.path.getsize(finale)) + \" byte)\")\nprint(\"SHA-256: \" + h.hexdigest())\n";
+const WORKFLOW = "# Compila l'EXE per Windows a ogni invio (o a mano: Actions → Build EXE → Run workflow)\n# e lo pubblica nelle Releases del repository. Generato da Pubblica · by Lollo ®2026\nname: Build EXE\n\non:\n  push:\n    paths-ignore:\n      - \"README.md\"\n  workflow_dispatch:\n\npermissions:\n  contents: write\n\n# Un nuovo invio annulla la compilazione precedente ancora in corso\nconcurrency:\n  group: build-exe-${{ github.ref }}\n  cancel-in-progress: true\n\njobs:\n  build:\n    runs-on: windows-latest\n    timeout-minutes: 45\n    steps:\n      - name: Scarica il codice\n        uses: actions/checkout@v4\n\n      - name: Python 3.12\n        uses: actions/setup-python@v5\n        with:\n          python-version: \"3.12\"\n          cache: pip                              # le librerie già scaricate restano: ricompilare è più veloce\n          cache-dependency-path: requirements.txt\n\n      - name: PyInstaller e librerie\n        run: |\n          python -m pip install --upgrade pip\n          pip install \"pyinstaller>=6.10,<7\" pillow\n          pip install -r requirements.txt\n\n      - name: Compila EXE\n        run: python crea_exe.py\n\n      - name: Controllo del risultato\n        run: Get-ChildItem uscita | Format-Table Name, Length\n\n      - name: Salva tra gli artifact\n        uses: actions/upload-artifact@v4\n        with:\n          name: exe\n          path: uscita/*\n          if-no-files-found: error\n\n      - name: Pubblica nelle Releases\n        uses: softprops/action-gh-release@v2\n        with:\n          tag_name: exe-${{ github.run_number }}\n          name: EXE build ${{ github.run_number }}\n          body: |\n            Programma per Windows creato con **Pubblica** · by Lollo ®2026\n\n            **Come si usa:** scarica il file `.exe` qui sotto e fai doppio clic.\n            Se Windows mostra «Windows ha protetto il PC», scegli **Ulteriori informazioni → Esegui comunque**:\n            succede con tutti i programmi non firmati.\n\n            Il file `.sha256` contiene l'impronta per controllare che il download sia integro\n            (PowerShell: `Get-FileHash nomefile.exe`).\n\n            Compilato dal commit ${{ github.sha }}.\n          files: uscita/*\n";
 const STDLIB = new Set("abc antigravity argparse array ast asyncio atexit base64 bdb binascii bisect builtins bz2 cProfile calendar cmath cmd code codecs codeop collections colorsys compileall concurrent configparser contextlib contextvars copy copyreg csv ctypes curses dataclasses datetime dbm decimal difflib dis doctest email encodings ensurepip enum errno faulthandler fcntl filecmp fileinput fnmatch fractions ftplib functools gc genericpath getopt getpass gettext glob graphlib grp gzip hashlib heapq hmac html http idlelib imaplib importlib inspect io ipaddress itertools json keyword linecache locale logging lzma mailbox marshal math mimetypes mmap modulefinder msvcrt multiprocessing netrc nt ntpath nturl2path numbers opcode operator optparse os pathlib pdb pickle pickletools pkgutil platform plistlib poplib posix posixpath pprint profile pstats pty pwd py_compile pyclbr pydoc pydoc_data pyexpat queue quopri random re readline reprlib resource rlcompleter runpy sched secrets select selectors shelve shlex shutil signal site smtplib socket socketserver sqlite3 sre_compile sre_constants sre_parse ssl stat statistics string stringprep struct subprocess symtable sys sysconfig syslog tabnanny tarfile tempfile termios textwrap this threading time timeit tkinter token tokenize tomllib trace traceback tracemalloc tty turtle turtledemo types typing unicodedata unittest urllib uuid venv warnings wave weakref webbrowser winreg winsound wsgiref xml xmlrpc zipapp zipfile zipimport zlib zoneinfo".split(' '));
 // nome usato in «import» → nome del pacchetto da installare con pip
 const PIP = { PIL: 'pillow', cv2: 'opencv-python', yaml: 'pyyaml', bs4: 'beautifulsoup4', sklearn: 'scikit-learn',
@@ -2985,6 +3058,7 @@ async function compila(soloRicompila) {
   if (S.occupato) return;
   if (!TOKEN) { alert('Prima inserisci il token GitHub in ⚙ Impostazioni → Accesso.'); vai('config'); return; }
   if (!soloRicompila && !EX.file.length) { alert('Prima carica un file .py o un progetto ZIP (punto 1).'); return; }
+  if (typeof chiediNotifiche === 'function') chiediNotifiche();   // per avvisarti quando l'EXE è pronto
   const repo = normRepo(g('exe-repo').value);
   if (!repo) { alert('Scrivi il repository come utente/nome, per esempio ' + (CFG.utente || 'utente') + '/mio-programma-exe.'); g('exe-repo').focus(); return; }
   fermaMonitor(); togli('build');
@@ -3154,9 +3228,13 @@ async function concludi(repo, run, job, gen) {
       catch { if (gen !== EX.gen) return; await attendi(3000); }
     }
     mostraExe(repo, rel, run);
+    if (typeof notificaFine === 'function') notificaFine('🪟 EXE pronto', `Compilazione n. ${run.run_number} riuscita: tocca per scaricarlo.`);
   } else if (run.conclusion === 'cancelled') {
     passo('Compilazione fermata. Puoi rilanciarla con «Ricompila senza modifiche».', 'avviso');
-  } else await mostraErrore(repo, run, job);
+  } else {
+    if (typeof notificaFine === 'function') notificaFine('✗ EXE non compilato', 'Tocca per vedere cosa non va e il suggerimento.');
+    await mostraErrore(repo, run, job);
+  }
 }
 function mostraExe(repo, rel, run) {
   const box = document.createElement('div'); box.className = 'esito-exe';
@@ -3176,7 +3254,14 @@ function mostraExe(repo, rel, run) {
   const pc = document.createElement('div'); pc.className = 'riga';
   const copia = Object.assign(document.createElement('button'), { type: 'button', textContent: '🔗 Copia il link per il PC' });
   copia.onclick = async () => { try { await navigator.clipboard.writeText(rel.html_url); copia.textContent = '✓ Link copiato'; } catch { prompt('Copia questo link e aprilo sul PC:', rel.html_url); } };
-  pc.append(copia, Object.assign(document.createElement('a'), { className: 'btn', href: rel.html_url, target: '_blank', rel: 'noopener', textContent: 'Pagina della release' }));
+  pc.append(copia);
+  if (navigator.share) {
+    const manda = Object.assign(document.createElement('button'), { type: 'button', textContent: '📤 Manda il link al PC' });
+    manda.title = 'Con WhatsApp, Telegram o email: sul PC lo apri e scarichi l\'EXE';
+    manda.onclick = () => navigator.share({ title: 'EXE pronto', text: 'Programma per Windows da scaricare:', url: rel.html_url }).catch(() => {});
+    pc.append(manda);
+  }
+  pc.append(Object.assign(document.createElement('a'), { className: 'btn', href: rel.html_url, target: '_blank', rel: 'noopener', textContent: 'Pagina della release' }));
   const istr = document.createElement('details');
   istr.innerHTML = `<summary>Come si usa sul PC</summary><ol>
     <li>Apri il link della release sul PC (o copia lì il file scaricato dal telefono).</li>
@@ -3269,6 +3354,9 @@ window.creaExe = {
       passo(`Ultima compilazione su ${b.repo}`, 'info', { url: `https://github.com/${b.repo}/actions/runs/${b.runId}`, testo: 'apri' });
       seguiRun(b.repo, b.runId, gen).catch((e) => passo(e.message, 'errore'));
     }).catch(() => {});
+  },
+  async carica(f) {                    // file arrivato con «Condividi» da un'altra app
+    if (/\.zip$/i.test(f.name)) { EX.libToccate = false; await caricaZip(f); } else await caricaPy(f);
   },
   _stato: () => ({ file: EX.file.map((f) => f.percorso), avvio: EX.avvio, ...impostazioni() })
 };
@@ -5836,6 +5924,7 @@ async function invia(ctx, d, messaggio) {
 /* ---------- pulsante principale ---------- */
 async function pubblicaECompila(soloRicompila) {
   if (GH.occupato) return;
+  if (typeof chiediNotifiche === "function") chiediNotifiche();   // per avvisarti quando l'APK è pronto
   clearTimeout(timer); salvaEditor(); mostraAnalisi();
   if (!soloRicompila) await attendiRicerche();
   if (!soloRicompila && stato.analisi.bloccante) { toast("Manca il codice da compilare"); return; }
@@ -6076,6 +6165,7 @@ async function concludi(repo, run, job, gen) {
     const vista = document.getElementById("v-apk");
     if (vista && vista.hidden) toast("✓ APK pronto: apri «Crea APK» per scaricarlo");
     try { navigator.vibrate && navigator.vibrate([120, 80, 120]); } catch (e) { /* niente */ }
+    if (typeof notificaFine === "function") notificaFine("📱 APK pronto", `Compilazione n. ${run.run_number} riuscita: tocca per scaricarlo.`);
     let rel = null;
     for (let i = 0; i < 5 && !rel; i++) {
       try { rel = (await gh(`/repos/${repo}/releases/tags/apk-${run.run_number}`)).dati; }
@@ -6088,6 +6178,7 @@ async function concludi(repo, run, job, gen) {
     passo("Compilazione fermata. Puoi rilanciarla con «Ricompila senza modifiche».", "avviso");
   } else {
     document.title = "✗ Compilazione fallita · Crea APK"; chip("compilazione fallita", "male");
+    if (typeof notificaFine === "function") notificaFine("✗ APK non compilato", "Tocca per vedere cosa non va.");
     await mostraErrore(repo, run, job);
   }
 }
