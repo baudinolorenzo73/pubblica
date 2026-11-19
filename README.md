@@ -18,7 +18,7 @@
 Pubblica è **una sola pagina web** che si installa come app sul telefono. Con lei:
 
 - **pubblichi** i tuoi progetti su GitHub scegliendo uno ZIP;
-- **compili** script Python e pagine HTML in **app Android (APK)** e **programmi Windows (EXE)**;
+- **compili** script Python e app HTML in **app Android (APK)** e **programmi Windows (EXE)**;
 - **controlli e ripari** il sito GitHub Pages di un progetto;
 - **gestisci** i repository: li crei, li svuoti, li elimini o li installi in Termux.
 
@@ -63,9 +63,11 @@ flowchart LR
 |---|---|---|---|
 | 📱 | Script Python (print/input), progetto ZIP, app HTML | APK Android | GitHub Actions · Ubuntu (Buildozer / Capacitor) |
 | 🐍 | App con interfaccia Kivy | APK Android | GitHub Actions · Ubuntu (Buildozer) |
-| 🪟 | Script `.py` o progetto ZIP | EXE Windows | GitHub Actions · Windows (PyInstaller) |
+| 🪟 | Script `.py`, app HTML (`.html` o ZIP) | EXE Windows | GitHub Actions · Windows (PyInstaller; le app HTML con pywebview + WebView2) |
 
 **🪟 EXE per Windows** in dettaglio:
+- accetta **script Python** e **app HTML**: capisce da solo cos'è (con `index.html` è un'app HTML; se nello ZIP ci sono sia pagine sia `.py`, te lo chiede);
+- le **app HTML** si aprono in una **finestra di Windows** con il motore di Edge (WebView2): titolo dalla `<title>` della pagina, larghezza e altezza a scelta, schermo intero facoltativo. Un piccolo server interno serve le pagine su `http://127.0.0.1`, così moduli JavaScript, `fetch` e salvataggi (`localStorage`) funzionano come online, e i dati restano tra un avvio e l'altro. Se sul PC manca WebView2 (raro: c'è in Windows 10 e 11 aggiornati), l'app si apre nel browser predefinito;
 - legge il codice e trova da solo le **librerie** (`import PIL` → `pillow`, `import cv2` → `opencv-python`…) e se il programma apre una **finestra** (tkinter, PyQt, pygame…) o usa la **console**;
 - **un solo `.exe`** oppure ZIP con la cartella; icona tua (PNG/ICO) o automatica con le iniziali;
 - l'EXE ha le **proprietà di Windows** compilate (nome, versione, «by Lollo ®2026») e un file **`.sha256`** per controllare che il download sia integro;
@@ -91,7 +93,7 @@ Da qualsiasi app (file manager, Telegram, Gmail, Drive) tocca **Condividi → Pu
 |---|---|
 | `.zip` | Pubblica · EXE · APK da progetto Python · APK da sito HTML |
 | `.py` | Pubblica · EXE · APK da Python |
-| `.html` | Pubblica · APK da app HTML |
+| `.html` | Pubblica · EXE · APK da app HTML |
 
 *Pubblica compare nel menu «Condividi» solo dopo averla installata come app.*
 
@@ -116,9 +118,9 @@ In **⚙ Impostazioni → Accesso**, il pulsante «Controlla il mio token» dice
 
 ## Aggiornare Pubblica
 
-1. Aumenta il numero in `versione.js` **e** in `versione.json` (es. da `3.15.0` a `3.15.1`). Senza questo passo i telefoni non vedono l'aggiornamento.
+1. Aumenta il numero in `versione.js` **e** in `versione.json` (es. da `3.16.0` a `3.16.1`). Senza questo passo i telefoni non vedono l'aggiornamento.
 2. Pubblica il nuovo ZIP con Pubblica stessa.
-3. Alla riapertura compare **⬆ Aggiorna alla 3.15.1** (oppure tocca **↻ Controlla aggiornamenti**).
+3. Alla riapertura compare **⬆ Aggiorna alla 3.16.1** (oppure tocca **↻ Controlla aggiornamenti**).
 
 ## Come è fatta
 
@@ -141,6 +143,10 @@ Le richieste a GitHub non passano mai dalla cache: Pubblica vede sempre lo stato
 - Le regole di sicurezza della pagina (Content-Security-Policy) permettono connessioni solo verso GitHub, i suoi server di file e PyPI.
 
 ## Novità
+
+### 3.16
+- **🪟 App HTML → EXE**: una pagina `.html` o un progetto ZIP con `index.html` diventa un programma Windows che si apre nella sua finestra (motore di Edge). Dati salvati che restano, funziona offline, titolo e dimensioni della finestra a scelta.
+- «Condividi» di una pagina `.html` propone anche **EXE per Windows**.
 
 ### 3.15
 - **📥 Condividi con Pubblica**: da qualsiasi app, ZIP, `.py` e `.html` arrivano a Pubblica, che propone Pubblica / EXE / APK.

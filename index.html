@@ -308,7 +308,7 @@ footer::before{content:"";display:block;height:1px;max-width:860px;margin:0 auto
     <div class="menu">
       <button type="button" class="voce princ" data-vai="apk"><span class="ico">📱</span><span><b>APK da Python o HTML</b><small id="apk-menu-stato">Script .py, progetto ZIP o app HTML → app Android</small></span></button>
       <button type="button" class="voce princ" id="voce-kivy"><span class="ico">🐍</span><span><b>APK con Kivy</b><small>App Kivy già pronta: compila direttamente con Buildozer, senza console</small></span></button>
-      <button type="button" class="voce princ" id="voce-exe" data-vai="exe"><span class="ico">🪟</span><span><b>EXE per Windows</b><small>Script .py o progetto ZIP → programma .exe, compilato su GitHub</small></span></button>
+      <button type="button" class="voce princ" id="voce-exe" data-vai="exe"><span class="ico">🪟</span><span><b>EXE per Windows</b><small>Script .py, app HTML o progetto ZIP → programma .exe, compilato su GitHub</small></span></button>
     </div>
   </div>
 </section>
@@ -343,12 +343,12 @@ footer::before{content:"";display:block;height:1px;max-width:860px;margin:0 auto
 <section id="v-exe" class="vista" hidden>
   <div class="card">
     <h2>🪟 1 · Il programma</h2>
-    <p class="nota">Da uno script Python a un programma <code>.exe</code> per Windows. Compila GitHub con PyInstaller su una macchina Windows: il telefono invia solo i file.</p>
+    <p class="nota">Da uno <b>script Python</b> o da un'<b>app HTML</b> a un programma <code>.exe</code> per Windows. Compila GitHub con PyInstaller su una macchina Windows: il telefono invia solo i file.</p>
     <div class="riga">
-      <button type="button" id="exe-btn-py" class="primario">Carica file .py</button>
+      <button type="button" id="exe-btn-py" class="primario">Carica file .py o .html</button>
       <button type="button" id="exe-btn-zip">Carica progetto ZIP</button>
     </div>
-    <input type="file" id="exe-in-py" accept=".py,.pyw,text/x-python,text/plain" hidden>
+    <input type="file" id="exe-in-py" accept=".py,.pyw,.html,.htm,text/x-python,text/html,text/plain" hidden>
     <input type="file" id="exe-in-zip" accept=".zip,application/zip" hidden>
     <div id="exe-progetto"></div>
   </div>
@@ -359,16 +359,30 @@ footer::before{content:"";display:block;height:1px;max-width:860px;margin:0 auto
     <label for="exe-versione">Versione</label>
     <input id="exe-versione" type="text" inputmode="decimal" autocomplete="off" value="1.0">
     <p class="nota">Se ricompili con il programma cambiato, sale da sola (1.0 → 1.1).</p>
+    <div id="exe-solo-html" hidden>
+      <p class="nota" id="exe-html-nota"></p>
+      <label for="exe-titolo">Titolo della finestra</label>
+      <input id="exe-titolo" type="text" autocomplete="off" maxlength="80">
+      <div class="riga">
+        <span style="flex:1 1 120px"><label for="exe-larghezza">Larghezza</label><input id="exe-larghezza" type="number" inputmode="numeric" min="360" max="4000" step="10" value="1200"></span>
+        <span style="flex:1 1 120px"><label for="exe-altezza">Altezza</label><input id="exe-altezza" type="number" inputmode="numeric" min="480" max="3000" step="10" value="800"></span>
+      </div>
+      <label class="chk"><input type="checkbox" id="exe-intero"> <span><b>Apri a schermo intero</b> (per uscire: Alt+F4)</span></label>
+    </div>
+    <div id="exe-solo-py">
     <label for="exe-tipo">Tipo di programma</label>
     <select id="exe-tipo">
       <option value="console">Con console (testo: print e input)</option>
       <option value="finestra">Solo finestra (tkinter, PyQt, pygame…)</option>
     </select>
     <p class="nota" id="exe-tipo-nota"></p>
+    </div>
     <label class="chk"><input type="checkbox" id="exe-unfile" checked> <span><b>Un solo file .exe</b>: comodo da copiare, parte qualche secondo più lento. Senza spunta ottieni uno ZIP con la cartella del programma.</span></label>
+    <div id="exe-solo-py-lib">
     <label for="exe-librerie">Librerie da installare (pip, una per riga)</label>
     <textarea id="exe-librerie" rows="3" spellcheck="false" placeholder="requests&#10;pillow"></textarea>
     <p class="nota" id="exe-librerie-nota"></p>
+    </div>
     <label for="exe-btn-icona">Icona (facoltativa: PNG o ICO)</label>
     <div class="riga"><button type="button" id="exe-btn-icona">Scegli icona…</button><span id="exe-icona-nome" class="nota">Automatica: iniziali del nome</span></div>
     <input type="file" id="exe-icona-in" accept=".png,.ico,image/png,image/x-icon" hidden>
@@ -972,7 +986,7 @@ pip install --upgrade buildozer "cython==0.29.33" setuptools</pre></li>
 
 </main>
 <div class="toast" id="toast"></div>
-<footer>Pubblica <span class="num-versione">…</span> con Crea APK · by Lollo ®2026</footer>
+<footer>Pubblica <span class="num-versione">…</span> con Crea APK ed EXE · by Lollo ®2026</footer>
 
 <script type="text/plain" id="tplInstalla">
 #!/data/data/com.termux/files/usr/bin/bash
@@ -2731,7 +2745,7 @@ function mostraCondivisi(file) {
   const peso = file.reduce((s, x) => s + x.size, 0);
   const kb = peso < 1048576 ? Math.max(1, Math.round(peso / 1024)) + ' KB' : (peso / 1048576).toFixed(1) + ' MB';
   const azioni = [['🚀', 'Pubblica su GitHub', (CFG.attivo ? 'Nel progetto attivo: ' + nomeRepoCfg(CFG.attivo) : 'Prima scegli il progetto attivo qui sotto'), () => { vai('pubblica'); S.ultimi = file; nuoviFile(file); }]];
-  if (uno && (py || zip)) azioni.push(['🪟', 'EXE per Windows', 'Compila il programma Python', async () => { vai('exe'); try { await window.creaExe.carica(f); } catch (e) { alert(e.message); } }]);
+  if (uno && (py || zip || html)) azioni.push(['🪟', 'EXE per Windows', html ? 'L\'app HTML in una finestra di Windows' : 'Compila il programma Python', async () => { vai('exe'); try { await window.creaExe.carica(f); } catch (e) { alert(e.message); } }]);
   if (uno && py) azioni.push(['📱', 'APK da Python', 'App Android dallo script', () => { window.__modoKivy = false; vai('apk'); mettiNelCampo('fileScript', [f]); }]);
   if (uno && zip) azioni.push(['📱', 'APK da progetto Python', 'Lo ZIP contiene file .py', () => { window.__modoKivy = false; vai('apk'); mettiNelCampo('fileZip', [f]); }],
     ['🌐', 'APK da sito HTML', 'Lo ZIP contiene una pagina web', () => { window.__modoKivy = false; vai('apk'); mettiNelCampo('fileHtml', [f]); }]);
@@ -2759,14 +2773,17 @@ if (!TOKEN) msg('#esito-token', 'inf', 'Per iniziare incolla il tuo token GitHub
 </script>
 <script>
 /* ===================== 🪟 EXE per Windows (dentro Pubblica) · by Lollo ®2026 =====================
-   Script .py o progetto ZIP → repository GitHub dedicato → GitHub Actions su Windows con PyInstaller
+   Script .py, app HTML o progetto ZIP → repository GitHub dedicato → GitHub Actions su Windows con PyInstaller
+   (le app HTML girano in una finestra con il motore di Edge, grazie a un piccolo avviatore Python con pywebview)
    → l'EXE finisce nelle Releases e si scarica da qui. Usa gh(), TOKEN e CFG di Pubblica. */
 (() => {
 'use strict';
 const g = (id) => document.getElementById(id);
 const WF = '.github/workflows/build-exe.yml';
-const SCRIPT = "\"\"\"Compila il programma Python in EXE con PyInstaller. Lo usa il workflow «Build EXE».\nLe scelte (nome, versione, file di avvio, console…) stanno in exe.json. Generato da Pubblica · by Lollo ®2026\"\"\"\nimport hashlib, json, os, re, shutil, sys\nimport PyInstaller.__main__\n\nos.chdir(os.path.dirname(os.path.abspath(__file__)))\nc = json.load(open(\"exe.json\", encoding=\"utf-8\"))\nnome = c[\"nome\"]\nversione = str(c.get(\"versione\", \"1.0\"))\ncartella = os.path.abspath(\"progetto\")\navvio = os.path.abspath(c[\"avvio\"])\nif not os.path.isfile(avvio):\n    sys.exit(\"File di avvio non trovato: \" + c[\"avvio\"])\n\n\ndef file_versione(percorso):\n    \"\"\"Proprietà del file in Windows (tasto destro → Proprietà → Dettagli): nome, versione, autore.\"\"\"\n    n = [int(x) for x in re.findall(r\"\\d+\", versione)][:4]\n    n += [0] * (4 - len(n))\n    t = tuple(n)\n    testo = f\"\"\"VSVersionInfo(\n  ffi=FixedFileInfo(filevers={t}, prodvers={t}, mask=0x3f, flags=0x0, OS=0x40004, fileType=0x1, subtype=0x0, date=(0, 0)),\n  kids=[\n    StringFileInfo([StringTable('041004B0', [\n      StringStruct('CompanyName', 'by Lollo'),\n      StringStruct('FileDescription', {nome!r}),\n      StringStruct('FileVersion', {versione!r}),\n      StringStruct('InternalName', {nome!r}),\n      StringStruct('LegalCopyright', 'by Lollo ®2026'),\n      StringStruct('OriginalFilename', {nome + '.exe'!r}),\n      StringStruct('ProductName', {nome!r}),\n      StringStruct('ProductVersion', {versione!r})])]),\n    VarFileInfo([VarStruct('Translation', [0x0410, 1200])])\n  ]\n)\n\"\"\"\n    os.makedirs(os.path.dirname(percorso), exist_ok=True)\n    with open(percorso, \"w\", encoding=\"utf-8\") as f:\n        f.write(testo)\n    return percorso\n\n\narg = [avvio, \"--name\", nome, \"--noconfirm\", \"--clean\",\n       \"--distpath\", \"dist\", \"--workpath\", \"build\", \"--specpath\", \"build\",\n       \"--paths\", os.path.dirname(avvio), \"--paths\", cartella]\narg.append(\"--onefile\" if c.get(\"unFile\", True) else \"--onedir\")\narg.append(\"--console\" if c.get(\"console\", True) else \"--windowed\")\nicona = c.get(\"icona\")\nif icona and os.path.isfile(icona):\n    arg += [\"--icon\", os.path.abspath(icona)]   # PNG: PyInstaller lo converte in .ico grazie a Pillow\nif os.name == \"nt\":                              # le proprietà del file esistono solo su Windows\n    arg += [\"--version-file\", os.path.abspath(file_versione(os.path.join(\"build\", \"versione.txt\")))]\nfor f in c.get(\"dati\", []):                     # immagini, json, testi del progetto: dentro l'EXE, stesse cartelle\n    if os.path.isfile(f):\n        dest = os.path.relpath(os.path.dirname(os.path.abspath(f)), cartella)\n        arg += [\"--add-data\", os.path.abspath(f) + os.pathsep + dest]\nfor m in c.get(\"nascosti\", []):\n    arg += [\"--hidden-import\", m]\nprint(\"PyInstaller \" + \" \".join(arg), flush=True)\nPyInstaller.__main__.run(arg)\n\nos.makedirs(\"uscita\", exist_ok=True)\nest = \".exe\" if os.name == \"nt\" else \"\"\nif c.get(\"unFile\", True):\n    finale = os.path.join(\"uscita\", nome + \"-\" + versione + est)\n    shutil.copy2(os.path.join(\"dist\", nome + est), finale)\nelse:\n    finale = shutil.make_archive(os.path.join(\"uscita\", nome + \"-\" + versione + \"-windows\"), \"zip\", os.path.join(\"dist\", nome))\n\n# impronta SHA-256: chi scarica può controllare che il file sia proprio questo\nh = hashlib.sha256()\nwith open(finale, \"rb\") as f:\n    for blocco in iter(lambda: f.read(1 << 20), b\"\"):\n        h.update(blocco)\nwith open(finale + \".sha256\", \"w\", encoding=\"utf-8\") as f:\n    f.write(h.hexdigest() + \"  \" + os.path.basename(finale) + \"\\n\")\nprint(\"Pronto: \" + finale + \" (\" + str(os.path.getsize(finale)) + \" byte)\")\nprint(\"SHA-256: \" + h.hexdigest())\n";
+const SCRIPT = "\"\"\"Compila il programma Python in EXE con PyInstaller. Lo usa il workflow «Build EXE».\nLe scelte (nome, versione, file di avvio, console…) stanno in exe.json. Generato da Pubblica · by Lollo ®2026\"\"\"\nimport hashlib, json, os, re, shutil, sys\nimport PyInstaller.__main__\n\nos.chdir(os.path.dirname(os.path.abspath(__file__)))\nc = json.load(open(\"exe.json\", encoding=\"utf-8\"))\nnome = c[\"nome\"]\nversione = str(c.get(\"versione\", \"1.0\"))\ncartella = os.path.abspath(\"progetto\")\navvio = os.path.abspath(c[\"avvio\"])\nif not os.path.isfile(avvio):\n    sys.exit(\"File di avvio non trovato: \" + c[\"avvio\"])\n\n\ndef file_versione(percorso):\n    \"\"\"Proprietà del file in Windows (tasto destro → Proprietà → Dettagli): nome, versione, autore.\"\"\"\n    n = [int(x) for x in re.findall(r\"\\d+\", versione)][:4]\n    n += [0] * (4 - len(n))\n    t = tuple(n)\n    testo = f\"\"\"VSVersionInfo(\n  ffi=FixedFileInfo(filevers={t}, prodvers={t}, mask=0x3f, flags=0x0, OS=0x40004, fileType=0x1, subtype=0x0, date=(0, 0)),\n  kids=[\n    StringFileInfo([StringTable('041004B0', [\n      StringStruct('CompanyName', 'by Lollo'),\n      StringStruct('FileDescription', {nome!r}),\n      StringStruct('FileVersion', {versione!r}),\n      StringStruct('InternalName', {nome!r}),\n      StringStruct('LegalCopyright', 'by Lollo ®2026'),\n      StringStruct('OriginalFilename', {nome + '.exe'!r}),\n      StringStruct('ProductName', {nome!r}),\n      StringStruct('ProductVersion', {versione!r})])]),\n    VarFileInfo([VarStruct('Translation', [0x0410, 1200])])\n  ]\n)\n\"\"\"\n    os.makedirs(os.path.dirname(percorso), exist_ok=True)\n    with open(percorso, \"w\", encoding=\"utf-8\") as f:\n        f.write(testo)\n    return percorso\n\n\narg = [avvio, \"--name\", nome, \"--noconfirm\", \"--clean\",\n       \"--distpath\", \"dist\", \"--workpath\", \"build\", \"--specpath\", \"build\",\n       \"--paths\", os.path.dirname(avvio), \"--paths\", cartella]\narg.append(\"--onefile\" if c.get(\"unFile\", True) else \"--onedir\")\narg.append(\"--console\" if c.get(\"console\", True) else \"--windowed\")\nicona = c.get(\"icona\")\nif icona and os.path.isfile(icona):\n    arg += [\"--icon\", os.path.abspath(icona)]   # PNG: PyInstaller lo converte in .ico grazie a Pillow\nif os.name == \"nt\":                              # le proprietà del file esistono solo su Windows\n    arg += [\"--version-file\", os.path.abspath(file_versione(os.path.join(\"build\", \"versione.txt\")))]\nprefisso = c.get(\"cartellaDati\", \"\")            # app HTML: i file vanno nella cartella «app» dentro l'EXE\nfor f in c.get(\"dati\", []):                     # immagini, json, testi del progetto: dentro l'EXE, stesse cartelle\n    if os.path.isfile(f):\n        dest = os.path.normpath(os.path.join(prefisso, os.path.relpath(os.path.dirname(os.path.abspath(f)), cartella)))\n        arg += [\"--add-data\", os.path.abspath(f) + os.pathsep + dest]\nfor m in c.get(\"nascosti\", []):\n    arg += [\"--hidden-import\", m]\nprint(\"PyInstaller \" + \" \".join(arg), flush=True)\nPyInstaller.__main__.run(arg)\n\nos.makedirs(\"uscita\", exist_ok=True)\nest = \".exe\" if os.name == \"nt\" else \"\"\nif c.get(\"unFile\", True):\n    finale = os.path.join(\"uscita\", nome + \"-\" + versione + est)\n    shutil.copy2(os.path.join(\"dist\", nome + est), finale)\nelse:\n    finale = shutil.make_archive(os.path.join(\"uscita\", nome + \"-\" + versione + \"-windows\"), \"zip\", os.path.join(\"dist\", nome))\n\n# impronta SHA-256: chi scarica può controllare che il file sia proprio questo\nh = hashlib.sha256()\nwith open(finale, \"rb\") as f:\n    for blocco in iter(lambda: f.read(1 << 20), b\"\"):\n        h.update(blocco)\nwith open(finale + \".sha256\", \"w\", encoding=\"utf-8\") as f:\n    f.write(h.hexdigest() + \"  \" + os.path.basename(finale) + \"\\n\")\nprint(\"Pronto: \" + finale + \" (\" + str(os.path.getsize(finale)) + \" byte)\")\nprint(\"SHA-256: \" + h.hexdigest())\n";
 const WORKFLOW = "# Compila l'EXE per Windows a ogni invio (o a mano: Actions → Build EXE → Run workflow)\n# e lo pubblica nelle Releases del repository. Generato da Pubblica · by Lollo ®2026\nname: Build EXE\n\non:\n  push:\n    paths-ignore:\n      - \"README.md\"\n  workflow_dispatch:\n\npermissions:\n  contents: write\n\n# Un nuovo invio annulla la compilazione precedente ancora in corso\nconcurrency:\n  group: build-exe-${{ github.ref }}\n  cancel-in-progress: true\n\njobs:\n  build:\n    runs-on: windows-latest\n    timeout-minutes: 45\n    steps:\n      - name: Scarica il codice\n        uses: actions/checkout@v4\n\n      - name: Python 3.12\n        uses: actions/setup-python@v5\n        with:\n          python-version: \"3.12\"\n          cache: pip                              # le librerie già scaricate restano: ricompilare è più veloce\n          cache-dependency-path: requirements.txt\n\n      - name: PyInstaller e librerie\n        run: |\n          python -m pip install --upgrade pip\n          pip install \"pyinstaller>=6.10,<7\" pillow\n          pip install -r requirements.txt\n\n      - name: Compila EXE\n        run: python crea_exe.py\n\n      - name: Controllo del risultato\n        run: Get-ChildItem uscita | Format-Table Name, Length\n\n      - name: Salva tra gli artifact\n        uses: actions/upload-artifact@v4\n        with:\n          name: exe\n          path: uscita/*\n          if-no-files-found: error\n\n      - name: Pubblica nelle Releases\n        uses: softprops/action-gh-release@v2\n        with:\n          tag_name: exe-${{ github.run_number }}\n          name: EXE build ${{ github.run_number }}\n          body: |\n            Programma per Windows creato con **Pubblica** · by Lollo ®2026\n\n            **Come si usa:** scarica il file `.exe` qui sotto e fai doppio clic.\n            Se Windows mostra «Windows ha protetto il PC», scegli **Ulteriori informazioni → Esegui comunque**:\n            succede con tutti i programmi non firmati.\n\n            Il file `.sha256` contiene l'impronta per controllare che il download sia integro\n            (PowerShell: `Get-FileHash nomefile.exe`).\n\n            Compilato dal commit ${{ github.sha }}.\n          files: uscita/*\n";
+const AVVIATORE = "\"\"\"Avvia l'app HTML come programma Windows: una finestra con il motore di Edge (WebView2).\nI file dell'app sono dentro l'EXE; un piccolo server locale li serve su http://127.0.0.1,\ncosì fetch, moduli JavaScript e salvataggi (localStorage) funzionano come online.\nGenerato da Pubblica · by Lollo ®2026\"\"\"\nimport functools, http.server, os, socket, socketserver, sys, threading, time, webbrowser, zlib\n\nTITOLO = __TITOLO__\nAPP_ID = __ID__                 # nome fisso dell'app: da qui dipendono porta e cartella dei dati\nPAGINA = __PAGINA__\nLARGHEZZA, ALTEZZA = __LARGHEZZA__, __ALTEZZA__\nSCHERMO_INTERO = __SCHERMO_INTERO__\n\nBASE = os.path.join(getattr(sys, \"_MEIPASS\", os.path.dirname(os.path.abspath(__file__))), \"app\")\n# I dati dell'app (localStorage, IndexedDB) restano qui tra un avvio e l'altro\nDATI = os.path.join(os.environ.get(\"LOCALAPPDATA\") or os.path.expanduser(\"~\"), \"by Lollo\", APP_ID)\n# Porta sempre uguale per questa app: i salvataggi del browser sono legati all'indirizzo\nPORTA = 20000 + zlib.crc32(APP_ID.encode(\"utf-8\")) % 20000\nTIPI = {\".js\": \"text/javascript\", \".mjs\": \"text/javascript\", \".css\": \"text/css\", \".json\": \"application/json\",\n        \".svg\": \"image/svg+xml\", \".wasm\": \"application/wasm\", \".webmanifest\": \"application/manifest+json\",\n        \".html\": \"text/html\", \".htm\": \"text/html\", \".png\": \"image/png\", \".jpg\": \"image/jpeg\", \".ico\": \"image/x-icon\"}\n\n\nclass Gestore(http.server.SimpleHTTPRequestHandler):\n    extensions_map = {**http.server.SimpleHTTPRequestHandler.extensions_map, **TIPI}  # su Windows il registro può sbagliare i tipi\n\n    def log_message(self, *a):            # senza console non c'è dove scrivere\n        pass\n\n    def end_headers(self):\n        self.send_header(\"Cache-Control\", \"no-cache\")\n        super().end_headers()\n\n\nclass Server(socketserver.ThreadingMixIn, http.server.HTTPServer):\n    daemon_threads = True\n    allow_reuse_address = False\n\n\ndef avvia_server():\n    gestore = functools.partial(Gestore, directory=BASE)\n    for porta in [PORTA] + list(range(PORTA + 1, PORTA + 20)):\n        try:\n            srv = Server((\"127.0.0.1\", porta), gestore)\n            threading.Thread(target=srv.serve_forever, daemon=True).start()\n            return srv, f\"http://127.0.0.1:{porta}/{PAGINA}\"\n        except OSError:\n            continue                       # porta occupata: provo la successiva\n    raise SystemExit(\"Nessuna porta libera per avviare l'app.\")\n\n\ndef edge_disponibile():\n    \"\"\"True se c'è WebView2 (Windows 10/11 aggiornati). Senza, pywebview userebbe il vecchio Internet Explorer.\"\"\"\n    try:\n        from webview.platforms import winforms\n        return winforms.renderer == \"edgechromium\"\n    except Exception:\n        return False\n\n\ndef apri_nel_browser(url):\n    \"\"\"Ripiego: l'app si apre nel browser predefinito e questa finestrella la tiene accesa.\"\"\"\n    webbrowser.open(url)\n    try:\n        import tkinter as tk\n        f = tk.Tk()\n        f.title(TITOLO)\n        f.geometry(\"420x150\")\n        tk.Label(f, text=f\"{TITOLO} è aperta nel browser.\\n\\nChiudi questa finestra per spegnerla.\\n\"\n                        \"(Per aprirla in una finestra sua installa «Microsoft Edge WebView2 Runtime».)\",\n                 justify=\"center\", padx=16, pady=16).pack(expand=True)\n        tk.Button(f, text=\"Riapri nel browser\", command=lambda: webbrowser.open(url)).pack(pady=(0, 12))\n        f.mainloop()\n    except Exception:\n        while True:\n            time.sleep(3600)\n\n\ndef main():\n    if not os.path.isfile(os.path.join(BASE, PAGINA)):\n        raise SystemExit(\"Pagina non trovata nell'EXE: \" + PAGINA)\n    srv, url = avvia_server()\n    if os.environ.get(\"PUBBLICA_PROVA\"):   # prova automatica senza finestra\n        print(url, flush=True)\n        time.sleep(float(os.environ[\"PUBBLICA_PROVA\"]))\n        return\n    if sys.platform == \"win32\" and not edge_disponibile():\n        apri_nel_browser(url)\n        return\n    import webview\n    try:\n        webview.settings[\"ALLOW_DOWNLOADS\"] = True              # esporta/scarica file dall'app\n        webview.settings[\"OPEN_EXTERNAL_LINKS_IN_BROWSER\"] = True\n    except Exception:\n        pass\n    os.makedirs(DATI, exist_ok=True)\n    webview.create_window(TITOLO, url, width=LARGHEZZA, height=ALTEZZA, min_size=(360, 480),\n                          fullscreen=SCHERMO_INTERO, text_select=True)\n    try:\n        webview.start(private_mode=False, storage_path=DATI)\n    except Exception:\n        apri_nel_browser(url)\n\n\nif __name__ == \"__main__\":\n    main()\n";
+const E_PY = /\.pyw?$/i, E_HTML = /\.html?$/i;
 const STDLIB = new Set("abc antigravity argparse array ast asyncio atexit base64 bdb binascii bisect builtins bz2 cProfile calendar cmath cmd code codecs codeop collections colorsys compileall concurrent configparser contextlib contextvars copy copyreg csv ctypes curses dataclasses datetime dbm decimal difflib dis doctest email encodings ensurepip enum errno faulthandler fcntl filecmp fileinput fnmatch fractions ftplib functools gc genericpath getopt getpass gettext glob graphlib grp gzip hashlib heapq hmac html http idlelib imaplib importlib inspect io ipaddress itertools json keyword linecache locale logging lzma mailbox marshal math mimetypes mmap modulefinder msvcrt multiprocessing netrc nt ntpath nturl2path numbers opcode operator optparse os pathlib pdb pickle pickletools pkgutil platform plistlib poplib posix posixpath pprint profile pstats pty pwd py_compile pyclbr pydoc pydoc_data pyexpat queue quopri random re readline reprlib resource rlcompleter runpy sched secrets select selectors shelve shlex shutil signal site smtplib socket socketserver sqlite3 sre_compile sre_constants sre_parse ssl stat statistics string stringprep struct subprocess symtable sys sysconfig syslog tabnanny tarfile tempfile termios textwrap this threading time timeit tkinter token tokenize tomllib trace traceback tracemalloc tty turtle turtledemo types typing unicodedata unittest urllib uuid venv warnings wave weakref webbrowser winreg winsound wsgiref xml xmlrpc zipapp zipfile zipimport zlib zoneinfo".split(' '));
 // nome usato in «import» → nome del pacchetto da installare con pip
 const PIP = { PIL: 'pillow', cv2: 'opencv-python', yaml: 'pyyaml', bs4: 'beautifulsoup4', sklearn: 'scikit-learn',
@@ -2787,7 +2804,7 @@ const SCARTA = /(^|\/)(\.git|__pycache__|__MACOSX|\.buildozer|venv|\.venv|build|
 const NON_DATI = /(^|\/)(README(\.md|\.txt)?|LEGGIMI\.md|requirements\.txt|LICENSE(\.md)?|\.gitignore)$/i;
 const ENC = new TextEncoder(), DEC = new TextDecoder('utf-8');
 
-const EX = { file: [], avvio: '', origine: '', icona: null, nomeToccato: false, repoToccato: false, libToccate: false,
+const EX = { file: [], avvio: '', origine: '', tipo: 'python', titolo: '', cartella: '', icona: null, nomeToccato: false, repoToccato: false, libToccate: false,
   tipoToccato: false, gen: 0, runId: 0, repo: '', privato: false, orologio: null, inizio: 0, fine: 0, stima: 0, passi: [], login: '' };
 
 /* ---------- memoria (dentro try: può non essere disponibile) ---------- */
@@ -2800,7 +2817,7 @@ const attendi = (ms) => new Promise((ok) => setTimeout(ok, ms));
 const mmss = (ms) => { const s = Math.max(0, Math.round(ms / 1000)); return Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0'); };
 const kb = (n) => n < 1024 ? n + ' byte' : n < 1048576 ? (n / 1024).toFixed(0) + ' KB' : (n / 1048576).toFixed(1) + ' MB';
 function nomeSicuro(s) {
-  const t = String(s || '').normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/\.pyw?$/i, '')
+  const t = String(s || '').normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/\.(pyw?|html?)$/i, '')
     .replace(/[\s.]+/g, '-').replace(/[^A-Za-z0-9_-]/g, '').replace(/-+/g, '-').replace(/^[-_]+|[-_]+$/g, '').slice(0, 40);
   return t || 'Programma';
 }
@@ -2829,17 +2846,31 @@ function aggiorna(li, tipo, testo, link) {
 function passo(testo, tipo = 'corso', link) { const li = document.createElement('li'); aggiorna(li, tipo, testo, link); g('exe-passi').append(li); return li; }
 
 /* ---------- 1 · caricamento del programma ---------- */
-function candidatoAvvio(file) {
-  const py = file.filter((f) => /\.pyw?$/i.test(f.percorso));
+function candidatoAvvio(file, tipo) {
+  if (tipo === 'html') {
+    const ht = file.filter((f) => E_HTML.test(f.percorso));
+    return (ht.find((f) => f.percorso.toLowerCase() === 'index.html') || ht.find((f) => !f.percorso.includes('/'))
+      || ht.find((f) => /(^|\/)index\.html?$/i.test(f.percorso)) || ht[0] || {}).percorso || '';
+  }
+  const py = file.filter((f) => E_PY.test(f.percorso));
   const prima = (n) => py.find((f) => f.percorso.toLowerCase() === n);
   return (prima('main.py') || prima('__main__.py') || prima('app.py')
     || py.find((f) => !f.percorso.includes('/') && /if\s+__name__\s*==\s*['"]__main__['"]/.test(DEC.decode(f.u8)))
     || py.find((f) => !f.percorso.includes('/')) || py[0] || {}).percorso || '';
 }
-async function caricaPy(f) {
+async function caricaFile(f) {
+  const html = E_HTML.test(f.name);
+  if (!html && !E_PY.test(f.name)) throw new Error('Serve un file .py, una pagina .html o un progetto .zip.');
   const u8 = new Uint8Array(await f.arrayBuffer());
-  const nome = f.name.replace(/[^\w.\- ]/g, '_') || 'main.py';
-  impostaProgetto([{ percorso: nome, u8 }], f.name, null);
+  const nome = f.name.replace(/[^\w.\- ]/g, '_') || (html ? 'index.html' : 'main.py');
+  impostaProgetto([{ percorso: nome, u8 }], f.name, null, '', html ? 'html' : 'python');
+}
+// Python o HTML? Con file .py e senza index.html è Python; con index.html (e senza main.py) è un'app HTML.
+function tipoProbabile(file) {
+  const py = file.some((f) => E_PY.test(f.percorso)), ht = file.some((f) => E_HTML.test(f.percorso));
+  const index = file.some((f) => /^index\.html?$/i.test(f.percorso)), main = file.some((f) => /^(main|__main__|app)\.py$/i.test(f.percorso));
+  if (ht && (!py || (index && !main))) return 'html';
+  return 'python';
 }
 async function caricaZip(f) {
   let zip; try { zip = await JSZip.loadAsync(f); } catch { throw new Error('Archivio ZIP non leggibile.'); }
@@ -2857,36 +2888,54 @@ async function caricaZip(f) {
   if (radici.size === 1 && voci.every((v) => v.percorso.includes('/'))) {
     cartella = [...radici][0]; voci.forEach((v) => { v.percorso = v.percorso.slice(cartella.length + 1); });
   }
-  if (!voci.some((v) => /\.pyw?$/i.test(v.percorso))) throw new Error('Nello ZIP non c\'è nessun file .py.');
+  if (!voci.some((v) => E_PY.test(v.percorso) || E_HTML.test(v.percorso))) throw new Error('Nello ZIP non c\'è nessun file .py né pagine .html.');
   if (voci.length > 1500) throw new Error('Troppi file nello ZIP (' + voci.length + '): togli le cartelle che non servono.');
   const file = [];
   let tot = 0;
   for (const v of voci) { const u8 = await v.z.async('uint8array'); tot += u8.length; file.push({ percorso: v.percorso, u8 }); }
   if (tot > 60 * 1048576) throw new Error('Il progetto pesa ' + kb(tot) + ': troppo per inviarlo da qui (massimo 60 MB).');
   const req = file.find((x) => x.percorso.toLowerCase() === 'requirements.txt');
-  impostaProgetto(file, f.name, req ? DEC.decode(req.u8) : null, cartella);
+  impostaProgetto(file, f.name, req ? DEC.decode(req.u8) : null, cartella, tipoProbabile(file));
 }
-function impostaProgetto(file, origine, requisiti, cartella) {
-  EX.file = file.sort((a, b) => a.percorso.localeCompare(b.percorso)); EX.origine = origine;
-  EX.avvio = candidatoAvvio(EX.file);
-  // il nome viene dalla cartella del progetto dentro lo ZIP (gli ZIP scaricati si chiamano spesso «progetto (1).zip»)
-  if (!EX.nomeToccato) g('exe-nome').value = nomeSicuro(file.length === 1 ? EX.avvio : cartella || origine.replace(/\.zip$/i, ''));
+function impostaProgetto(file, origine, requisiti, cartella, tipo) {
+  EX.file = file.sort((a, b) => a.percorso.localeCompare(b.percorso)); EX.origine = origine; EX.cartella = cartella || '';
   if (requisiti != null && !EX.libToccate) { g('exe-librerie').value = requisiti.replace(/\r/g, '').trim(); EX.libToccate = true; }
+  cambiaTipo(tipo);
+  disegnaProgetto();
+}
+function titoloPagina() {          // <title> della pagina di avvio: il nome più naturale per un'app HTML
+  const f = EX.file.find((x) => x.percorso === EX.avvio); if (!f) return '';
+  const m = DEC.decode(f.u8.slice(0, 200000)).match(/<title[^>]*>([^<]{1,80})<\/title>/i);
+  return m ? m[1].replace(/&amp;/g, '&').replace(/&#?\w+;/g, ' ').replace(/\s+/g, ' ').trim() : '';
+}
+function cambiaTipo(tipo) {
+  EX.tipo = tipo; EX.avvio = candidatoAvvio(EX.file, tipo); EX.titolo = tipo === 'html' ? titoloPagina() : '';
+  // il nome viene dal titolo della pagina, dalla cartella dentro lo ZIP o dal file (gli ZIP scaricati si chiamano spesso «progetto (1).zip»)
+  if (!EX.nomeToccato) g('exe-nome').value = nomeSicuro(EX.titolo || (EX.file.length === 1 ? EX.avvio : EX.cartella || EX.origine.replace(/\.zip$/i, '')));
+  g('exe-solo-py').hidden = tipo === 'html'; g('exe-solo-py-lib').hidden = tipo === 'html'; g('exe-solo-html').hidden = tipo !== 'html';
+  if (tipo === 'html') g('exe-titolo').placeholder = EX.titolo || g('exe-nome').value;
   analizza();
   proponiRepo();
-  disegnaProgetto();
 }
 function disegnaProgetto() {
   const box = g('exe-progetto'); box.replaceChildren();
   if (!EX.file.length) { box.append(Object.assign(document.createElement('p'), { className: 'nota', textContent: 'Nessun programma caricato.' })); return; }
-  const py = EX.file.filter((f) => /\.pyw?$/i.test(f.percorso));
+  const py = EX.file.filter((f) => E_PY.test(f.percorso)), ht = EX.file.filter((f) => E_HTML.test(f.percorso));
   const tot = EX.file.reduce((s, f) => s + f.u8.length, 0);
   box.append(Object.assign(document.createElement('p'), { className: 'nota', textContent: `${EX.origine} · ${EX.file.length} file · ${kb(tot)}` }));
-  if (py.length > 1) {
-    const lab = Object.assign(document.createElement('label'), { textContent: 'File da avviare' }); lab.htmlFor = 'exe-avvio';
+  if (py.length && ht.length) {      // ci sono entrambi: decidi tu
+    const lab = Object.assign(document.createElement('label'), { textContent: 'Che progetto è?' }); lab.htmlFor = 'exe-progtipo';
+    const sel = Object.assign(document.createElement('select'), { id: 'exe-progtipo' });
+    sel.append(new Option('Programma Python', 'python'), new Option('App HTML (finestra di Windows)', 'html'));
+    sel.value = EX.tipo; sel.onchange = () => { cambiaTipo(sel.value); disegnaProgetto(); };
+    box.append(lab, sel);
+  }
+  const avviabili = EX.tipo === 'html' ? ht : py;
+  if (avviabili.length > 1) {
+    const lab = Object.assign(document.createElement('label'), { textContent: EX.tipo === 'html' ? 'Pagina da aprire' : 'File da avviare' }); lab.htmlFor = 'exe-avvio';
     const sel = Object.assign(document.createElement('select'), { id: 'exe-avvio' });
-    for (const f of py) sel.append(new Option(f.percorso, f.percorso));
-    sel.value = EX.avvio; sel.onchange = () => { EX.avvio = sel.value; analizza(); disegnaElenco(); };
+    for (const f of avviabili) sel.append(new Option(f.percorso, f.percorso));
+    sel.value = EX.avvio; sel.onchange = () => { EX.avvio = sel.value; if (EX.tipo === 'html') EX.titolo = titoloPagina(); analizza(); disegnaElenco(); };
     box.append(lab, sel);
   }
   const el = Object.assign(document.createElement('div'), { className: 'file-exe', id: 'exe-elenco' });
@@ -2920,6 +2969,12 @@ function moduliImportati() {
   return trovati;
 }
 function analizza() {
+  if (EX.tipo === 'html') {
+    const esterni = EX.file.filter((f) => E_HTML.test(f.percorso)).some((f) => /<(script|link)[^>]+(src|href)=["']https?:\/\//i.test(DEC.decode(f.u8)));
+    g('exe-html-nota').textContent = 'App HTML: si apre in una finestra di Windows con il motore di Edge (WebView2). I dati salvati dall\'app (localStorage) restano tra un avvio e l\'altro.'
+      + (esterni ? ' ⚠ La pagina carica file da internet (CDN): senza rete quella parte non funzionerà.' : ' Funziona anche senza internet.');
+    return;
+  }
   const mod = moduliImportati();
   const esterni = [...mod].filter((m) => !STDLIB.has(m) && !SOLO_ANDROID.has(m) && m !== '__future__').sort();
   const pip = [...new Set(esterni.map((m) => PIP[m] || m))];
@@ -2939,7 +2994,10 @@ function analizza() {
 function impostazioni() {
   const nome = nomeSicuro(g('exe-nome').value || EX.avvio);
   let versione = g('exe-versione').value.trim(); if (!/^\d+(\.\d+){0,3}$/.test(versione)) versione = '1.0';
-  return { nome, versione, console: g('exe-tipo').value === 'console', unFile: g('exe-unfile').checked,
+  const num = (id, def, min, max) => { const v = parseInt(g(id).value, 10); return Number.isFinite(v) ? Math.min(max, Math.max(min, v)) : def; };
+  return { nome, versione, tipo: EX.tipo, console: EX.tipo === 'html' ? false : g('exe-tipo').value === 'console', unFile: g('exe-unfile').checked,
+    titolo: (g('exe-titolo').value.trim() || EX.titolo || nome.replace(/[-_]+/g, ' ')).slice(0, 80),
+    larghezza: num('exe-larghezza', 1200, 360, 4000), altezza: num('exe-altezza', 800, 480, 3000), intero: g('exe-intero').checked,
     librerie: g('exe-librerie').value.split(/[\n,]+/).map((x) => x.trim()).filter((x) => x && !x.startsWith('#')) };
 }
 async function generaFile(s) {
@@ -2947,15 +3005,31 @@ async function generaFile(s) {
   let icona = 'icona.png', iconaU8;
   if (EX.icona) { icona = /\.ico$/i.test(EX.icona.nome) ? 'icona.ico' : 'icona.png'; iconaU8 = EX.icona.u8; }
   else iconaU8 = daBase64(await iconaPng(lettereApp(s.nome.replace(/[-_]/g, ' ')), 256, '#0b0b1a'));
-  const dati = EX.file.filter((f) => !/\.pyw?$/i.test(f.percorso) && !NON_DATI.test(f.percorso)).map((f) => 'progetto/' + f.percorso);
-  const conf = { nome: s.nome, versione: s.versione, avvio: 'progetto/' + EX.avvio, console: s.console, unFile: s.unFile,
-    icona, dati, nascosti: [], generato: 'Pubblica · by Lollo ®2026' };
-  const readme = `# ${s.nome} ${s.versione}\n\nProgramma per Windows compilato da Python con **PyInstaller** su GitHub Actions.\n\n`
-    + `- Il codice è in \`progetto/\` (si avvia \`${EX.avvio}\`).\n- L'EXE pronto è nelle **Releases** del repository.\n`
-    + `- Le scelte (nome, console, un solo file) sono in \`exe.json\`; le librerie in \`requirements.txt\`.\n\nCreato con Pubblica · by Lollo ®2026\n`;
+  const html = s.tipo === 'html';
+  let conf, librerie = s.librerie, readme;
+  if (html) {   // app HTML: tutti i file vanno nell'EXE (cartella «app»), parte l'avviatore con pywebview
+    const dati = EX.file.filter((f) => !NON_DATI.test(f.percorso)).map((f) => 'progetto/' + f.percorso);
+    const avviatore = AVVIATORE.replace('__TITOLO__', JSON.stringify(s.titolo)).replace('__ID__', JSON.stringify(s.nome))
+      .replace('__PAGINA__', JSON.stringify(EX.avvio)).replace('__LARGHEZZA__', String(s.larghezza)).replace('__ALTEZZA__', String(s.altezza))
+      .replace('__SCHERMO_INTERO__', s.intero ? 'True' : 'False');
+    file.push({ path: 'avvia_app.py', u8: ENC.encode(avviatore) });
+    conf = { nome: s.nome, versione: s.versione, tipo: 'html', avvio: 'avvia_app.py', pagina: EX.avvio, console: false, unFile: s.unFile,
+      icona, dati, cartellaDati: 'app', nascosti: ['webview.platforms.winforms', 'webview.platforms.edgechromium', 'clr'], generato: 'Pubblica · by Lollo ®2026' };
+    librerie = ['pywebview>=5,<6'];
+    readme = `# ${s.titolo} ${s.versione}\n\nApp HTML trasformata in programma per Windows: si apre in una finestra con il motore di Edge (WebView2).\n\n`
+      + `- Le pagine sono in \`progetto/\` (si apre \`${EX.avvio}\`); \`avvia_app.py\` le serve da un piccolo server locale.\n`
+      + `- I dati salvati dall'app restano in \`%LOCALAPPDATA%\\by Lollo\\${s.nome}\`.\n- L'EXE pronto è nelle **Releases** del repository.\n\nCreato con Pubblica · by Lollo ®2026\n`;
+  } else {
+    const dati = EX.file.filter((f) => !E_PY.test(f.percorso) && !NON_DATI.test(f.percorso)).map((f) => 'progetto/' + f.percorso);
+    conf = { nome: s.nome, versione: s.versione, avvio: 'progetto/' + EX.avvio, console: s.console, unFile: s.unFile,
+      icona, dati, nascosti: [], generato: 'Pubblica · by Lollo ®2026' };
+    readme = `# ${s.nome} ${s.versione}\n\nProgramma per Windows compilato da Python con **PyInstaller** su GitHub Actions.\n\n`
+      + `- Il codice è in \`progetto/\` (si avvia \`${EX.avvio}\`).\n- L'EXE pronto è nelle **Releases** del repository.\n`
+      + `- Le scelte (nome, console, un solo file) sono in \`exe.json\`; le librerie in \`requirements.txt\`.\n\nCreato con Pubblica · by Lollo ®2026\n`;
+  }
   file.push(
     { path: 'exe.json', u8: ENC.encode(JSON.stringify(conf, null, 2) + '\n') },
-    { path: 'requirements.txt', u8: ENC.encode('# Librerie installate prima della compilazione (una per riga) · Pubblica\n' + s.librerie.join('\n') + (s.librerie.length ? '\n' : '')) },
+    { path: 'requirements.txt', u8: ENC.encode('# Librerie installate prima della compilazione (una per riga) · Pubblica\n' + librerie.join('\n') + (librerie.length ? '\n' : '')) },
     { path: 'crea_exe.py', u8: ENC.encode(SCRIPT) },
     { path: WF, u8: ENC.encode(WORKFLOW) },
     { path: icona, u8: iconaU8 },
@@ -3025,7 +3099,7 @@ function differenze(ctx, file) {
   const cambiati = file.filter((f) => { const e = ctx.mappa.get(f.path); return !e || e.sha !== f.sha; });
   const nuovi = new Set(file.map((f) => f.path));
   // si tolgono solo i file del programma che non ci sono più (e la vecchia icona); il resto del repository resta
-  const tolti = [...ctx.mappa.keys()].filter((p) => !nuovi.has(p) && (p.startsWith('progetto/') || /^icona\.(png|ico)$/.test(p)));
+  const tolti = [...ctx.mappa.keys()].filter((p) => !nuovi.has(p) && (p.startsWith('progetto/') || /^(icona\.(png|ico)|avvia_app\.py)$/.test(p)));
   return { cambiati, tolti };
 }
 async function invia(ctx, d, messaggio) {
@@ -3057,7 +3131,7 @@ function registraInPubblica(repo, nome) {        // il repository compare anche 
 async function compila(soloRicompila) {
   if (S.occupato) return;
   if (!TOKEN) { alert('Prima inserisci il token GitHub in ⚙ Impostazioni → Accesso.'); vai('config'); return; }
-  if (!soloRicompila && !EX.file.length) { alert('Prima carica un file .py o un progetto ZIP (punto 1).'); return; }
+  if (!soloRicompila && !EX.file.length) { alert('Prima carica un file .py, una pagina .html o un progetto ZIP (punto 1).'); return; }
   if (typeof chiediNotifiche === 'function') chiediNotifiche();   // per avvisarti quando l'EXE è pronto
   const repo = normRepo(g('exe-repo').value);
   if (!repo) { alert('Scrivi il repository come utente/nome, per esempio ' + (CFG.utente || 'utente') + '/mio-programma-exe.'); g('exe-repo').focus(); return; }
@@ -3097,7 +3171,7 @@ async function compila(soloRicompila) {
       salva('versione.' + ctx.repo.toLowerCase(), s.versione);
       if (!d.cambiati.length && !d.tolti.length) { aggiorna(li, 'ok', 'Su GitHub c\'è già esattamente questo programma: niente da inviare'); await avviaAMano(ctx, t0); return; }
       aggiorna(li, 'ok', `Da inviare: ${d.cambiati.length} file${d.tolti.length ? `, da togliere: ${d.tolti.length}` : ''}${nota}`);
-      li = passo(`Invio ${d.cambiati.length} file in un unico commit…`);
+      li = passo(`Invio ${d.cambiati.length} file in un unico commit${s.tipo === 'html' ? ' (app HTML → finestra di Windows)' : ''}…`);
       try {
         const sha = await invia(ctx, d, `EXE: ${s.nome} ${s.versione} (Pubblica)`);
         aggiorna(li, 'ok', `Inviato (commit ${sha.slice(0, 7)})`, { url: `${ctx.html}/commit/${sha}`, testo: 'vedi' });
@@ -3318,7 +3392,7 @@ async function ferma() {
 /* ---------- eventi ---------- */
 g('exe-btn-py').onclick = () => g('exe-in-py').click();
 g('exe-btn-zip').onclick = () => g('exe-in-zip').click();
-g('exe-in-py').onchange = async (e) => { const f = e.target.files[0]; e.target.value = ''; if (!f) return; try { await caricaPy(f); } catch (er) { alert(er.message); } };
+g('exe-in-py').onchange = async (e) => { const f = e.target.files[0]; e.target.value = ''; if (!f) return; try { await caricaFile(f); } catch (er) { alert(er.message); } };
 g('exe-in-zip').onchange = async (e) => { const f = e.target.files[0]; e.target.value = ''; if (!f) return; try { EX.libToccate = false; await caricaZip(f); } catch (er) { alert(er.message); } };
 g('exe-btn-icona').onclick = () => g('exe-icona-in').click();
 g('exe-icona-in').onchange = async (e) => {
@@ -3356,9 +3430,9 @@ window.creaExe = {
     }).catch(() => {});
   },
   async carica(f) {                    // file arrivato con «Condividi» da un'altra app
-    if (/\.zip$/i.test(f.name)) { EX.libToccate = false; await caricaZip(f); } else await caricaPy(f);
+    if (/\.zip$/i.test(f.name)) { EX.libToccate = false; await caricaZip(f); } else await caricaFile(f);
   },
-  _stato: () => ({ file: EX.file.map((f) => f.percorso), avvio: EX.avvio, ...impostazioni() })
+  _stato: () => ({ file: EX.file.map((f) => f.percorso), avvio: EX.avvio, tipoProgetto: EX.tipo, ...impostazioni() })
 };
 })();
 </script>
